@@ -1,0 +1,1 @@
+// Define la interfaz de los productos y puntos

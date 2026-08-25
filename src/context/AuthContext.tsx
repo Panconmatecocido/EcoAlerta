@@ -1,0 +1,1 @@
+// Define la interfaz del usuario y su rol

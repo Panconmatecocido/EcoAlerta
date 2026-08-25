@@ -1,0 +1,35 @@
+// Configuracion de Expo (permisos de camara y gps)
+{
+  "expo": {
+    "name": "EcoAlerta",
+    "slug": "EcoAlerta",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icono.png",
+    "userInterfaceStyle": "light"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tuusuario.EcoAlerta"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.tuusuario.EcoAlerta"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "La aplicación necesita acceder a tus fotos para subir evidencias."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "La aplicación necesita tu ubicación para geolocalizar los basurales."
+        }
+      ]
+    ]
+}
