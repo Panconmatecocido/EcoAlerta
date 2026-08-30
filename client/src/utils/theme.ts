@@ -23,7 +23,8 @@ export const COLORS = {
   // Utilidades
   borde: '#E0E0E0',
   blanco: '#FFFFFF',
-
+  
+  error: '#D32F2F',
 };
 
 export const SPACING = {

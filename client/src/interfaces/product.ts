@@ -1,12 +1,12 @@
 // Define los insumos ecológicos del carrito
-export interface Product {
-  id: string; // Tipo string por el UUID de Prisma
-  name: string;
-  description?: string;
-  price: number;
-  category?: string;
-  imageUrl?: string;
+export interface Producto {
+  id: string; // Coincide con el UUID de Prisma
+  nombre: string;
+  descripcion?: string;
+  precio: number; // Representa el valor en puntos
+  categoria?: string;
+  urlImagen?: string;
   stock: number;
-  createdAt?: string;
-  updatedAt?: string;
+  creadoEn?: string;
+  actualizadoEn?: string;
 }
