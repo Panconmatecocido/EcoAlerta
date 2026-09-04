@@ -2,11 +2,11 @@
 
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-import HomeScreen from './src/screens/citizen/HomeScreen';
+import InicioHome from './src/screens/citizen/HomeScreenPrueba/IncioHome';
 
 export default function App() {
   return (
-    <HomeScreen />
+    <InicioHome/>
   );
 
 
