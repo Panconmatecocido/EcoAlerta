@@ -8,7 +8,6 @@ export default function Acciones() {
     <View style={styles.contenedorExterior}>
       <View style={styles.contenedor}>
 
-        {/* Título */}
         <Text style={styles.titulo}>
           ¿Qué querés hacer hoy?
         </Text>
@@ -20,7 +19,7 @@ export default function Acciones() {
             <View style={styles.iconoSecundario}>
               <Ionicons
                 name="leaf"
-                size={38}
+                size={32}
                 color="#4CAF20"
               />
             </View>
@@ -35,13 +34,13 @@ export default function Acciones() {
           </View>
 
 
-          {/* CENTRO - BOTÓN CÁMARA */}
+          {/* CENTRO */}
           <View style={styles.centro}>
 
             <TouchableOpacity style={styles.botonCamara}>
               <Ionicons
                 name="camera"
-                size={55}
+                size={45}
                 color="white"
               />
             </TouchableOpacity>
@@ -62,7 +61,7 @@ export default function Acciones() {
             <View style={styles.iconoSecundario}>
               <Ionicons
                 name="gift"
-                size={38}
+                size={32}
                 color="#4CAF20"
               />
             </View>

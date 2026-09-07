@@ -2,23 +2,25 @@ import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
 
-  contenedor: {
-    backgroundColor: '#F5FBEF',
-    borderRadius: 25,
-    paddingVertical: 15,
-    paddingHorizontal: 15,
-    marginHorizontal: 10,
-  },
   contenedorExterior: {
-    backgroundColor: '#fcf4e3',
+    width: '94%',
+    alignSelf: 'center',
+    marginTop: 12,
+  },
+
+  contenedor: {
+    backgroundColor: '#F3FAEE',
+    borderRadius: 30,
+    paddingVertical: 18,
+    paddingHorizontal: 10,
   },
 
   titulo: {
+    fontSize: 27,
+    fontWeight: 'bold',
+    color: '#173D20',
     textAlign: 'center',
-    fontSize: 21,
-    fontWeight: '700',
-    color: '#263D20',
-    marginBottom: 15,
+    marginBottom: 14,
   },
 
   contenido: {
@@ -28,68 +30,69 @@ export const styles = StyleSheet.create({
   },
 
   opcion: {
-    flex: 1,
+    width: '29%',
     alignItems: 'center',
-  },
-
-  centro: {
-    flex: 1.2,
-    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   iconoSecundario: {
-    width: 75,
-    height: 75,
+    width: 78,
+    height: 78,
     borderRadius: 40,
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
+  },
+
+  textoPrincipal: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: '#173D20',
+    textAlign: 'center',
+    lineHeight: 21,
+  },
+
+  textoSecundario: {
+    fontSize: 14,
+    color: '#4A4A4A',
+    textAlign: 'center',
+    lineHeight: 19,
+    marginTop: 3,
+  },
+
+  centro: {
+    width: '38%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   botonCamara: {
     width: 125,
     height: 125,
     borderRadius: 70,
-    backgroundColor: '#58B52B',
+    backgroundColor: '#4CAF20',
     alignItems: 'center',
     justifyContent: 'center',
 
-    // Efecto de borde exterior
-    borderWidth: 7,
-    borderColor: '#CDECBF',
+    borderWidth: 8,
+    borderColor: '#D8F3CC',
 
-    elevation: 5,
-  },
-
-  textoPrincipal: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#263D20',
-    textAlign: 'center',
-  },
-
-  textoSecundario: {
-    fontSize: 14,
-    color: '#4D5C49',
-    textAlign: 'center',
-    lineHeight: 22,
-    marginTop: 4,
+    elevation: 4,
   },
 
   reportar: {
-    fontSize: 19,
-    fontWeight: '800',
-    color: '#4A8F27',
-    marginTop: 8,
+    fontSize: 23,
+    fontWeight: 'bold',
+    color: '#4CAF20',
+    marginTop: 7,
   },
 
   descripcion: {
     fontSize: 14,
-    color: '#4D5C49',
+    color: '#4A4A4A',
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 18,
     marginTop: 2,
   },
-
 });

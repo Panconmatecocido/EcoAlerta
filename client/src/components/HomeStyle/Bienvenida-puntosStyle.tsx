@@ -8,7 +8,6 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'baseline',
-    marginTop: 20,
 },
 avatar: {
   width: 65,

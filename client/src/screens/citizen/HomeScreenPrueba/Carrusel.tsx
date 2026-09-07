@@ -1,12 +1,12 @@
 import React, {useState} from 'react';
-import { View, Text, ScrollView, Image} from 'react-native';
+import { View, Text, ScrollView, Image, StyleSheet} from 'react-native';
 import { styles } from '../../../components/HomeStyle/CarruselStyle';
 export default function Carrusel() {
   const [activeIndex, setActiveIndex] = useState(0);
   return (
-    <View style={styles.boxCarrusel}>
-      <ScrollView
-          style = {{ flexGrow: 0 }}
+    <View style={styles2.flex}>
+      <ScrollView 
+          style={styles.boxCarrusel}
           pagingEnabled
           horizontal={true}
           showsHorizontalScrollIndicator={false}
@@ -38,3 +38,10 @@ export default function Carrusel() {
     </View>
   );
 }
+
+const styles2 = StyleSheet.create({
+  flex: {
+    flexGrow: 0,
+    padding: 5,
+  },
+})

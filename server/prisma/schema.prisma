@@ -34,11 +34,13 @@ model Report {
 }
 
 model Product {
-  id          String   @id @default(uuid())
-  name        String
-  description String
-  price       Float
-  stock       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id               String   @id @default(uuid())
+  nombre           String
+  descripcion?     String?
+  precio           Float    // Representa el costo en puntos (ej: 500.0)
+  categoria?       String   @default("General") // Para los filtros (Hogar, Papelería, etc.)
+  urlImagen?       String?  // Para la imagen del producto
+  stock            Int      @default(0)
+  creadoEn?        DateTime @default(now())
+  actualizadoEn?   DateTime @updatedAt
 }
