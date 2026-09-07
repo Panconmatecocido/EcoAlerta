@@ -6,6 +6,16 @@
     "orientation": "portrait",
     "icon": "./assets/icono.png",
     "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tuusuario.EcoAlerta"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.tuusuario.EcoAlerta"
+    },
     "plugins": [
       "expo-font"
     ]
