@@ -32,6 +32,13 @@ export const COLORS = {
   bordePeligro: '#F8BBD0',        // Borde rojo claro
   textoPeligro: '#D32F2F',        // Rojo para icono y texto
   error: '#D32F2F',
+
+  // Estados de Advertencia / Prioridad Media
+  fondoAdvertencia: '#FFF4E5',    // Fondo naranja pastel suave
+  textoAdvertencia: '#ED6C02',    // Naranja para etiquetas de advertencia
+
+  // Superposiciones / Modales
+  superposicionOscura: 'rgba(0,0,0,0.5)', // Opacidad de fondo para modales
 };
 
 export const SPACING = {

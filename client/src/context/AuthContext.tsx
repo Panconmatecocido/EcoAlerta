@@ -34,7 +34,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         // Si la base local está vacía, sembramos un usuario demo para pruebas inmediatas
         if (storedUsersList.length === 0) {
-          const demoAccount: StoredUserAccount = {
+          const demoCitizenAccount: StoredUserAccount = {
             user: {
               id: 'demo-user-1',
               name: 'EcoUsuario',
@@ -45,8 +45,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             },
             passwordHash: 'password123',
           };
-          await saveNewUser(demoAccount);
+          await saveNewUser(demoCitizenAccount);
         }
+
+// Volvemos a consultar la lista actualizada de usuarios
+      const updatedUsersList = await getStoredUsers();
+
+      // 2. Verificamos si el Agente de Campo ya está sembrado; si no, lo agregamos
+      const existeAgente = updatedUsersList.some(
+        (u) => u.user.email.toLowerCase() === 'agente@municipio.gob.ar'
+      );
+
+      if (!existeAgente) {
+        const demoAgentAccount: StoredUserAccount = {
+          user: {
+            id: 'agent-user-1',
+            name: 'Inspector Perez',
+            email: 'agente@municipio.gob.ar',
+            role: 'agent',
+            points: 0, // <-- Agregamos el valor por defecto para no tener que preguntar quienes deben tener puntos.
+            createdAt: new Date().toISOString(),
+          },
+          passwordHash: 'agente123',
+        };
+        await saveNewUser(demoAgentAccount);
+      }        
 
         if (storedUser) {
           setUser(storedUser);
