@@ -6,21 +6,21 @@ import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { HomeScreen } from '../screens/citizen/HomeScreen';
 import { ProfileScreen } from '../screens/citizen/ProfileScreen';
 import { ReportScreen } from '../screens/citizen/ReportScreen';
-import { StoreScreen } from '../screens/citizen/CartScreen';
+import { StoreScreen } from '../screens/citizen/StoreScreen';
 import { MasScreen } from '../screens/citizen/MasScreen';
-import { COLORS } from '../utils/theme';
+import { COLORS, SPACING, ICON_SIZE } from '../utils/theme';
 
 const Tab = createBottomTabNavigator();
 
 // Botón de Cámara Central Flotante idéntico al boceto
-const CustomTabBarCameraButton = ({ children, onPress }: any) => (
+const CustomTabBarCameraButton = ({ onPress }: any) => (
   <TouchableOpacity
     style={styles.cameraButtonWrapper}
     onPress={onPress}
     activeOpacity={0.85}
   >
     <View style={styles.cameraButtonInner}>
-      <Feather name="camera" size={26} color={COLORS.blanco} />
+      <Feather name="camera" size={26} color={COLORS.superficieTarjeta} />
     </View>
   </TouchableOpacity>
 );
@@ -36,10 +36,10 @@ export const MainNavigator: React.FC = () => {
         tabBarStyle: {
           backgroundColor: COLORS.superficieTarjeta,
           borderTopWidth: 1,
-          borderTopColor: '#e5eedb',
+          borderTopColor: COLORS.bordeSuave,
           height: 68,
-          paddingBottom: 10,
-          paddingTop: 8,
+          paddingBottom: SPACING.sm,
+          paddingTop: SPACING.sm,
           position: 'relative',
         },
         tabBarLabelStyle: {
@@ -55,7 +55,7 @@ export const MainNavigator: React.FC = () => {
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? 'home' : 'home-outline'}
-              size={24}
+              size={ICON_SIZE.lg}
               color={color}
             />
           ),
@@ -92,7 +92,7 @@ export const MainNavigator: React.FC = () => {
           tabBarIcon: ({ color, focused }) => (
             <MaterialCommunityIcons
               name={focused ? 'store' : 'store-outline'}
-              size={24}
+              size={ICON_SIZE.lg}
               color={color}
             />
           ),
@@ -104,7 +104,7 @@ export const MainNavigator: React.FC = () => {
         component={MasScreen}
         options={{
           tabBarIcon: ({ color }) => (
-            <Feather name="menu" size={24} color={color} />
+            <Feather name="menu" size={ICON_SIZE.lg} color={color} />
           ),
         }}
       />
@@ -120,8 +120,8 @@ const styles = StyleSheet.create({
     width: 66,
     height: 66,
     borderRadius: 33,
-    backgroundColor: '#daeab980', // Halo suave verde
-    padding: 4,
+    backgroundColor: COLORS.fondoEncabezado,
+    padding: SPACING.xs,
   },
   cameraButtonInner: {
     width: 54,
