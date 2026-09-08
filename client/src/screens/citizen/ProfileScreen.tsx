@@ -7,8 +7,11 @@ import {
   TouchableOpacity,
   SafeAreaView,
   StatusBar,
+  Image,
+  Alert,
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../context/AuthContext';
 import { COLORS } from '../../utils/theme';
 import { MOCK_DENUNCIAS, DenunciaMock } from '../../mocks/denuncias';
@@ -17,12 +20,76 @@ import { MOCK_COMPRAS, CompraMock } from '../../mocks/compras';
 export const ProfileScreen: React.FC = () => {
   const { user: usuario } = useAuth();
   const [pestanaActiva, setPestanaActiva] = useState<'denuncias' | 'compras'>('denuncias');
+  
+  // Estado local para la foto de perfil elegida
+  const [fotoPerfilUri, setFotoPerfilUri] = useState<string | null>(null);
 
   // Suma total de puntos gastados en compras mokeadas
   const totalPuntosGastados = MOCK_COMPRAS.reduce(
     (acumulado, compra) => acumulado + compra.puntosUsados,
     0
   );
+
+  // Función para seleccionar imagen de la galería
+  const seleccionarDeGaleria = async () => {
+    const resultadoPermiso = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    
+    if (!resultadoPermiso.granted) {
+      Alert.alert(
+        'Permiso requerido',
+        'Necesitamos permiso para acceder a tus fotos y cambiar tu imagen de perfil.'
+      );
+      return;
+    }
+
+    const resultado = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1], // Mantiene la foto cuadrada/circular
+      quality: 0.8,
+    });
+
+    if (!resultado.canceled && resultado.assets[0].uri) {
+      setFotoPerfilUri(resultado.assets[0].uri);
+    }
+  };
+
+  // Función para tomar foto desde la cámara
+  const tomarFotoConCamara = async () => {
+    const resultadoPermiso = await ImagePicker.requestCameraPermissionsAsync();
+
+    if (!resultadoPermiso.granted) {
+      Alert.alert(
+        'Permiso requerido',
+        'Necesitamos acceso a la cámara para tomar tu foto de perfil.'
+      );
+      return;
+    }
+
+    const resultado = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!resultado.canceled && resultado.assets[0].uri) {
+      setFotoPerfilUri(resultado.assets[0].uri);
+    }
+  };
+
+  // Menú modal de opciones al tocar el avatar o la camarita
+  const mostrarOpcionesFoto = () => {
+    Alert.alert(
+      'Foto de Perfil',
+      'Selecciona una opción para cambiar tu foto:',
+      [
+        { text: 'Tomar Foto', onPress: tomarFotoConCamara },
+        { text: 'Elegir de Galería', onPress: seleccionarDeGaleria },
+        { text: 'Cancelar', style: 'cancel' },
+      ],
+      { cancelable: true }
+    );
+  };
 
   const obtenerEtiquetaEstado = (estado: DenunciaMock['estado']) => {
     switch (estado) {
@@ -40,11 +107,25 @@ export const ProfileScreen: React.FC = () => {
       <StatusBar backgroundColor={COLORS.fondoEncabezado} barStyle="dark-content" />
       <ScrollView contentContainerStyle={estilos.contenidoScroll}>
         
-        {/* Cabecera del Perfil */}
+        {/* Cabecera del Perfil con Foto Interactiva */}
         <View style={estilos.cabecera}>
-          <View style={estilos.contenedorAvatar}>
-            <Ionicons name="person" size={44} color={COLORS.textoVerdeOscuro} />
-          </View>
+          <TouchableOpacity 
+            style={estilos.contenedorAvatar} 
+            onPress={mostrarOpcionesFoto}
+            activeOpacity={0.8}
+          >
+            {fotoPerfilUri ? (
+              <Image source={{ uri: fotoPerfilUri }} style={estilos.imagenPerfil} />
+            ) : (
+              <Ionicons name="person" size={44} color={COLORS.textoVerdeOscuro} />
+            )}
+            
+            {/* Botón flotante de cámara */}
+            <View style={estilos.botonCambiarFoto}>
+              <Ionicons name="camera" size={14} color="#FFFFFF" />
+            </View>
+          </TouchableOpacity>
+
           <Text style={estilos.nombreUsuario}>{usuario?.name || 'Ciudadano Eco'}</Text>
           <Text style={estilos.correoUsuario}>{usuario?.email || 'sin-email@ecoalerta.com'}</Text>
         </View>
@@ -165,18 +246,37 @@ const estilos = StyleSheet.create({
     borderBottomRightRadius: 20,
   },
   contenedorAvatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    position: 'relative',
+    width: 84,
+    height: 84,
+    borderRadius: 42,
     backgroundColor: COLORS.superficieTarjeta,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
-    elevation: 2,
+    elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.15,
     shadowRadius: 4,
+  },
+  imagenPerfil: {
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+  },
+  botonCambiarFoto: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: COLORS.botonPrincipal,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: COLORS.superficieTarjeta,
   },
   nombreUsuario: {
     fontSize: 20,
