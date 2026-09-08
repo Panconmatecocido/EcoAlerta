@@ -20,10 +20,17 @@ export const COLORS = {
   camaraInferior: '#679A33',
   iconoActivoInferior: '#81B846',
 
+  bordeSuave: '#E5EEDB',         // Borde verdoso claro usado en tarjetas y filas
+  textoDesactivado: '#999999',     // Textos secundarios/versión
+
   // Utilidades
   borde: '#E0E0E0',
   blanco: '#FFFFFF',
   
+  // Tokens para acciones destructivas / Peligro (Cerrar Sesión)
+  fondoPeligro: '#FDEDED',        // Fondo rojo pastel suave
+  bordePeligro: '#F8BBD0',        // Borde rojo claro
+  textoPeligro: '#D32F2F',        // Rojo para icono y texto
   error: '#D32F2F',
 };
 

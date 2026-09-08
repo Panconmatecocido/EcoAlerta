@@ -7,6 +7,7 @@ import { HomeScreen } from '../screens/citizen/HomeScreen';
 import { ProfileScreen } from '../screens/citizen/ProfileScreen';
 import { ReportScreen } from '../screens/citizen/ReportScreen';
 import { StoreScreen } from '../screens/citizen/CartScreen';
+import { MasScreen } from '../screens/citizen/MasScreen';
 import { COLORS } from '../utils/theme';
 
 const Tab = createBottomTabNavigator();
@@ -100,7 +101,7 @@ export const MainNavigator: React.FC = () => {
 
       <Tab.Screen
         name="Más"
-        component={ProfileScreen}
+        component={MasScreen}
         options={{
           tabBarIcon: ({ color }) => (
             <Feather name="menu" size={24} color={color} />
