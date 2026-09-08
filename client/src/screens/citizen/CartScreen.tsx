@@ -7,10 +7,10 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
-  SafeAreaView,
 } from 'react-native';
 import { useCart } from '../../context/CartContext';
 import { COLORS, SPACING, BORDER_RADIUS } from '../../utils/theme';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const CartScreen: React.FC = () => {
   const {

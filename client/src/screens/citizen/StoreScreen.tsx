@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Producto } from "../../interfaces/product";
 import { obtenerProductos } from "../../services/api";
@@ -20,6 +21,7 @@ import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from "../../utils/theme";
 import { useCart } from "../../context/CartContext";
 
 const CATEGORIAS = [
+  { id: '0', nombre: 'Todos', icono: 'grid-outline' },
   { id: '1', nombre: 'Hogar', icono: 'home-outline' },
   { id: '2', nombre: 'Limpieza', icono: 'sparkles-outline' },
   { id: '3', nombre: 'Cuidado Personal', icono: 'person-outline' },
@@ -30,7 +32,7 @@ export const StoreScreen = () => {
   const navigation = useNavigation<any>();
 
   const [productos, setProductos] = useState<Producto[]>([]);
-  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<string>('Todas');
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<string>('Todos');
   const [busqueda, setBusqueda] = useState<string>('');
   const [cargando, setCargando] = useState<boolean>(true);
 
@@ -93,7 +95,7 @@ export const StoreScreen = () => {
               ]}
               onPress={() =>
                 setCategoriaSeleccionada(
-                  categoriaSeleccionada === cat.nombre ? 'Todas' : cat.nombre
+                  categoriaSeleccionada === cat.nombre ? 'Todos' : cat.nombre
                 )
               }
               activeOpacity={0.7}
@@ -264,6 +266,10 @@ const estilos = StyleSheet.create({
     fontSize: 11,
     color: COLORS.textoVerdeOscuro,
     textAlign: 'center',
+  },
+  textoCategoriaActiva: {
+    color: COLORS.textoVerde,
+    fontWeight: 'bold',
   },
   contenedorBuscador: {
     position: 'relative',

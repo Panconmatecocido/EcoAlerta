@@ -2,17 +2,30 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context'; // 👈 Importante
+
 import { HomeScreen } from '../screens/citizen/HomeScreen';
 import { ProfileScreen } from '../screens/citizen/ProfileScreen';
 import { ReportScreen } from '../screens/citizen/ReportScreen';
 import { StoreScreen } from '../screens/citizen/StoreScreen';
+import { CartScreen } from '../screens/citizen/CartScreen';
 import { MasScreen } from '../screens/citizen/MasScreen';
 import { COLORS, SPACING, ICON_SIZE } from '../utils/theme';
 
 const Tab = createBottomTabNavigator();
+const StoreStack = createNativeStackNavigator();
 
-// Botón de Cámara Central Flotante idéntico al boceto
+// Sub-navegador para la pestaña Tienda
+const StoreNavigator = () => (
+  <StoreStack.Navigator screenOptions={{ headerShown: false }}>
+    <StoreStack.Screen name="StoreCatalog" component={StoreScreen} />
+    <StoreStack.Screen name="Cart" component={CartScreen} />
+  </StoreStack.Navigator>
+);
+
+// Botón de Cámara Central Flotante
 const CustomTabBarCameraButton = ({ onPress }: any) => (
   <TouchableOpacity
     style={styles.cameraButtonWrapper}
@@ -26,6 +39,9 @@ const CustomTabBarCameraButton = ({ onPress }: any) => (
 );
 
 export const MainNavigator: React.FC = () => {
+  // Obtenemos los márgenes seguros del dispositivo (superior, inferior, laterales)
+  const insets = useSafeAreaInsets();
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -37,9 +53,10 @@ export const MainNavigator: React.FC = () => {
           backgroundColor: COLORS.superficieTarjeta,
           borderTopWidth: 1,
           borderTopColor: COLORS.bordeSuave,
-          height: 68,
-          paddingBottom: SPACING.sm,
-          paddingTop: SPACING.sm,
+          // Sumamos el espacio de gestos/botones inferiores del sistema a la altura base
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom > 0 ? insets.bottom : SPACING.xs,
+          paddingTop: SPACING.xs,
           position: 'relative',
         },
         tabBarLabelStyle: {
@@ -87,7 +104,7 @@ export const MainNavigator: React.FC = () => {
 
       <Tab.Screen
         name="Tienda"
-        component={StoreScreen}
+        component={StoreNavigator}
         options={{
           tabBarIcon: ({ color, focused }) => (
             <MaterialCommunityIcons

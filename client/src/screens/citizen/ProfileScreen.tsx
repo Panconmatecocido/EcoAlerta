@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
   StatusBar,
   Image,
   Alert,
@@ -16,6 +15,7 @@ import { useAuth } from '../../context/AuthContext';
 import { COLORS } from '../../utils/theme';
 import { MOCK_DENUNCIAS, DenunciaMock } from '../../mocks/denuncias';
 import { MOCK_COMPRAS, CompraMock } from '../../mocks/compras';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const ProfileScreen: React.FC = () => {
   const { user: usuario } = useAuth();

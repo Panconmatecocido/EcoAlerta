@@ -12,7 +12,7 @@ export const obtenerProductos = async (
   let resultados = [...MOCK_PRODUCTOS];
 
   // Filtrado por Categoría
-  if (categoria && categoria !== 'Todas') {
+  if (categoria && categoria !== 'Todos') {
     resultados = resultados.filter(
       (prod) => prod.categoria?.toLowerCase() === categoria.toLowerCase()
     );

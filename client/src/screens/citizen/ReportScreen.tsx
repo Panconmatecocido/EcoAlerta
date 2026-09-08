@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Header } from '../../components/Header';
 import { COLORS } from '../../utils/theme';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const ReportScreen: React.FC = () => {
   return (
