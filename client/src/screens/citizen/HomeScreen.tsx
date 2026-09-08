@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Header } from '../../components/Header';
 import { CustomButton } from '../../components/CustomButton';
 import { COLORS } from '../../utils/theme';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const HomeScreen: React.FC = () => {
   const { user, logout } = useAuth();

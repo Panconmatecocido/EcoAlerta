@@ -2,25 +2,34 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Producto } from '../interfaces/product';
 
-// Estructura de cada item dentro del carrito
 export interface CartItem {
   producto: Producto;
   cantidad: number;
 }
 
-// Lo que expone el Contexto a los componentes
 interface ContextoCarritoTipo {
   carrito: CartItem[];
+  userPoints: number;
+  shippingPoints: number;
+  shippingARS: number;
   agregarAlCarrito: (producto: Producto) => void;
-  puntosTotales: number;
+  actualizarCantidad: (productoId: string, delta: number) => void;
+  eliminarDelCarrito: (productoId: string) => void;
+  obtenerSubtotalPuntos: () => number;
+  obtenerTotalPuntos: () => number;
 }
 
 const CartContext = createContext<ContextoCarritoTipo | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [carrito, setCarrito] = useState<CartItem[]>([]);
+  
+  // Mocks de puntos de usuario y costo de envío
+  const userPoints = 1250;
+  const shippingPoints = 100;
+  const shippingARS = 1000;
 
-  // Agrega un producto o incrementa la cantidad si ya está en la lista
+  // Agregar producto o incrementar cantidad
   const agregarAlCarrito = (producto: Producto) => {
     setCarrito((carritoPrevio) => {
       const indiceExistente = carritoPrevio.findIndex(
@@ -37,24 +46,61 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
   };
 
-  // Suma total de puntos compatible con precio, pointsPrice o price
-  const puntosTotales = carrito.reduce((acumulado, item) => {
-    const valorPuntos =
-      item.producto.precio ??
-      (item.producto as any).pointsPrice ??
-      (item.producto as any).price ??
-      0;
-    return acumulado + valorPuntos * item.cantidad;
-  }, 0);
+  // Modificar cantidad (+1 o -1), eliminando el producto si llega a 0
+  const actualizarCantidad = (productoId: string, delta: number) => {
+    setCarrito((carritoPrevio) =>
+      carritoPrevio
+        .map((item) => {
+          if (item.producto.id === productoId) {
+            const nuevaCantidad = item.cantidad + delta;
+            return nuevaCantidad > 0 ? { ...item, cantidad: nuevaCantidad } : null;
+          }
+          return item;
+        })
+        .filter((item): item is CartItem => item !== null)
+    );
+  };
+
+  // Eliminar producto directamente del carrito
+  const eliminarDelCarrito = (productoId: string) => {
+    setCarrito((carritoPrevio) =>
+      carritoPrevio.filter((item) => item.producto.id !== productoId)
+    );
+  };
+
+  // Subtotal de puntos del carrito
+  const obtenerSubtotalPuntos = () => {
+    return carrito.reduce((acumulado, item) => {
+      const valorPuntos = item.producto.precio ?? 0;
+      return acumulado + valorPuntos * item.cantidad;
+    }, 0);
+  };
+
+  // Total de puntos incluyendo el envío (si hay productos en el carrito)
+  const obtenerTotalPuntos = () => {
+    const subtotal = obtenerSubtotalPuntos();
+    return subtotal + (carrito.length > 0 ? shippingPoints : 0);
+  };
 
   return (
-    <CartContext.Provider value={{ carrito, agregarAlCarrito, puntosTotales }}>
+    <CartContext.Provider
+      value={{
+        carrito,
+        userPoints,
+        shippingPoints,
+        shippingARS,
+        agregarAlCarrito,
+        actualizarCantidad,
+        eliminarDelCarrito,
+        obtenerSubtotalPuntos,
+        obtenerTotalPuntos,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
 };
 
-// Hook personalizado para consumir el contexto en la Tienda
 export const useCart = () => {
   const contexto = useContext(CartContext);
   if (!contexto) {

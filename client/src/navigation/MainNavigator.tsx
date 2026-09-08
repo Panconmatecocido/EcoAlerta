@@ -2,30 +2,46 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context'; // 👈 Importante
+
 import { HomeScreen } from '../screens/citizen/HomeScreen';
 import { ProfileScreen } from '../screens/citizen/ProfileScreen';
 import { ReportScreen } from '../screens/citizen/ReportScreen';
-import { StoreScreen } from '../screens/citizen/CartScreen';
+import { StoreScreen } from '../screens/citizen/StoreScreen';
+import { CartScreen } from '../screens/citizen/CartScreen';
 import { MasScreen } from '../screens/citizen/MasScreen';
-import { COLORS } from '../utils/theme';
+import { COLORS, SPACING, ICON_SIZE } from '../utils/theme';
 
 const Tab = createBottomTabNavigator();
+const StoreStack = createNativeStackNavigator();
 
-// Botón de Cámara Central Flotante idéntico al boceto
-const CustomTabBarCameraButton = ({ children, onPress }: any) => (
+// Sub-navegador para la pestaña Tienda
+const StoreNavigator = () => (
+  <StoreStack.Navigator screenOptions={{ headerShown: false }}>
+    <StoreStack.Screen name="StoreCatalog" component={StoreScreen} />
+    <StoreStack.Screen name="Cart" component={CartScreen} />
+  </StoreStack.Navigator>
+);
+
+// Botón de Cámara Central Flotante
+const CustomTabBarCameraButton = ({ onPress }: any) => (
   <TouchableOpacity
     style={styles.cameraButtonWrapper}
     onPress={onPress}
     activeOpacity={0.85}
   >
     <View style={styles.cameraButtonInner}>
-      <Feather name="camera" size={26} color={COLORS.blanco} />
+      <Feather name="camera" size={26} color={COLORS.superficieTarjeta} />
     </View>
   </TouchableOpacity>
 );
 
 export const MainNavigator: React.FC = () => {
+  // Obtenemos los márgenes seguros del dispositivo (superior, inferior, laterales)
+  const insets = useSafeAreaInsets();
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -36,10 +52,11 @@ export const MainNavigator: React.FC = () => {
         tabBarStyle: {
           backgroundColor: COLORS.superficieTarjeta,
           borderTopWidth: 1,
-          borderTopColor: '#e5eedb',
-          height: 68,
-          paddingBottom: 10,
-          paddingTop: 8,
+          borderTopColor: COLORS.bordeSuave,
+          // Sumamos el espacio de gestos/botones inferiores del sistema a la altura base
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom > 0 ? insets.bottom : SPACING.xs,
+          paddingTop: SPACING.xs,
           position: 'relative',
         },
         tabBarLabelStyle: {
@@ -55,7 +72,7 @@ export const MainNavigator: React.FC = () => {
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? 'home' : 'home-outline'}
-              size={24}
+              size={ICON_SIZE.lg}
               color={color}
             />
           ),
@@ -87,12 +104,12 @@ export const MainNavigator: React.FC = () => {
 
       <Tab.Screen
         name="Tienda"
-        component={StoreScreen}
+        component={StoreNavigator}
         options={{
           tabBarIcon: ({ color, focused }) => (
             <MaterialCommunityIcons
               name={focused ? 'store' : 'store-outline'}
-              size={24}
+              size={ICON_SIZE.lg}
               color={color}
             />
           ),
@@ -104,7 +121,7 @@ export const MainNavigator: React.FC = () => {
         component={MasScreen}
         options={{
           tabBarIcon: ({ color }) => (
-            <Feather name="menu" size={24} color={color} />
+            <Feather name="menu" size={ICON_SIZE.lg} color={color} />
           ),
         }}
       />
@@ -120,8 +137,8 @@ const styles = StyleSheet.create({
     width: 66,
     height: 66,
     borderRadius: 33,
-    backgroundColor: '#daeab980', // Halo suave verde
-    padding: 4,
+    backgroundColor: COLORS.fondoEncabezado,
+    padding: SPACING.xs,
   },
   cameraButtonInner: {
     width: 54,
