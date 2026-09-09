@@ -4,7 +4,6 @@ export const styles = StyleSheet.create({
 
   contenedor: {
     flexDirection: 'row',
-    flex: 2,
 
   },
     titulo: {

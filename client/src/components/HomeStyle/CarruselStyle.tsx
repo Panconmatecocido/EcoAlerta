@@ -6,6 +6,7 @@ export const styles = StyleSheet.create({
     height: 190,
     marginTop: 10,
     overflow: 'hidden',
+
   },
   image: {
     width: Dimensions.get('window').width - 20,
