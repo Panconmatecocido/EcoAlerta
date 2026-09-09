@@ -9,6 +9,7 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import { Header } from '../../components/Header';
 import { COLORS } from '../../utils/theme';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const ReportScreen: React.FC = () => {
   const [permission, requestPermission] = useCameraPermissions();

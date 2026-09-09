@@ -1,17 +1,32 @@
-// Conexion a APIs / Base de datos (.ts)
-//Conexion con la API de productos para obtener los productos disponibles y sus detalles
+// src/services/api.ts
 import { Producto } from '../interfaces/product';
+import { MOCK_PRODUCTOS } from '../mocks/productos';
 
-const API_URL = 'http://localhost:3000/api'; // Ajustar según entorno
+export const obtenerProductos = async (
+  categoria?: string,
+  busqueda?: string
+): Promise<Producto[]> => {
+  // Simula un tiempo de respuesta de red (300ms) para probar la ActivityIndicator
+  await new Promise((resolve) => setTimeout(resolve, 300));
 
-export const obtenerProductos = async (categoria?: string, busqueda?: string): Promise<Producto[]> => {
-  const parametros = new URLSearchParams();
-  if (categoria && categoria !== 'Todas') parametros.append('category', categoria);
-  if (busqueda) parametros.append('search', busqueda);
+  let resultados = [...MOCK_PRODUCTOS];
 
-  const respuesta = await fetch(`${API_URL}/products?${parametros.toString()}`);
-  if (!respuesta.ok) {
-    throw new Error('Error al obtener los productos');
+  // Filtrado por Categoría
+  if (categoria && categoria !== 'Todos') {
+    resultados = resultados.filter(
+      (prod) => prod.categoria?.toLowerCase() === categoria.toLowerCase()
+    );
   }
-  return respuesta.json();
+
+  // Filtrado por Búsqueda (nombre o descripción)
+  if (busqueda && busqueda.trim() !== '') {
+    const termino = busqueda.toLowerCase();
+    resultados = resultados.filter(
+      (prod) =>
+        prod.nombre.toLowerCase().includes(termino) ||
+        prod.descripcion?.toLowerCase().includes(termino)
+    );
+  }
+
+  return resultados;
 };
