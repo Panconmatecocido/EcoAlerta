@@ -1,19 +1,17 @@
 import Bienvenidapuntos from './Bienvenidapuntos';
-import Carrusel from './Carrusel';
-import {View, ScrollView} from 'react-native';
-import Zonareportes from './Zonareportes';
-import SectorTienda from './SectorTienda';
-import MuestraProductos from './MuestraProductos';
+
+import { View, ScrollView } from 'react-native';
+
 import Header from '../../../components/Header';
+import { CarruselTienda } from './CarruselPrueba';
+import { FotosPuntos } from './FotosPuntos';
 export default function InicioHome() {
   return (
-    <View style={{flex: 1, backgroundColor: '#fcf4e3'}}>
-        <Header/>
-        <Bienvenidapuntos/>
-        <Carrusel/>
-        <Zonareportes/>
-        <SectorTienda/>
-        <MuestraProductos/>
+    <View style={{ flex: 1, backgroundColor: '#fcf4e3' }}>
+      <Header />
+      <Bienvenidapuntos />
+      <CarruselTienda />
+      <FotosPuntos />
     </View>
-    );
+  );
 }
