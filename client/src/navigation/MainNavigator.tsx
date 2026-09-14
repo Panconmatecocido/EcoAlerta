@@ -4,8 +4,8 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import InicioHome from '../screens/citizen/HomeScreenPrueba/IncioHome';
 import { useSafeAreaInsets } from 'react-native-safe-area-context'; // 👈 Importante
-
 import { HomeScreen } from '../screens/citizen/HomeScreen';
 import { ProfileScreen } from '../screens/citizen/ProfileScreen';
 import { ReportScreen } from '../screens/citizen/ReportScreen';
@@ -67,7 +67,7 @@ export const MainNavigator: React.FC = () => {
     >
       <Tab.Screen
         name="Inicio"
-        component={HomeScreen}
+        component={InicioHome}
         options={{
           tabBarIcon: ({ color, focused }) => (
             <Ionicons

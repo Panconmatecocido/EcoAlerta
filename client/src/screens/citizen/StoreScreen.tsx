@@ -19,6 +19,7 @@ import { Producto } from "../../interfaces/product";
 import { obtenerProductos } from "../../services/api";
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from "../../utils/theme";
 import { useCart } from "../../context/CartContext";
+import Header from "../../components/Header";
 
 const CATEGORIAS = [
   { id: '0', nombre: 'Todos', icono: 'grid-outline' },
@@ -60,6 +61,7 @@ export const StoreScreen = () => {
 
   return (
     <View style={estilos.contenedor}>
+      <Header></Header>
       {/* 1. Tarjeta de Puntos Canjeables */}
       <View style={estilos.tarjetaPuntos}>
         <View style={estilos.puntosIzquierda}>
@@ -196,7 +198,6 @@ const estilos = StyleSheet.create({
   contenedor: {
     flex: 1,
     backgroundColor: COLORS.fondoAplicacion,
-    padding: SPACING.md,
   },
   tarjetaPuntos: {
     backgroundColor: COLORS.fondoTarjeta,
