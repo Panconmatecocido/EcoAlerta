@@ -1,67 +1,102 @@
-import { StyleSheet, Dimensions } from 'react-native';
-import { COLORS } from '../../utils/theme';
+import { StyleSheet } from 'react-native';
+import { COLORS, BORDER_RADIUS, SPACING } from '../../utils/theme';
 
-const { width } = Dimensions.get('window');
 export const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: SPACING.md,
+    marginTop: SPACING.sm,
+  },
   welcomeCard: {
-    backgroundColor: COLORS.fondoEncabezado,
-    padding: 5,
+    backgroundColor: COLORS.superficieTarjeta,
+    borderRadius: BORDER_RADIUS.lg,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    borderRadius: 25,
-    marginRight: 10,
-    marginLeft: 10,
-    height: 100,
-    marginTop: 10,
-},
-parteIzquierda: {
-  flexDirection: 'column',
-  justifyContent: 'space-between',
-},
-avatar: {
-  width: 55,
-  height: 55,
-  borderRadius: 35,
-  backgroundColor: '#EAF7D9',
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginRight: 5,
-},
-texto_usuario: { 
-  fontSize: 17,
-  fontWeight: 'bold',
-  color: COLORS.textoLogo,
-},
-texto_acompañamiento: {
-  padding: 2,
-  fontSize: 15,
-  width: 150,
-},
-texto_puntos: {
-  fontSize: 16,
-  fontWeight: 'bold',
-  marginRight: 10,
-  color: COLORS.textoLogo,
-},
-punto: {
-  fontSize: 15,
-  marginLeft: 20,
-},
-historial: {
-  backgroundColor: COLORS.botonPrincipal,
-  fontSize: 14,
-  marginLeft: 20,
-  borderBottomRightRadius : 10,
-  borderTopRightRadius: 10,
-  borderTopLeftRadius: 5,
-  borderBottomLeftRadius: 5,
-  textAlign : 'center',
-},
-divisor: {
-  width: 1,
-  height: '70%',
-  backgroundColor: COLORS.textoLogo,
-  marginHorizontal: 5,
-},
-})
+    borderWidth: 1,
+    borderColor: COLORS.bordeSuave,
+    // Sombra suave premium
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.07,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  avatar: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: COLORS.fondoTarjeta,
+    borderWidth: 2,
+    borderColor: COLORS.bordeSuave,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
+  },
+  contenedorTextos: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+  },
+  texto_saludo: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.camaraInferior,
+    textTransform: 'uppercase',
+    letterSpacing: 0.7,
+    marginBottom: 2,
+  },
+  texto_usuario: { 
+    fontSize: 17,
+    fontWeight: '800',
+    color: COLORS.textoVerdeOscuro,
+  },
+  divisor: {
+    width: 1,
+    height: 44,
+    backgroundColor: COLORS.bordeSuave,
+    marginHorizontal: 6,
+  },
+  contenedorPuntos: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 88,
+  },
+  filaPuntosTitulo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 2,
+  },
+  texto_puntos: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: COLORS.textoSecundario,
+  },
+  punto: {
+    fontSize: 19,
+    fontWeight: '900',
+    color: COLORS.textoVerdeOscuro,
+    letterSpacing: 0.3,
+  },
+  historialBoton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.botonPrincipal,
+    paddingVertical: 3,
+    paddingHorizontal: 9,
+    borderRadius: 12,
+    marginTop: 4,
+    gap: 3,
+  },
+  historialTexto: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+});

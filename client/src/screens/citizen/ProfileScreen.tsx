@@ -18,11 +18,8 @@ import { MOCK_COMPRAS, CompraMock } from '../../mocks/compras';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const ProfileScreen: React.FC = () => {
-  const { user: usuario } = useAuth();
+  const { user: usuario, updateUserAvatar } = useAuth();
   const [pestanaActiva, setPestanaActiva] = useState<'denuncias' | 'compras'>('denuncias');
-  
-  // Estado local para la foto de perfil elegida
-  const [fotoPerfilUri, setFotoPerfilUri] = useState<string | null>(null);
 
   // Suma total de puntos gastados en compras mokeadas
   const totalPuntosGastados = MOCK_COMPRAS.reduce(
@@ -50,7 +47,7 @@ export const ProfileScreen: React.FC = () => {
     });
 
     if (!resultado.canceled && resultado.assets[0].uri) {
-      setFotoPerfilUri(resultado.assets[0].uri);
+      updateUserAvatar(resultado.assets[0].uri);
     }
   };
 
@@ -73,7 +70,7 @@ export const ProfileScreen: React.FC = () => {
     });
 
     if (!resultado.canceled && resultado.assets[0].uri) {
-      setFotoPerfilUri(resultado.assets[0].uri);
+      updateUserAvatar(resultado.assets[0].uri);
     }
   };
 
@@ -114,8 +111,8 @@ export const ProfileScreen: React.FC = () => {
             onPress={mostrarOpcionesFoto}
             activeOpacity={0.8}
           >
-            {fotoPerfilUri ? (
-              <Image source={{ uri: fotoPerfilUri }} style={estilos.imagenPerfil} />
+            {usuario?.avatarUri ? (
+              <Image source={{ uri: usuario.avatarUri }} style={estilos.imagenPerfil} />
             ) : (
               <Ionicons name="person" size={44} color={COLORS.textoVerdeOscuro} />
             )}
