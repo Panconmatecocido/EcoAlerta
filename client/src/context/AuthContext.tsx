@@ -25,14 +25,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Inicializar sesión y sembrar usuario por defecto si no existen datos
+  // Inicializar sesión y sembrar usuarios por defecto
   useEffect(() => {
     const initializeAuth = async () => {
       try {
         const storedUser = await getCurrentUser();
-        const storedUsersList = await getStoredUsers();
+        let storedUsersList = await getStoredUsers();
 
-        // Si la base local está vacía, sembramos un usuario demo para pruebas inmediatas
+        // 1. Sembrar Ciudadano Demo si la base local está vacía
         if (storedUsersList.length === 0) {
           const demoCitizenAccount: StoredUserAccount = {
             user: {
@@ -48,28 +48,45 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           await saveNewUser(demoCitizenAccount);
         }
 
-// Volvemos a consultar la lista actualizada de usuarios
-      const updatedUsersList = await getStoredUsers();
+        storedUsersList = await getStoredUsers();
 
-      // 2. Verificamos si el Agente de Campo ya está sembrado; si no, lo agregamos
-      const existeAgente = updatedUsersList.some(
-        (u) => u.user.email.toLowerCase() === 'agente@municipio.gob.ar'
-      );
+        // 2. Sembrar Agente de Campo Demo si no existe
+        const existeAgente = storedUsersList.some(
+          (u) => u.user.email.toLowerCase() === 'agente@municipio.gob.ar'
+        );
+        if (!existeAgente) {
+          const demoAgentAccount: StoredUserAccount = {
+            user: {
+              id: 'agent-user-1',
+              name: 'Inspector Perez',
+              email: 'agente@municipio.gob.ar',
+              role: 'agent',
+              points: 0,
+              createdAt: new Date().toISOString(),
+            },
+            passwordHash: 'agente123',
+          };
+          await saveNewUser(demoAgentAccount);
+        }
 
-      if (!existeAgente) {
-        const demoAgentAccount: StoredUserAccount = {
-          user: {
-            id: 'agent-user-1',
-            name: 'Inspector Perez',
-            email: 'agente@municipio.gob.ar',
-            role: 'agent',
-            points: 0, // <-- Agregamos el valor por defecto para no tener que preguntar quienes deben tener puntos.
-            createdAt: new Date().toISOString(),
-          },
-          passwordHash: 'agente123',
-        };
-        await saveNewUser(demoAgentAccount);
-      }        
+        // 3. Sembrar Administrador Demo si no existe
+        const existeAdmin = storedUsersList.some(
+          (u) => u.user.email.toLowerCase() === 'admin@ecoalerta.gob.ar'
+        );
+        if (!existeAdmin) {
+          const demoAdminAccount: StoredUserAccount = {
+            user: {
+              id: 'admin-user-1',
+              name: 'Administrador General',
+              email: 'admin@ecoalerta.gob.ar',
+              role: 'admin',
+              points: 0,
+              createdAt: new Date().toISOString(),
+            },
+            passwordHash: 'admin123',
+          };
+          await saveNewUser(demoAdminAccount);
+        }
 
         if (storedUser) {
           setUser(storedUser);
@@ -113,7 +130,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return { success: false, message: 'Contraseña incorrecta' };
       }
 
-      // Guardar usuario autenticado
       await saveCurrentUser(account.user);
       setUser(account.user);
       return { success: true };
@@ -157,7 +173,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         name: trimmedUsername,
         email: data.email?.trim() || `${trimmedUsername.toLowerCase().replace(/\s+/g, '')}@ecoalerta.com`,
         role: 'citizen',
-        points: 50, // Puntos de bienvenida
+        points: 50,
         createdAt: new Date().toISOString(),
       };
 
