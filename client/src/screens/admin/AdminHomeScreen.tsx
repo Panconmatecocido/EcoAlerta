@@ -1,22 +1,41 @@
-//Resumen Operativo y Métricas
-// src/screens/admin/AdminHomeScreen.tsx
+// En src/screens/admin/AdminHomeScreen.tsx
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
-import { METRICAS_MOCK } from '../../mocks/adminDashboard';
 import { useAuth } from '../../context/AuthContext';
+import { adminService } from '../../services/adminService';
+import { MetricasAdmin } from '../../mocks/adminDashboard';
 
 export const AdminHomeScreen: React.FC = () => {
   const { logout, user } = useAuth();
+  const [metricas, setMetricas] = useState<MetricasAdmin | null>(null);
+  const [cargando, setCargando] = useState<boolean>(true);
+
+  const cargarDatosServidor = async () => {
+    try {
+      setCargando(true);
+      const datosMetricas = await adminService.obtenerMetricas();
+      setMetricas(datosMetricas);
+    } catch (error) {
+      console.error('No se pudieron obtener las métricas reales:', error);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  useEffect(() => {
+    cargarDatosServidor();
+  }, []);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -39,57 +58,67 @@ export const AdminHomeScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Sección KPI / Resumen */}
-        <Text style={styles.tituloSeccion}>Resumen Operativo Global</Text>
-        <View style={styles.redMetricas}>
-          <View style={[styles.tarjetaMetrica, { backgroundColor: COLORS.fondoAdvertencia }]}>
-            <MaterialCommunityIcons
-              name="clock-alert-outline"
-              size={ICON_SIZE.lg}
-              color={COLORS.textoAdvertencia}
-            />
-            <Text style={[styles.valorMetrica, { color: COLORS.textoAdvertencia }]}>
-              {METRICAS_MOCK.denunciasPendientes}
-            </Text>
-            <Text style={styles.etiquetaMetrica}>Pendientes</Text>
-          </View>
-
-          <View style={[styles.tarjetaMetrica, { backgroundColor: COLORS.fondoTarjeta }]}>
-            <MaterialCommunityIcons
-              name="progress-wrench"
-              size={ICON_SIZE.lg}
-              color={COLORS.botonPrincipal}
-            />
-            <Text style={[styles.valorMetrica, { color: COLORS.botonPrincipal }]}>
-              {METRICAS_MOCK.denunciasEnProceso}
-            </Text>
-            <Text style={styles.etiquetaMetrica}>En Proceso</Text>
-          </View>
-
-          <View style={[styles.tarjetaMetrica, { backgroundColor: COLORS.fondoTarjeta }]}>
-            <MaterialCommunityIcons
-              name="check-circle-outline"
-              size={ICON_SIZE.lg}
-              color={COLORS.textoVerdeOscuro}
-            />
-            <Text style={[styles.valorMetrica, { color: COLORS.textoVerdeOscuro }]}>
-              {METRICAS_MOCK.denunciasResueltas}
-            </Text>
-            <Text style={styles.etiquetaMetrica}>Resueltas</Text>
-          </View>
-
-          <View style={[styles.tarjetaMetrica, { backgroundColor: COLORS.superficieTarjeta }]}>
-            <MaterialCommunityIcons
-              name="account-hard-hat"
-              size={ICON_SIZE.lg}
-              color={COLORS.textoSecundario}
-            />
-            <Text style={[styles.valorMetrica, { color: COLORS.textoSecundario }]}>
-              {METRICAS_MOCK.totalAgentesActivos}
-            </Text>
-            <Text style={styles.etiquetaMetrica}>Agentes Activos</Text>
-          </View>
+        {/* Resumen Operativo */}
+        <View style={styles.cabeceraSeccion}>
+          <Text style={styles.tituloSeccion}>Resumen Operativo Global</Text>
+          <TouchableOpacity onPress={cargarDatosServidor}>
+            <MaterialCommunityIcons name="refresh" size={ICON_SIZE.md} color={COLORS.botonPrincipal} />
+          </TouchableOpacity>
         </View>
+
+        {cargando ? (
+          <ActivityIndicator size="large" color={COLORS.botonPrincipal} style={{ marginVertical: 20 }} />
+        ) : (
+          <View style={styles.redMetricas}>
+            <View style={[styles.tarjetaMetrica, { backgroundColor: COLORS.fondoAdvertencia }]}>
+              <MaterialCommunityIcons
+                name="clock-alert-outline"
+                size={ICON_SIZE.lg}
+                color={COLORS.textoAdvertencia}
+              />
+              <Text style={[styles.valorMetrica, { color: COLORS.textoAdvertencia }]}>
+                {metricas?.denunciasPendientes ?? 0}
+              </Text>
+              <Text style={styles.etiquetaMetrica}>Pendientes</Text>
+            </View>
+
+            <View style={[styles.tarjetaMetrica, { backgroundColor: COLORS.fondoTarjeta }]}>
+              <MaterialCommunityIcons
+                name="progress-wrench"
+                size={ICON_SIZE.lg}
+                color={COLORS.botonPrincipal}
+              />
+              <Text style={[styles.valorMetrica, { color: COLORS.botonPrincipal }]}>
+                {metricas?.denunciasEnProceso ?? 0}
+              </Text>
+              <Text style={styles.etiquetaMetrica}>En Proceso</Text>
+            </View>
+
+            <View style={[styles.tarjetaMetrica, { backgroundColor: COLORS.fondoTarjeta }]}>
+              <MaterialCommunityIcons
+                name="check-circle-outline"
+                size={ICON_SIZE.lg}
+                color={COLORS.textoVerdeOscuro}
+              />
+              <Text style={[styles.valorMetrica, { color: COLORS.textoVerdeOscuro }]}>
+                {metricas?.denunciasResueltas ?? 0}
+              </Text>
+              <Text style={styles.etiquetaMetrica}>Resueltas</Text>
+            </View>
+
+            <View style={[styles.tarjetaMetrica, { backgroundColor: COLORS.superficieTarjeta }]}>
+              <MaterialCommunityIcons
+                name="account-hard-hat"
+                size={ICON_SIZE.lg}
+                color={COLORS.textoSecundario}
+              />
+              <Text style={[styles.valorMetrica, { color: COLORS.textoSecundario }]}>
+                {metricas?.totalAgentesActivos ?? 0}
+              </Text>
+              <Text style={styles.etiquetaMetrica}>Agentes Activos</Text>
+            </View>
+          </View>
+        )}
 
         {/* Sección Auditoría de Actividad */}
         <Text style={styles.tituloSeccion}>Últimas Acciones del Personal</Text>
@@ -98,27 +127,9 @@ export const AdminHomeScreen: React.FC = () => {
             <MaterialCommunityIcons name="shield-check" size={20} color={COLORS.botonPrincipal} />
             <View style={styles.textosAuditoria}>
               <Text style={styles.tituloAuditoria}>Asignación de Inspector</Text>
-              <Text style={styles.detalleAuditoria}>Admin Juan asignó a Inspector Pérez en #den-002</Text>
+              <Text style={styles.detalleAuditoria}>Admin asignó a Inspector Pérez a REP-2026-002</Text>
             </View>
             <Text style={styles.horaAuditoria}>10m</Text>
-          </View>
-
-          <View style={styles.itemAuditoria}>
-            <MaterialCommunityIcons name="close-circle" size={20} color={COLORS.textoPeligro} />
-            <View style={styles.textosAuditoria}>
-              <Text style={styles.tituloAuditoria}>Denuncia Rechazada</Text>
-              <Text style={styles.detalleAuditoria}>Reporte #den-003 marcado por duplicado</Text>
-            </View>
-            <Text style={styles.horaAuditoria}>45m</Text>
-          </View>
-
-          <View style={styles.itemAuditoria}>
-            <MaterialCommunityIcons name="plus-circle" size={20} color={COLORS.textoVerde} />
-            <View style={styles.textosAuditoria}>
-              <Text style={styles.tituloAuditoria}>Nueva Denuncia Ingresada</Text>
-              <Text style={styles.detalleAuditoria}>Ciudadano reportó "Basural a cielo abierto"</Text>
-            </View>
-            <Text style={styles.horaAuditoria}>1h</Text>
           </View>
         </View>
       </ScrollView>
@@ -170,12 +181,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
   },
+  cabeceraSeccion: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: SPACING.md,
+    marginBottom: SPACING.sm,
+  },
   tituloSeccion: {
     fontSize: 18,
     fontWeight: 'bold',
     color: COLORS.textoVerdeOscuro,
-    marginTop: SPACING.md,
-    marginBottom: SPACING.sm,
   },
   redMetricas: {
     flexDirection: 'row',
@@ -206,13 +222,12 @@ const styles = StyleSheet.create({
     padding: SPACING.sm,
     borderWidth: 1,
     borderColor: COLORS.bordeSuave,
+    marginTop: SPACING.xs,
   },
   itemAuditoria: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: SPACING.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.bordeSuave,
     gap: SPACING.sm,
   },
   textosAuditoria: {
