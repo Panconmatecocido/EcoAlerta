@@ -1,7 +1,6 @@
-// Lista completa, buscador, filtros y asignación
 // src/screens/admin/AdminDenunciasScreen.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,60 +10,96 @@ import {
   FlatList,
   Modal,
   Alert,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
-import { MOCK_DENUNCIAS, DenunciaMock } from '../../mocks/denuncias';
-import { AGENTES_MOCK, AgenteResumen } from '../../mocks/adminDashboard';
+import { adminService, Denuncia, Agente } from '../../services/adminService';
 
-type FiltroEstado = 'TODAS' | 'PENDIENTE' | 'APROBADO' | 'RECHAZADO';
+type FiltroEstado = 'TODAS' | 'PENDIENTE' | 'EN_PROCESO' | 'RESUELTO' | 'RECHAZADO';
 
 export const AdminDenunciasScreen: React.FC = () => {
-  const [denuncias, setDenuncias] = useState<DenunciaMock[]>(MOCK_DENUNCIAS);
+  const [denuncias, setDenuncias] = useState<Denuncia[]>([]);
+  const [agentes, setAgentes] = useState<Agente[]>([]);
   const [busqueda, setBusqueda] = useState('');
   const [filtro, setFiltro] = useState<FiltroEstado>('TODAS');
+  const [cargando, setCargando] = useState(true);
+  const [refrescando, setRefrescando] = useState(false);
 
-  // Estados Modal Asignación
+  // Modal Asignación
   const [modalVisible, setModalVisible] = useState(false);
-  const [denunciaSeleccionada, setDenunciaSeleccionada] = useState<DenunciaMock | null>(null);
-  const [agenteAsignado, setAgenteAsignado] = useState<{ [id: string]: string }>({});
+  const [denunciaSeleccionada, setDenunciaSeleccionada] = useState<Denuncia | null>(null);
 
-  const cambiarEstado = (id: string, nuevoEstado: DenunciaMock['estado']) => {
-    setDenuncias((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, estado: nuevoEstado } : item))
-    );
+  const cargarDatos = useCallback(async () => {
+    try {
+      const filtroParam = filtro === 'TODAS' ? undefined : filtro;
+      const [dataDenuncias, dataAgentes] = await Promise.all([
+        adminService.obtenerDenuncias({ estado: filtroParam, busqueda }),
+        adminService.obtenerAgentes(),
+      ]);
+      setDenuncias(dataDenuncias);
+      setAgentes(dataAgentes);
+    } catch (error) {
+      console.error('Error cargando denuncias/agentes:', error);
+      Alert.alert('Error', 'No se pudieron obtener los datos del servidor.');
+    } finally {
+      setCargando(false);
+      setRefrescando(false);
+    }
+  }, [filtro, busqueda]);
+
+  useEffect(() => {
+    cargarDatos();
+  }, [cargarDatos]);
+
+  const alRefrescar = () => {
+    setRefrescando(true);
+    cargarDatos();
   };
 
-  const abrirModalAsignacion = (denuncia: DenunciaMock) => {
+  const cambiarEstado = async (id: string, nuevoEstado: Denuncia['estado']) => {
+    try {
+      await adminService.actualizarEstadoDenuncia(id, nuevoEstado);
+      setDenuncias((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, estado: nuevoEstado } : item))
+      );
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo actualizar el estado de la denuncia.');
+    }
+  };
+
+  const abrirModalAsignacion = (denuncia: Denuncia) => {
     setDenunciaSeleccionada(denuncia);
     setModalVisible(true);
   };
 
-  const asignarAgente = (agente: AgenteResumen) => {
+  const asignarAgente = async (agente: Agente) => {
     if (!denunciaSeleccionada) return;
 
-    setAgenteAsignado((prev) => ({
-      ...prev,
-      [denunciaSeleccionada.id]: agente.nombre,
-    }));
+    try {
+      await adminService.asignarAgenteDenuncia(denunciaSeleccionada.id, agente.id);
+      
+      setDenuncias((prev) =>
+        prev.map((item) =>
+          item.id === denunciaSeleccionada.id
+            ? {
+                ...item,
+                agenteAsignadoId: agente.id,
+                agenteAsignadoNombre: agente.nombre,
+                estado: item.estado === 'PENDIENTE' ? 'EN_PROCESO' : item.estado,
+              }
+            : item
+        )
+      );
 
-    if (denunciaSeleccionada.estado === 'PENDIENTE') {
-      cambiarEstado(denunciaSeleccionada.id, 'APROBADO');
+      setModalVisible(false);
+      Alert.alert('Asignación Exitosa', `Agente ${agente.nombre} asignado a la denuncia.`);
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo asignar el agente a la denuncia.');
     }
-
-    setModalVisible(false);
-    Alert.alert('Asignación Éxitoso', `Agente ${agente.nombre} asignado al reporte.`);
   };
-
-  // Filtrado dinámico
-  const denunciasFiltradas = denuncias.filter((item) => {
-    const coincideFiltro = filtro === 'TODAS' || item.estado === filtro;
-    const coincideTexto =
-      item.titulo.toLowerCase().includes(busqueda.toLowerCase()) ||
-      item.ubicacion.toLowerCase().includes(busqueda.toLowerCase());
-    return coincideFiltro && coincideTexto;
-  });
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -85,87 +120,107 @@ export const AdminDenunciasScreen: React.FC = () => {
 
         {/* Filtros Chips */}
         <View style={styles.contenedorChips}>
-          {(['TODAS', 'PENDIENTE', 'APROBADO', 'RECHAZADO'] as FiltroEstado[]).map((f) => (
+          {(['TODAS', 'PENDIENTE', 'EN_PROCESO', 'RESUELTO', 'RECHAZADO'] as FiltroEstado[]).map((f) => (
             <TouchableOpacity
               key={f}
               style={[styles.chip, filtro === f && styles.chipActivo]}
               onPress={() => setFiltro(f)}
             >
               <Text style={[styles.textoChip, filtro === f && styles.textoChipActivo]}>
-                {f}
+                {f.replace('_', ' ')}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
 
         {/* Lista de Denuncias */}
-        <FlatList
-          data={denunciasFiltradas}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listaContenido}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <View style={styles.tarjetaDenuncia}>
-              <View style={styles.cabeceraDenuncia}>
-                <Text style={styles.tituloDenuncia}>{item.titulo}</Text>
-                <Text style={styles.fechaDenuncia}>{item.fecha}</Text>
-              </View>
-
-              <Text style={styles.detalleDenuncia}>
-                Categoría: {item.categoria} | Ubicación: {item.ubicacion}
-              </Text>
-
-              {agenteAsignado[item.id] && (
-                <View style={styles.contenedorAgenteAsignado}>
-                  <Text style={styles.textoAgenteAsignado}>
-                    Inspector Asignado: <Text style={styles.nombreAgenteInsignia}>{agenteAsignado[item.id]}</Text>
-                  </Text>
+        {cargando ? (
+          <ActivityIndicator size="large" color={COLORS.botonPrincipal} style={{ marginTop: 40 }} />
+        ) : (
+          <FlatList
+            data={denuncias}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.listaContenido}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl refreshing={refrescando} onRefresh={alRefrescar} colors={[COLORS.botonPrincipal]} />
+            }
+            ListEmptyComponent={
+              <Text style={styles.textoVacio}>No se encontraron denuncias para los filtros seleccionados.</Text>
+            }
+            renderItem={({ item }) => (
+              <View style={styles.tarjetaDenuncia}>
+                <View style={styles.cabeceraDenuncia}>
+                  <Text style={styles.tituloDenuncia}>{item.titulo}</Text>
+                  <Text style={styles.fechaDenuncia}>{item.fecha}</Text>
                 </View>
-              )}
 
-              <View style={styles.accionesFila}>
-                <TouchableOpacity
-                  style={styles.botonAsignar}
-                  onPress={() => abrirModalAsignacion(item)}
-                >
-                  <MaterialCommunityIcons name="account-plus-outline" size={16} color={COLORS.superficieTarjeta} />
-                  <Text style={styles.textoBotonAsignar}>
-                    {agenteAsignado[item.id] ? 'Reasignar' : 'Asignar Inspector'}
-                  </Text>
-                </TouchableOpacity>
+                <Text style={styles.detalleDenuncia}>
+                  Categoría: {item.categoria} | Ubicación: {item.ubicacion}
+                </Text>
+
+                {item.agenteAsignadoNombre && (
+                  <View style={styles.contenedorAgenteAsignado}>
+                    <Text style={styles.textoAgenteAsignado}>
+                      Inspector Asignado: <Text style={styles.nombreAgenteInsignia}>{item.agenteAsignadoNombre}</Text>
+                    </Text>
+                  </View>
+                )}
+
+                <View style={styles.accionesFila}>
+                  <TouchableOpacity
+                    style={styles.botonAsignar}
+                    onPress={() => abrirModalAsignacion(item)}
+                  >
+                    <MaterialCommunityIcons name="account-plus-outline" size={16} color={COLORS.superficieTarjeta} />
+                    <Text style={styles.textoBotonAsignar}>
+                      {item.agenteAsignadoNombre ? 'Reasignar' : 'Asignar Inspector'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Acciones de Cambio de Estado */}
+                <View style={styles.contenedorBotonesEstado}>
+                  <TouchableOpacity
+                    style={[styles.botonEstado, item.estado === 'PENDIENTE' && styles.botonEstadoActivo]}
+                    onPress={() => cambiarEstado(item.id, 'PENDIENTE')}
+                  >
+                    <Text style={[styles.textoBotonEstado, item.estado === 'PENDIENTE' && styles.textoBotonEstadoActivo]}>
+                      Pendiente
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.botonEstado, item.estado === 'EN_PROCESO' && styles.botonEstadoActivo]}
+                    onPress={() => cambiarEstado(item.id, 'EN_PROCESO')}
+                  >
+                    <Text style={[styles.textoBotonEstado, item.estado === 'EN_PROCESO' && styles.textoBotonEstadoActivo]}>
+                      En Proceso
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.botonEstado, item.estado === 'RESUELTO' && styles.botonEstadoActivo]}
+                    onPress={() => cambiarEstado(item.id, 'RESUELTO')}
+                  >
+                    <Text style={[styles.textoBotonEstado, item.estado === 'RESUELTO' && styles.textoBotonEstadoActivo]}>
+                      Resolver
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.botonEstado, item.estado === 'RECHAZADO' && styles.botonPeligroActivo]}
+                    onPress={() => cambiarEstado(item.id, 'RECHAZADO')}
+                  >
+                    <Text style={[styles.textoBotonEstado, item.estado === 'RECHAZADO' && styles.textoBotonEstadoActivo]}>
+                      Rechazar
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-
-              <View style={styles.contenedorBotonesEstado}>
-                <TouchableOpacity
-                  style={[styles.botonEstado, item.estado === 'PENDIENTE' && styles.botonEstadoActivo]}
-                  onPress={() => cambiarEstado(item.id, 'PENDIENTE')}
-                >
-                  <Text style={[styles.textoBotonEstado, item.estado === 'PENDIENTE' && styles.textoBotonEstadoActivo]}>
-                    Pendiente
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.botonEstado, item.estado === 'APROBADO' && styles.botonEstadoActivo]}
-                  onPress={() => cambiarEstado(item.id, 'APROBADO')}
-                >
-                  <Text style={[styles.textoBotonEstado, item.estado === 'APROBADO' && styles.textoBotonEstadoActivo]}>
-                    Aprobar
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.botonEstado, item.estado === 'RECHAZADO' && styles.botonPeligroActivo]}
-                  onPress={() => cambiarEstado(item.id, 'RECHAZADO')}
-                >
-                  <Text style={[styles.textoBotonEstado, item.estado === 'RECHAZADO' && styles.textoBotonEstadoActivo]}>
-                    Rechazar
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
-        />
+            )}
+          />
+        )}
 
         {/* Modal Selección Agente */}
         <Modal
@@ -182,7 +237,7 @@ export const AdminDenunciasScreen: React.FC = () => {
               </Text>
 
               <FlatList
-                data={AGENTES_MOCK}
+                data={agentes}
                 keyExtractor={(agente) => agente.id}
                 renderItem={({ item }) => (
                   <TouchableOpacity
@@ -192,7 +247,7 @@ export const AdminDenunciasScreen: React.FC = () => {
                     <View>
                       <Text style={styles.nombreAgenteModal}>{item.nombre}</Text>
                       <Text style={styles.emailAgenteModal}>
-                        {item.disponible ? 'Disponible' : 'Ocupado'} • {item.casosAsignados} casos
+                        {item.disponible ? 'Disponible' : 'Franco/Ocupado'} • {item.casosAsignados} casos
                       </Text>
                     </View>
                     <Text style={styles.textoSeleccionar}>Asignar →</Text>
@@ -253,7 +308,7 @@ const styles = StyleSheet.create({
   },
   chip: {
     paddingVertical: SPACING.xs,
-    paddingHorizontal: SPACING.sm,
+    paddingHorizontal: 8,
     borderRadius: BORDER_RADIUS.lg,
     backgroundColor: COLORS.superficieTarjeta,
     borderWidth: 1,
@@ -264,7 +319,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.botonPrincipal,
   },
   textoChip: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: 'bold',
     color: COLORS.textoSecundario,
   },
@@ -273,6 +328,12 @@ const styles = StyleSheet.create({
   },
   listaContenido: {
     paddingBottom: SPACING.lg * 2,
+  },
+  textoVacio: {
+    textAlign: 'center',
+    marginTop: 30,
+    color: COLORS.textoSecundario,
+    fontSize: 14,
   },
   tarjetaDenuncia: {
     backgroundColor: COLORS.superficieTarjeta,
@@ -338,10 +399,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: SPACING.xs,
+    gap: 4,
   },
   botonEstado: {
+    flex: 1,
+    alignItems: 'center',
     paddingVertical: SPACING.xs,
-    paddingHorizontal: SPACING.sm,
     borderRadius: BORDER_RADIUS.sm,
     borderWidth: 1,
     borderColor: COLORS.bordeSuave,
