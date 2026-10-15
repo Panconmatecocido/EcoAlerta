@@ -1,68 +1,130 @@
 // server/prisma/seed.ts
-import { PrismaClient } from '@prisma/client';
+
+import { PrismaClient, Role, EstadoDenuncia, Prioridad } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Iniciando carga de productos de prueba...');
+  console.log('🌱 Sembrando datos en Supabase...');
 
-  await prisma.product.deleteMany({});
+  // 1. Crear Municipio Pilar
+  const municipio = await prisma.municipio.upsert({
+    where: { codigo: 'PILAR-BA' },
+    update: {},
+    create: {
+      nombre: 'Municipio de Pilar',
+      codigo: 'PILAR-BA',
+    },
+  });
 
-  const productos = [
-    {
-      name: 'Kit Cepillos Bambú x4',
-      description: 'Juego de 4 cepillos biodegradables de bambú.',
-      price: 500,
-      category: 'Cuidado Personal',
-      imageUrl: 'https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?w=500',
-      stock: 15,
+  // 2. Usuarios Demo (Ciudadano, Agente, Admin)
+  const ciudadano = await prisma.user.upsert({
+    where: { email: 'ejemplo@email.com' },
+    update: {},
+    create: {
+      nombre: 'EcoUsuario',
+      email: 'ejemplo@email.com',
+      passwordHash: 'password123',
+      rol: Role.CITIZEN,
+      puntos: 120,
+      municipioId: municipio.id,
     },
-    {
-      name: 'Bolsa Tela Grande',
-      description: 'Bolsa reutilizable de algodón orgánico para compras.',
-      price: 500,
-      category: 'Hogar',
-      imageUrl: 'https://images.unsplash.com/photo-1597484661643-2f5fef640dd1?w=500',
-      stock: 30,
-    },
-    {
-      name: 'Botella Térmica',
-      description: 'Botella de acero inoxidable de 750ml reutilizable.',
-      price: 1000,
-      category: 'Hogar',
-      imageUrl: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=500',
-      stock: 10,
-    },
-    {
-      name: 'Maceta Ecológica',
-      description: 'Maceta biodegradable hecha de fibras vegetales.',
-      price: 300,
-      category: 'Hogar',
-      imageUrl: 'https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=500',
-      stock: 25,
-    },
-    {
-      name: 'Cepillo de Bambú',
-      description: 'Cepillo individual con cerdas de fibra vegetal.',
-      price: 300,
-      category: 'Cuidado Personal',
-      imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500',
-      stock: 50,
-    },
-  ];
+  });
 
-  for (const producto of productos) {
-    await prisma.product.create({
-      data: producto,
-    });
-  }
+  const agente = await prisma.user.upsert({
+    where: { email: 'agente@municipio.gob.ar' },
+    update: {},
+    create: {
+      nombre: 'Inspector Perez',
+      email: 'agente@municipio.gob.ar',
+      passwordHash: 'agente123',
+      rol: Role.AGENT,
+      disponible: true,
+      municipioId: municipio.id,
+    },
+  });
 
-  console.log('¡Productos agregados exitosamente!');
+  await prisma.user.upsert({
+    where: { email: 'admin@ecoalerta.gob.ar' },
+    update: {},
+    create: {
+      nombre: 'Administrador General',
+      email: 'admin@ecoalerta.gob.ar',
+      passwordHash: 'admin123',
+      rol: Role.ADMIN,
+      municipioId: municipio.id,
+    },
+  });
+
+  // 3. Denuncias Demo
+  await prisma.denuncia.upsert({
+    where: { codigo: 'REP-2026-001' },
+    update: {},
+    create: {
+      codigo: 'REP-2026-001',
+      titulo: 'Microbasural a cielo abierto',
+      descripcion: 'Acumulación de escombros y restos plásticos en vereda.',
+      categoria: 'Microbasural',
+      estado: EstadoDenuncia.PENDIENTE,
+      prioridad: Prioridad.ALTA,
+      direccion: 'Av. De Mayo y Calle 12, Presidente Derqui',
+      ciudadanoId: ciudadano.id,
+      municipioId: municipio.id,
+    },
+  });
+
+  await prisma.denuncia.upsert({
+    where: { codigo: 'REP-2026-002' },
+    update: {},
+    create: {
+      codigo: 'REP-2026-002',
+      titulo: 'Recipientes con agua estancada',
+      descripcion: 'Posible foco de reproducción de dengue en terreno baldío.',
+      categoria: 'Foco Dengue',
+      estado: EstadoDenuncia.EN_PROCESO,
+      prioridad: Prioridad.URGENTE,
+      direccion: 'Ruta 25 Km 4',
+      ciudadanoId: ciudadano.id,
+      agenteId: agente.id,
+      municipioId: municipio.id,
+    },
+  });
+
+// 4. Productos de Tienda Ecológica
+  await prisma.producto.createMany({
+    skipDuplicates: true,
+    data: [
+      {
+        titulo: 'Bolsa de Tela Reutilizable',
+        descripcion: 'Bolsa ecológica de algodón orgánico.',
+        costoPuntos: 40,
+        stock: 50,
+        municipioId: municipio.id,
+      },
+      {
+        titulo: 'Botella Térmica EcoAlerta',
+        descripcion: 'Botella de acero inoxidable 500ml.',
+        costoPuntos: 100,
+        stock: 20,
+        municipioId: municipio.id,
+      },
+      {
+        titulo: 'Gorra Oficial EcoAlerta',
+        descripcion: 'Gorra de material reciclado.',
+        costoPuntos: 80,
+        stock: 15,
+        municipioId: municipio.id,
+      },
+    ],
+  });
+
+  console.log('✅ Base de datos sembrada con éxito.');
 }
 
 main()
   .catch((e) => {
     console.error(e);
+    process.exit(1);
   })
   .finally(async () => {
     await prisma.$disconnect();

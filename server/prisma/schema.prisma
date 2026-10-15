@@ -1,46 +1,166 @@
+// server/prisma/schema.prisma
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+enum Role {
+  CITIZEN
+  AGENT
+  ADMIN
 }
 
-// ----------------------------------------------------
-// MODELOS / TABLAS DE ECOALERTA
-// ----------------------------------------------------
+enum EstadoDenuncia {
+  PENDIENTE
+  APROBADO
+  EN_PROCESO
+  RESUELTO
+  RECHAZADO
+}
 
+enum Prioridad {
+  BAJA
+  MEDIA
+  ALTA
+  URGENTE
+}
+
+enum EstadoCanje {
+  PENDIENTE_RETIRO
+  ENTREGADO
+  CANCELADO
+}
+
+// --------------------------------------------------------
+// MULTI-TENANCY / MUNICIPIO
+// --------------------------------------------------------
+model Municipio {
+  id        String     @id @default(uuid())
+  nombre    String     // Ej: "Pilar", "Escobar"
+  codigo    String     @unique // Ej: "PILAR-BA"
+  creadoEn  DateTime   @default(now())
+
+  usuarios  User[]
+  denuncias Denuncia[]
+  productos Producto[]
+
+  @@map("municipios")
+}
+
+// --------------------------------------------------------
+// USUARIOS Y ROLES (RBAC)
+// --------------------------------------------------------
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String
-  role      String   @default("citizen") // citizen | admin
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  reports   Report[]
+  id           String     @id @default(uuid())
+  nombre       String
+  email        String     @unique
+  passwordHash String
+  rol          Role       @default(CITIZEN)
+  puntos       Int        @default(50) // Puntos acumulados por denuncias
+  disponible   Boolean    @default(true) // Disponibilidad de agentes de campo
+  
+  municipioId  String
+  municipio    Municipio  @relation(fields: [municipioId], references: [id])
+
+  denunciasCreadas   Denuncia[] @relation("CiudadanoDenuncias")
+  denunciasAsignadas Denuncia[] @relation("AgenteDenuncias")
+  canjesRealizados   Canje[]    @relation("CiudadanoCanjes")
+
+  creadoEn     DateTime   @default(now())
+  actualizadoEn DateTime   @updatedAt
+
+  @@map("usuarios")
 }
 
-model Report {
+// --------------------------------------------------------
+// MÓDULO DE DENUNCIAS / ALERTAS AMBIENTALES
+// --------------------------------------------------------
+model Denuncia {
+  id           String         @id @default(uuid())
+  codigo       String         @unique // Ej: "REP-2026-001"
+  titulo       String
+  descripcion  String
+  categoria    String         // "Microbasural", "Foco Dengue", "Terreno Baldío", "Otro"
+  estado       EstadoDenuncia @default(PENDIENTE)
+  prioridad    Prioridad      @default(MEDIA)
+  
+  // Ubicación GPS + Referencia manual (Dirección)
+  direccion    String
+  latitud      Float?
+  longitud     Float?
+  
+  // Evidencia Fotográfica (URL de Supabase Storage)
+  imagenUrl    String?
+
+  municipioId  String
+  municipio    Municipio      @relation(fields: [municipioId], references: [id])
+
+  ciudadanoId  String
+  ciudadano    User           @relation("CiudadanoDenuncias", fields: [ciudadanoId], references: [id])
+
+  agenteId     String?
+  agente       User?          @relation("AgenteDenuncias", fields: [agenteId], references: [id])
+
+  creadoEn     DateTime       @default(now())
+  actualizadoEn DateTime       @updatedAt
+
+  @@map("denuncias")
+}
+
+// --------------------------------------------------------
+// MÓDULO DE TIENDA Y CANJE DE PUNTOS ECOLÓGICOS
+// --------------------------------------------------------
+model Producto {
   id          String   @id @default(uuid())
-  title       String
-  description String
-  status      String   @default("pending") // pending | in_progress | resolved
-  location    String?
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  titulo      String   // Ej: "Bolsa Ecológica", "Botella Reutilizable"
+  descripcion String
+  costoPuntos Int
+  stock       Int      @default(10)
+  imagenUrl   String?
+  activo      Boolean  @default(true)
+
+  municipioId String
+  municipio   Municipio @relation(fields: [municipioId], references: [id])
+
+  itemsCanje  ItemCanje[]
+
+  creadoEn    DateTime @default(now())
+
+  @@map("productos")
 }
 
-model Product {
-  id               String   @id @default(uuid())
-  nombre           String
-  descripcion?     String?
-  precio           Float    // Representa el costo en puntos (ej: 500.0)
-  categoria?       String   @default("General") // Para los filtros (Hogar, Papelería, etc.)
-  urlImagen?       String?  // Para la imagen del producto
-  stock            Int      @default(0)
-  creadoEn?        DateTime @default(now())
-  actualizadoEn?   DateTime @updatedAt
+model Canje {
+  id            String      @id @default(uuid())
+  codigoRetiro  String      @unique // Código generado para retirar en el municipio
+  totalPuntos   Int
+  estado        EstadoCanje @default(PENDIENTE_RETIRO)
+
+  ciudadanoId   String
+  ciudadano     User        @relation("CiudadanoCanjes", fields: [ciudadanoId], references: [id])
+
+  items         ItemCanje[]
+
+  creadoEn      DateTime    @default(now())
+
+  @@map("canjes")
+}
+
+model ItemCanje {
+  id          String   @id @default(uuid())
+  cantidad    Int
+  puntosUnit  Int
+
+  canjeId     String
+  canje       Canje    @relation(fields: [canjeId], references: [id], onDelete: Cascade)
+
+  productoId  String
+  producto    Producto @relation(fields: [productoId], references: [id])
+
+  @@map("items_canje")
 }
