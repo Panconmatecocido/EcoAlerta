@@ -1,4 +1,5 @@
 // src/screens/citizen/CartScreen.tsx
+
 import React, { useState } from 'react';
 import {
   View,
@@ -7,47 +8,131 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
-import { useCart } from '../../context/CartContext';
-import { COLORS, SPACING, BORDER_RADIUS } from '../../utils/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
+import { tiendaService, ResultadoCanje } from '../../services/tiendaService';
+import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
 
-export const CartScreen: React.FC = () => {
+export const CartScreen: React.FC = ({ navigation }: any) => {
+  const { user, updateUserPoints } = useAuth();
   const {
     carrito,
-    userPoints,
-    shippingPoints,
-    shippingARS,
     actualizarCantidad,
     eliminarDelCarrito,
     obtenerSubtotalPuntos,
     obtenerTotalPuntos,
+    vaciarCarrito,
   } = useCart();
 
-  const [metodoPago, setMetodoPago] = useState<'PUNTOS' | 'ARS'>('PUNTOS');
+  const [procesando, setProcesando] = useState(false);
+  const [comprobante, setComprobante] = useState<ResultadoCanje | null>(null);
 
+  const userPoints = user?.points ?? 0;
   const subtotal = obtenerSubtotalPuntos();
   const totalPuntos = obtenerTotalPuntos();
-  const equivalenteARS = totalPuntos * 0.1;
+  const saldoInsuficiente = userPoints < totalPuntos;
+
+  const procesarCanje = async () => {
+    if (carrito.length === 0) return;
+
+    if (saldoInsuficiente) {
+      Alert.alert(
+        'Puntos insuficientes',
+        `Tenés ${userPoints.toLocaleString()} PTS y necesitás ${totalPuntos.toLocaleString()} PTS para confirmar este pedido. ¡Seguí reportando alertas para sumar puntos!`
+      );
+      return;
+    }
+
+    try {
+      setProcesando(true);
+      const itemsPayload = carrito.map((item) => ({
+        productoId: item.producto.id,
+        cantidad: item.cantidad,
+      }));
+
+      const resultado = await tiendaService.procesarCanje(itemsPayload);
+      setComprobante(resultado);
+
+      // Vaciar el carrito local y actualizar balance global
+      vaciarCarrito();
+      if (updateUserPoints) {
+        updateUserPoints(resultado.nuevoSaldoPuntos);
+      }
+    } catch (error: any) {
+      Alert.alert(
+        'Error en el canje',
+        error?.message || 'No se pudo procesar la solicitud. Intentalo nuevamente.'
+      );
+    } finally {
+      setProcesando(false);
+    }
+  };
+
+  // VISTA COMPROBANTE DE CANJE / CÓDIGO DE RETIRO
+  if (comprobante) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.comprobanteContainer}>
+          <MaterialCommunityIcons
+            name="check-circle-outline"
+            size={80}
+            color={COLORS.botonPrincipal}
+          />
+          <Text style={styles.comprobanteTitulo}>¡Canje Confirmado!</Text>
+          <Text style={styles.comprobanteSubtitulo}>
+            Presentá el siguiente código en el punto ecológico de tu municipio para retirar tus insumos:
+          </Text>
+
+          <View style={styles.codigoBox}>
+            <Text style={styles.codigoTexto}>{comprobante.codigoRetiro}</Text>
+          </View>
+
+          <View style={styles.resumenDescuentoBox}>
+            <Text style={styles.textoPuntosDescontados}>
+              Puntos descontados: -{comprobante.puntosDescontados.toLocaleString()} PTS
+            </Text>
+            <Text style={styles.textoSaldoRestante}>
+              Nuevo Saldo: {comprobante.nuevoSaldoPuntos.toLocaleString()} PTS
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            style={styles.botonVolver}
+            onPress={() => {
+              setComprobante(null);
+              navigation.navigate('HomeCitizen');
+            }}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.botonVolverTexto}>Volver al Inicio</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         {/* Encabezado Usuario */}
         <View style={styles.headerContainer}>
           <View style={styles.userInfo}>
-            <View style={styles.avatarPlaceholder} />
+            <View style={styles.avatarPlaceholder}>
+              <MaterialCommunityIcons name="account" size={ICON_SIZE.md} color={COLORS.textoVerdeOscuro} />
+            </View>
             <View>
-              <Text style={styles.welcomeText}>¡Bienvenido, Joaquín!</Text>
+              <Text style={styles.welcomeText}>¡Bienvenido, {user?.name || 'Vecino'}!</Text>
               <Text style={styles.subWelcomeText}>Juntos hacemos una ciudad más limpia 🍃</Text>
             </View>
           </View>
           <View style={styles.pointsBadge}>
             <Text style={styles.pointsLabel}>⭐ Mis puntos</Text>
             <Text style={styles.pointsValue}>{userPoints.toLocaleString()}</Text>
-            <TouchableOpacity activeOpacity={0.7}>
-              <Text style={styles.historyLink}>Ver historial &gt;</Text>
-            </TouchableOpacity>
           </View>
         </View>
 
@@ -56,7 +141,8 @@ export const CartScreen: React.FC = () => {
         {/* Lista de Productos */}
         {carrito.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Tu carrito está vacío 🛒</Text>
+            <MaterialCommunityIcons name="cart-outline" size={60} color={COLORS.textoSecundario} />
+            <Text style={styles.emptyText}>Tu carrito de canje está vacío 🛒</Text>
           </View>
         ) : (
           carrito.map((item) => {
@@ -69,7 +155,7 @@ export const CartScreen: React.FC = () => {
                 <View style={styles.productDetails}>
                   <Text style={styles.productTitle}>{producto.nombre}</Text>
                   <View style={styles.pointsTag}>
-                    <Text style={styles.pointsText}>⭐ {producto.precio} pts</Text>
+                    <Text style={styles.pointsText}>⭐ {producto.precio.toLocaleString()} pts</Text>
                   </View>
                 </View>
                 <View style={styles.actionsContainer}>
@@ -103,7 +189,7 @@ export const CartScreen: React.FC = () => {
           })
         )}
 
-        {/* Resumen y Pago */}
+        {/* Resumen y Procesamiento de Canje */}
         {carrito.length > 0 && (
           <>
             <View style={styles.summaryCard}>
@@ -111,50 +197,42 @@ export const CartScreen: React.FC = () => {
                 <Text style={styles.summaryLabel}>SUBTOTAL:</Text>
                 <Text style={styles.summaryValue}>{subtotal.toLocaleString()} PUNTOS</Text>
               </View>
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>COSTO DE ENVÍO:</Text>
-                <Text style={styles.summaryValue}>
-                  {shippingPoints} PUNTOS (o {shippingARS} ARS)
-                </Text>
-              </View>
 
               <View style={styles.divider} />
 
               <View style={styles.summaryRow}>
-                <Text style={styles.totalLabel}>TOTAL:</Text>
+                <Text style={styles.totalLabel}>TOTAL CANJE:</Text>
                 <Text style={styles.totalValue}>{totalPuntos.toLocaleString()} PUNTOS</Text>
               </View>
-
-              <Text style={styles.sectionTitle}>MÉTODO DE CANJE</Text>
-
-              {/* Opciones Radio Button */}
-              <TouchableOpacity
-                style={styles.radioOption}
-                onPress={() => setMetodoPago('PUNTOS')}
-                activeOpacity={0.8}
-              >
-                <View style={[styles.radioCircle, metodoPago === 'PUNTOS' && styles.selectedRadio]} />
-                <Text style={styles.radioText}>Usar {totalPuntos.toLocaleString()} PUNTOS</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.radioOption}
-                onPress={() => setMetodoPago('ARS')}
-                activeOpacity={0.8}
-              >
-                <View style={[styles.radioCircle, metodoPago === 'ARS' && styles.selectedRadio]} />
-                <Text style={styles.radioText}>
-                  Pagar ${equivalenteARS.toFixed(2)} ARS (equivalente)
-                </Text>
-              </TouchableOpacity>
             </View>
 
-            <Text style={styles.infoText}>
-              Tus {userPoints.toLocaleString()} puntos actuales cubren el subtotal, pagarás la diferencia.
-            </Text>
+            {saldoInsuficiente ? (
+              <View style={styles.insufficientBox}>
+                <MaterialCommunityIcons name="alert-circle-outline" size={20} color={COLORS.textoPeligro} />
+                <Text style={styles.insufficientText}>
+                  Te faltan {(totalPuntos - userPoints).toLocaleString()} puntos para realizar este canje.
+                </Text>
+              </View>
+            ) : (
+              <Text style={styles.infoText}>
+                Al confirmar, se descontarán {totalPuntos.toLocaleString()} puntos de tu saldo y obtendrás un código único para retirar tus insumos.
+              </Text>
+            )}
 
-            <TouchableOpacity style={styles.checkoutButton} activeOpacity={0.8}>
-              <Text style={styles.checkoutButtonText}>PROCESAR CANJE Y CONFIRMAR PEDIDO 🛒</Text>
+            <TouchableOpacity
+              style={[
+                styles.checkoutButton,
+                (saldoInsuficiente || procesando) && styles.disabledButton,
+              ]}
+              onPress={procesarCanje}
+              disabled={saldoInsuficiente || procesando}
+              activeOpacity={0.8}
+            >
+              {procesando ? (
+                <ActivityIndicator size="small" color={COLORS.superficieTarjeta} />
+              ) : (
+                <Text style={styles.checkoutButtonText}>PROCESAR CANJE Y CONFIRMAR 🛒</Text>
+              )}
             </TouchableOpacity>
           </>
         )}
@@ -170,6 +248,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     padding: SPACING.md,
+    paddingBottom: SPACING.lg * 2,
   },
   headerContainer: {
     flexDirection: 'row',
@@ -182,15 +261,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatarPlaceholder: {
-    width: 45,
-    height: 45,
-    borderRadius: 22.5,
-    backgroundColor: COLORS.fondoEncabezado,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: COLORS.fondoTarjeta,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: SPACING.sm,
+    borderWidth: 1,
+    borderColor: COLORS.bordeSuave,
   },
   welcomeText: {
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 15,
     color: COLORS.textoVerdeOscuro,
   },
   subWelcomeText: {
@@ -201,7 +284,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   pointsLabel: {
-    fontSize: 12,
+    fontSize: 11,
     color: COLORS.textoSecundario,
   },
   pointsValue: {
@@ -209,27 +292,25 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: COLORS.textoVerde,
   },
-  historyLink: {
-    fontSize: 10,
-    color: COLORS.textoVerde,
-  },
   screenTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.textoVerde,
+    color: COLORS.textoVerdeOscuro,
     textAlign: 'center',
     marginVertical: SPACING.sm,
   },
   emptyContainer: {
-    padding: SPACING.lg,
+    padding: SPACING.lg * 2,
     alignItems: 'center',
+    gap: SPACING.xs,
   },
   emptyText: {
-    fontSize: 16,
+    fontSize: 15,
     color: COLORS.textoSecundario,
+    marginTop: SPACING.xs,
   },
   card: {
-    backgroundColor: COLORS.fondoTarjeta,
+    backgroundColor: COLORS.superficieTarjeta,
     borderRadius: BORDER_RADIUS.md,
     borderWidth: 1,
     borderColor: COLORS.bordeSuave,
@@ -239,8 +320,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   productImage: {
-    width: 70,
-    height: 70,
+    width: 65,
+    height: 65,
     borderRadius: BORDER_RADIUS.sm,
   },
   productDetails: {
@@ -248,7 +329,7 @@ const styles = StyleSheet.create({
     marginLeft: SPACING.sm,
   },
   productTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: COLORS.textoVerdeOscuro,
   },
@@ -256,7 +337,7 @@ const styles = StyleSheet.create({
     marginTop: SPACING.xs,
   },
   pointsText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     color: COLORS.textoVerde,
   },
@@ -266,14 +347,14 @@ const styles = StyleSheet.create({
   quantityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.superficieTarjeta,
+    backgroundColor: COLORS.fondoAplicacion,
     borderRadius: BORDER_RADIUS.sm,
     borderWidth: 1,
     borderColor: COLORS.bordeSuave,
   },
   qtyBtn: {
     paddingHorizontal: SPACING.sm,
-    paddingVertical: SPACING.xs,
+    paddingVertical: 2,
   },
   qtyBtnText: {
     fontSize: 16,
@@ -284,6 +365,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.xs,
     fontWeight: 'bold',
     color: COLORS.textoVerdeOscuro,
+    fontSize: 13,
   },
   deleteButton: {
     marginTop: SPACING.xs,
@@ -294,7 +376,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   summaryCard: {
-    backgroundColor: COLORS.fondoTarjeta,
+    backgroundColor: COLORS.superficieTarjeta,
     borderRadius: BORDER_RADIUS.md,
     borderWidth: 1,
     borderColor: COLORS.bordeSuave,
@@ -304,74 +386,126 @@ const styles = StyleSheet.create({
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginVertical: SPACING.xs,
+    marginVertical: 2,
   },
   summaryLabel: {
-    fontSize: 14,
-    color: COLORS.textoVerdeOscuro,
-    fontWeight: '500',
+    fontSize: 13,
+    color: COLORS.textoSecundario,
+    fontWeight: '600',
   },
   summaryValue: {
-    fontSize: 14,
+    fontSize: 13,
     color: COLORS.textoVerdeOscuro,
     fontWeight: 'bold',
   },
   divider: {
     height: 1,
     backgroundColor: COLORS.bordeSuave,
-    marginVertical: SPACING.sm,
+    marginVertical: SPACING.xs,
   },
   totalLabel: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
     color: COLORS.textoVerdeOscuro,
   },
   totalValue: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
-    color: COLORS.textoVerdeOscuro,
+    color: COLORS.botonPrincipal,
   },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: COLORS.textoVerdeOscuro,
-    marginTop: SPACING.sm,
-    marginBottom: SPACING.xs,
-  },
-  radioOption: {
+  insufficientBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: SPACING.xs,
-  },
-  radioCircle: {
-    height: 16,
-    width: 16,
+    gap: SPACING.xs,
+    backgroundColor: COLORS.fondoPeligro,
+    borderColor: COLORS.bordePeligro,
+    borderWidth: 1,
+    padding: SPACING.sm,
     borderRadius: BORDER_RADIUS.sm,
-    borderWidth: 2,
-    borderColor: COLORS.textoVerde,
-    marginRight: SPACING.sm,
+    marginVertical: SPACING.md,
   },
-  selectedRadio: {
-    backgroundColor: COLORS.textoVerde,
-  },
-  radioText: {
-    fontSize: 14,
-    color: COLORS.textoVerdeOscuro,
+  insufficientText: {
+    flex: 1,
+    fontSize: 12,
+    color: COLORS.textoPeligro,
+    fontWeight: 'bold',
   },
   infoText: {
     textAlign: 'center',
     fontSize: 12,
     color: COLORS.textoSecundario,
-    marginVertical: SPACING.sm,
+    marginVertical: SPACING.md,
   },
   checkoutButton: {
     backgroundColor: COLORS.botonPrincipal,
-    borderRadius: BORDER_RADIUS.lg,
+    borderRadius: BORDER_RADIUS.md,
     paddingVertical: SPACING.md,
+    alignItems: 'center',
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  checkoutButtonText: {
+    color: COLORS.superficieTarjeta,
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  comprobanteContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.lg,
+  },
+  comprobanteTitulo: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: COLORS.textoVerdeOscuro,
+    marginTop: SPACING.md,
+  },
+  comprobanteSubtitulo: {
+    fontSize: 13,
+    color: COLORS.textoSecundario,
+    textAlign: 'center',
+    marginVertical: SPACING.sm,
+  },
+  codigoBox: {
+    backgroundColor: COLORS.superficieTarjeta,
+    borderWidth: 2,
+    borderColor: COLORS.botonPrincipal,
+    borderStyle: 'dashed',
+    borderRadius: BORDER_RADIUS.md,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+    marginVertical: SPACING.md,
+  },
+  codigoTexto: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: COLORS.botonPrincipal,
+    letterSpacing: 2,
+  },
+  resumenDescuentoBox: {
     alignItems: 'center',
     marginBottom: SPACING.lg,
   },
-  checkoutButtonText: {
+  textoPuntosDescontados: {
+    fontSize: 13,
+    color: COLORS.textoPeligro,
+    fontWeight: '600',
+  },
+  textoSaldoRestante: {
+    fontSize: 14,
+    color: COLORS.textoVerdeOscuro,
+    fontWeight: 'bold',
+    marginTop: 2,
+  },
+  botonVolver: {
+    backgroundColor: COLORS.botonPrincipal,
+    paddingHorizontal: SPACING.xl,
+    paddingVertical: SPACING.sm + 2,
+    borderRadius: BORDER_RADIUS.md,
+  },
+  botonVolverTexto: {
     color: COLORS.superficieTarjeta,
     fontWeight: 'bold',
     fontSize: 14,
