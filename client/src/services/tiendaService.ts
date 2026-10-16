@@ -26,7 +26,8 @@ export interface ResultadoCanje {
 export const tiendaService = {
   // Obtener catálogo de insumos ecológicos
   obtenerProductos: async (): Promise<Producto[]> => {
-    return await api.get<Producto[]>('/api/productos');
+    const res = await api.get<{ success: boolean; data: Producto[] } | Producto[]>('/api/productos');
+    return Array.isArray(res) ? res : res.data || [];
   },
 
   // Procesar canje deduciendo puntos

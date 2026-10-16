@@ -2,43 +2,23 @@
 import { Producto } from '../interfaces/product';
 import { MOCK_PRODUCTOS } from '../mocks/productos';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.0.47:4000';
-
-export const obtenerProductos = async (
-  categoria?: string,
-  busqueda?: string
-): Promise<Producto[]> => {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-
-  let resultados = [...MOCK_PRODUCTOS];
-
-  if (categoria && categoria !== 'Todos') {
-    resultados = resultados.filter(
-      (prod) => prod.categoria?.toLowerCase() === categoria.toLowerCase()
-    );
-  }
-
-  if (busqueda && busqueda.trim() !== '') {
-    const termino = busqueda.toLowerCase();
-    resultados = resultados.filter(
-      (prod) =>
-        prod.nombre.toLowerCase().includes(termino) ||
-        prod.descripcion?.toLowerCase().includes(termino)
-    );
-  }
-
-  return resultados;
-};
+const RAW_API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:4000';
+export const API_URL = RAW_API_URL.replace(/\/api\/?$/, '').replace(/\/$/, '');
 
 export const clienteApi = async <T>(
   endpoint: string,
   opciones: RequestInit = {}
 ): Promise<T> => {
-  const url = `${API_URL}${endpoint}`;
+  const rutaNormalizada = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const rutaConApi = rutaNormalizada.startsWith('/api/')
+    ? rutaNormalizada
+    : `/api${rutaNormalizada}`;
+  const url = `${API_URL}${rutaConApi}`;
 
-  const headers = {
-    'Content-Type': 'application/json',
-    ...opciones.headers,
+  const esFormData = typeof FormData !== 'undefined' && opciones.body instanceof FormData;
+  const headers: Record<string, string> = {
+    ...(esFormData ? {} : { 'Content-Type': 'application/json' }),
+    ...(opciones.headers as Record<string, string>),
   };
 
   try {
@@ -84,4 +64,56 @@ export const api = {
 
   delete: <T>(endpoint: string, opciones?: RequestInit) =>
     clienteApi<T>(endpoint, { method: 'DELETE', ...opciones }),
+};
+
+export const obtenerProductos = async (
+  categoria?: string,
+  busqueda?: string
+): Promise<Producto[]> => {
+  let resultados: Producto[] = [];
+
+  try {
+    const params: Record<string, string> = {};
+    if (busqueda && busqueda.trim() !== '') {
+      params.busqueda = busqueda.trim();
+    }
+    const queryStr = new URLSearchParams(params).toString();
+    const endpoint = queryStr ? `/api/productos?${queryStr}` : '/api/productos';
+    const res = await api.get<{ success: boolean; data: any[] } | any[]>(endpoint);
+    const lista = Array.isArray(res) ? res : res.data || [];
+
+    if (lista.length > 0) {
+      resultados = lista.map((item: any) => ({
+        id: item.id,
+        nombre: item.nombre ?? item.titulo ?? '',
+        descripcion: item.descripcion ?? '',
+        precio: item.precio ?? item.costoPuntos ?? 0,
+        categoria: item.categoria ?? 'Todos',
+        urlImagen: item.urlImagen ?? item.imagenUrl ?? 'https://via.placeholder.com/150',
+        stock: item.stock ?? 0,
+        creadoEn: item.creadoEn,
+      }));
+    } else {
+      resultados = [...MOCK_PRODUCTOS];
+    }
+  } catch {
+    resultados = [...MOCK_PRODUCTOS];
+  }
+
+  if (categoria && categoria !== 'Todos') {
+    resultados = resultados.filter(
+      (prod) => !prod.categoria || prod.categoria === 'Todos' || prod.categoria.toLowerCase() === categoria.toLowerCase()
+    );
+  }
+
+  if (busqueda && busqueda.trim() !== '') {
+    const termino = busqueda.toLowerCase();
+    resultados = resultados.filter(
+      (prod) =>
+        prod.nombre.toLowerCase().includes(termino) ||
+        prod.descripcion?.toLowerCase().includes(termino)
+    );
+  }
+
+  return resultados;
 };
