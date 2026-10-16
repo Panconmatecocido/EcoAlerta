@@ -86,6 +86,12 @@ All specifications and code contributions MUST adhere to a test-first discipline
   - Catalog: Reusable bag (40 pts), Eco bottle (100 pts), Eco cap (80 pts), Sustainable thermos (500 pts, stock = 1 for TTL concurrency), and 1 inactive product.
   - Redemptions: 1 pending pickup (`ECO-7894-K`), 1 delivered, 1 expired (>30 days).
 
+### VIII. Guest Mode, Welcome Home & Progressive Auth Gate (RF-AUT-06 a 08)
+Unauthenticated visitors (`user === null`, Guest Mode) MUST NOT be blocked at the Login screen upon launching the application. Instead:
+- **Guest Welcome Home:** The app boots directly into the Guest Welcome Home screen explaining how Eco Alerta works (reporting environmental hazards, municipal verification, earning eco-points, and redeeming sustainable rewards).
+- **Header CTA Replacement:** In the welcome card where the logged-in user's avatar icon and name normally appear, Guest Mode MUST render an interactive call-to-action button labeled **"Regístrate para empezar a usar la app"** that navigates to the Registration/Login flow.
+- **Read-Only Exploration & Auth Gate:** Guests can freely browse the Welcome Home and view products in the Ecological Store, but CANNOT add items to the cart, report hazards via Camera, or open Profile/History. Attempting any action or route that requires user identity MUST be intercepted by an Auth Gate prompting the visitor to register or log in.
+
 ## Technical Constraints & Performance Standards (RNF)
 
 - **RNF-01 (Performance & Latency):** Local storage operations (`AsyncStorage`) MUST execute in `< 300 ms`. Backend API endpoints MUST respond in `< 600 ms` under standard network conditions.
@@ -96,6 +102,7 @@ All specifications and code contributions MUST adhere to a test-first discipline
 - **RNF-06 (Decoupled Services):** Direct `fetch` calls inside React UI components are strictly forbidden. All requests must go through designated service modules (`api.ts`, `adminService.ts`, `reportService.ts`, `storeService.ts`).
 - **RNF-07 (Security & Encryption):** Passwords MUST never be stored in plain text. JWT/Session tokens must be securely stored.
 - **RNF-08 (Auditing & Soft Deletes):** Timestamps (`creadoEn`, `actualizadoEn`, `fechaVerificacion`, `fechaResolucion`) and audit logs MUST be captured for every administrative state change.
+- **RNF-09 (Frictionless Guest Onboarding & Auth Gate Latency):** Cold start for unauthenticated users MUST land on the Guest Welcome Home in `< 300 ms`, and Auth Gate interceptions on protected actions (Camera, Profile, Add to Cart) MUST trigger in `< 100 ms` without crashes.
 
 ## Development Workflow & Spec Kit Quality Gates
 
@@ -118,6 +125,6 @@ The engineering team adheres strictly to the following 4-step Spec Kit lifecycle
    - **MAJOR (X.0.0):** Incompatible governance shifts, architectural overhauls, or breaking model deletions.
    - **MINOR (1.X.0):** Addition of new modules, principles, roles, or non-destructive schema extensions.
    - **PATCH (1.0.X):** Refinements, wording clarifications, and bug fixes in documentation.
-4. **Compliance Verification:** Prior to merging any Spec Kit task, the implementer must verify adherence to Principles I through VII.
+4. **Compliance Verification:** Prior to merging any Spec Kit task, the implementer must verify adherence to Principles I through VIII.
 
-**Version**: 1.1.0 | **Ratified**: 2026-10-14 | **Last Amended**: 2026-10-14
+**Version**: 1.2.0 | **Ratified**: 2026-10-14 | **Last Amended**: 2026-10-15
