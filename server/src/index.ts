@@ -20,6 +20,6 @@ app.use('/api/denuncias', denunciasRoutes);
 app.use('/api/agentes', agentesRoutes);
 app.use('/api/productos', productosRoutes);
 
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor EcoAlerta corriendo en http://localhost:${PORT}`);
+app.listen(Number(PORT), '0.0.0.0', () => {
+  console.log(`🚀 Servidor EcoAlerta corriendo en http://localhost:${PORT} (Red local: http://192.168.1.62:${PORT})`);
 });
