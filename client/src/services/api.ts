@@ -1,7 +1,34 @@
 // src/services/api.ts
+import { Producto } from '../interfaces/product';
+import { MOCK_PRODUCTOS } from '../mocks/productos';
 
-// Reemplazá '192.168.1.X' por la IP local de tu PC en la red WiFi (o la IP que te da Expo en la terminal)
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.0.47:4000/api';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.0.47:4000';
+
+export const obtenerProductos = async (
+  categoria?: string,
+  busqueda?: string
+): Promise<Producto[]> => {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+
+  let resultados = [...MOCK_PRODUCTOS];
+
+  if (categoria && categoria !== 'Todos') {
+    resultados = resultados.filter(
+      (prod) => prod.categoria?.toLowerCase() === categoria.toLowerCase()
+    );
+  }
+
+  if (busqueda && busqueda.trim() !== '') {
+    const termino = busqueda.toLowerCase();
+    resultados = resultados.filter(
+      (prod) =>
+        prod.nombre.toLowerCase().includes(termino) ||
+        prod.descripcion?.toLowerCase().includes(termino)
+    );
+  }
+
+  return resultados;
+};
 
 export const clienteApi = async <T>(
   endpoint: string,
@@ -27,4 +54,34 @@ export const clienteApi = async <T>(
     console.error(`Error HTTP en ${endpoint}:`, error.message);
     throw error;
   }
+};
+
+// Envoltorio con métodos HTTP conveniente para adminService u otros servicios
+export const api = {
+  get: <T>(endpoint: string, opciones?: RequestInit) =>
+    clienteApi<T>(endpoint, { method: 'GET', ...opciones }),
+
+  post: <T>(endpoint: string, body?: any, opciones?: RequestInit) =>
+    clienteApi<T>(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      ...opciones,
+    }),
+
+  patch: <T>(endpoint: string, body?: any, opciones?: RequestInit) =>
+    clienteApi<T>(endpoint, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+      ...opciones,
+    }),
+
+  put: <T>(endpoint: string, body?: any, opciones?: RequestInit) =>
+    clienteApi<T>(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+      ...opciones,
+    }),
+
+  delete: <T>(endpoint: string, opciones?: RequestInit) =>
+    clienteApi<T>(endpoint, { method: 'DELETE', ...opciones }),
 };

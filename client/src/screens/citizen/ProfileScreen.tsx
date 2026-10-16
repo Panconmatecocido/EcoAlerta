@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+// src/screens/citizen/ProfileScreen.tsx
+
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,32 +10,66 @@ import {
   StatusBar,
   Image,
   Alert,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../context/AuthContext';
-import { COLORS } from '../../utils/theme';
-import { MOCK_DENUNCIAS, DenunciaMock } from '../../mocks/denuncias';
-import { MOCK_COMPRAS, CompraMock } from '../../mocks/compras';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
+import { denunciaService, DenunciaCiudadano } from '../../services/denunciasService';
+import { tiendaService, ResultadoCanje } from '../../services/tiendaService';
+import { BarraEstadoDenuncia } from '../../components/BarraEstadoDenuncia';
 
 export const ProfileScreen: React.FC = () => {
   const { user: usuario } = useAuth();
   const [pestanaActiva, setPestanaActiva] = useState<'denuncias' | 'compras'>('denuncias');
-  
-  // Estado local para la foto de perfil elegida
+
+  // Estados de datos remotos
+  const [denuncias, setDenuncias] = useState<DenunciaCiudadano[]>([]);
+  const [canjes, setCanjes] = useState<ResultadoCanje[]>([]);
+  const [cargando, setCargando] = useState<boolean>(true);
+  const [refrescando, setRefrescando] = useState<boolean>(false);
+
+  // Foto de perfil local o del usuario
   const [fotoPerfilUri, setFotoPerfilUri] = useState<string | null>(null);
 
-  // Suma total de puntos gastados en compras mokeadas
-  const totalPuntosGastados = MOCK_COMPRAS.reduce(
-    (acumulado, compra) => acumulado + compra.puntosUsados,
+  // Carga de datos desde la API
+  const cargarDatosPerfil = useCallback(async () => {
+    try {
+      const [misDenuncias] = await Promise.all([
+        denunciaService.obtenerMisDenuncias(),
+        // Nota: Si cuentas con endpoint de historial de canjes en el backend, lo sumas aquí
+      ]);
+      setDenuncias(misDenuncias);
+    } catch (error) {
+      console.error('Error al cargar datos del perfil:', error);
+    } finally {
+      setCargando(false);
+      setRefrescando(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    cargarDatosPerfil();
+  }, [cargarDatosPerfil]);
+
+  const alRefrescar = () => {
+    setRefrescando(true);
+    cargarDatosPerfil();
+  };
+
+  // Puntos consumidos calculados sobre denuncias/canjes
+  const totalPuntosGastados = canjes.reduce(
+    (acumulado, canje) => acumulado + canje.puntosDescontados,
     0
   );
 
-  // Función para seleccionar imagen de la galería
+  // Funciones de captura e imagen de perfil
   const seleccionarDeGaleria = async () => {
     const resultadoPermiso = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    
+
     if (!resultadoPermiso.granted) {
       Alert.alert(
         'Permiso requerido',
@@ -45,7 +81,7 @@ export const ProfileScreen: React.FC = () => {
     const resultado = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [1, 1], // Mantiene la foto cuadrada/circular
+      aspect: [1, 1],
       quality: 0.8,
     });
 
@@ -54,7 +90,6 @@ export const ProfileScreen: React.FC = () => {
     }
   };
 
-  // Función para tomar foto desde la cámara
   const tomarFotoConCamara = async () => {
     const resultadoPermiso = await ImagePicker.requestCameraPermissionsAsync();
 
@@ -77,7 +112,6 @@ export const ProfileScreen: React.FC = () => {
     }
   };
 
-  // Menú modal de opciones al tocar el avatar o la camarita
   const mostrarOpcionesFoto = () => {
     Alert.alert(
       'Foto de Perfil',
@@ -91,26 +125,24 @@ export const ProfileScreen: React.FC = () => {
     );
   };
 
-  const obtenerEtiquetaEstado = (estado: DenunciaMock['estado']) => {
-    switch (estado) {
-      case 'APROBADO':
-        return { texto: 'Aprobado', colorTexto: '#2e7d32', colorFondo: '#e8f5e9' };
-      case 'PENDIENTE':
-        return { texto: 'Pendiente', colorTexto: '#ed6c02', colorFondo: '#fff4e5' };
-      case 'RECHAZADO':
-        return { texto: 'Rechazado', colorTexto: '#d32f2f', colorFondo: '#fdeded' };
-    }
-  };
-
   return (
     <SafeAreaView style={estilos.contenedor}>
       <StatusBar backgroundColor={COLORS.fondoEncabezado} barStyle="dark-content" />
-      <ScrollView contentContainerStyle={estilos.contenidoScroll}>
-        
+      <ScrollView
+        contentContainerStyle={estilos.contenidoScroll}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refrescando}
+            onRefresh={alRefrescar}
+            colors={[COLORS.botonPrincipal]}
+          />
+        }
+      >
         {/* Cabecera del Perfil con Foto Interactiva */}
         <View style={estilos.cabecera}>
-          <TouchableOpacity 
-            style={estilos.contenedorAvatar} 
+          <TouchableOpacity
+            style={estilos.contenedorAvatar}
             onPress={mostrarOpcionesFoto}
             activeOpacity={0.8}
           >
@@ -119,10 +151,10 @@ export const ProfileScreen: React.FC = () => {
             ) : (
               <Ionicons name="person" size={44} color={COLORS.textoVerdeOscuro} />
             )}
-            
+
             {/* Botón flotante de cámara */}
             <View style={estilos.botonCambiarFoto}>
-              <Ionicons name="camera" size={14} color="#FFFFFF" />
+              <Ionicons name="camera" size={14} color={COLORS.superficieTarjeta} />
             </View>
           </TouchableOpacity>
 
@@ -133,13 +165,13 @@ export const ProfileScreen: React.FC = () => {
         {/* Tarjeta de Resumen de Puntos */}
         <View style={estilos.contenedorPuntos}>
           <View style={estilos.tarjetaPunto}>
-            <MaterialCommunityIcons name="leaf" size={24} color={COLORS.iconoPrincipal} />
+            <MaterialCommunityIcons name="leaf" size={ICON_SIZE.md} color={COLORS.botonPrincipal} />
             <Text style={estilos.valorPunto}>{usuario?.points ?? 0}</Text>
             <Text style={estilos.etiquetaPunto}>Puntos Disponibles</Text>
           </View>
           <View style={estilos.divisorPuntos} />
           <View style={estilos.tarjetaPunto}>
-            <MaterialCommunityIcons name="cart-arrow-down" size={24} color={COLORS.textoSecundario} />
+            <MaterialCommunityIcons name="cart-arrow-down" size={ICON_SIZE.md} color={COLORS.textoSecundario} />
             <Text style={[estilos.valorPunto, { color: COLORS.textoSecundario }]}>
               {totalPuntosGastados}
             </Text>
@@ -162,7 +194,7 @@ export const ProfileScreen: React.FC = () => {
                 pestanaActiva === 'denuncias' && estilos.textoPestanaActiva,
               ]}
             >
-              Mis Denuncias ({MOCK_DENUNCIAS.length})
+              Mis Denuncias ({denuncias.length})
             </Text>
           </TouchableOpacity>
 
@@ -179,51 +211,74 @@ export const ProfileScreen: React.FC = () => {
                 pestanaActiva === 'compras' && estilos.textoPestanaActiva,
               ]}
             >
-              Canjes ({MOCK_COMPRAS.length})
+              Canjes ({canjes.length})
             </Text>
           </TouchableOpacity>
         </View>
 
-        {/* Lista de Denuncias */}
-        {pestanaActiva === 'denuncias' && (
-          <View style={estilos.contenedorLista}>
-            {MOCK_DENUNCIAS.map((denuncia) => {
-              const etiqueta = obtenerEtiquetaEstado(denuncia.estado);
-              return (
-                <View key={denuncia.id} style={estilos.tarjetaElemento}>
-                  <View style={estilos.encabezadoTarjeta}>
-                    <Text style={estilos.tituloTarjeta}>{denuncia.titulo}</Text>
-                    <View style={[estilos.placaEstado, { backgroundColor: etiqueta.colorFondo }]}>
-                      <Text style={[estilos.textoPlaca, { color: etiqueta.colorTexto }]}>
-                        {etiqueta.texto}
-                      </Text>
-                    </View>
+        {/* Contenido de Pestañas */}
+        {cargando ? (
+          <ActivityIndicator size="large" color={COLORS.botonPrincipal} style={{ marginTop: SPACING.lg }} />
+        ) : (
+          <>
+            {/* Lista de Denuncias */}
+            {pestanaActiva === 'denuncias' && (
+              <View style={estilos.contenedorLista}>
+                {denuncias.length === 0 ? (
+                  <View style={estilos.contenedorVacio}>
+                    <MaterialCommunityIcons name="clipboard-text-outline" size={48} color={COLORS.textoSecundario} />
+                    <Text style={estilos.textoVacio}>Aún no registraste ninguna alerta ambiental.</Text>
                   </View>
-                  <Text style={estilos.subtextoTarjeta}>Categoría: {denuncia.categoria}</Text>
-                  <Text style={estilos.subtextoTarjeta}>Ubicación: {denuncia.ubicacion}</Text>
-                  <Text style={estilos.fechaTarjeta}>Fecha: {denuncia.fecha}</Text>
-                </View>
-              );
-            })}
-          </View>
-        )}
+                ) : (
+                  denuncias.map((denuncia) => (
+                    <View key={denuncia.id} style={estilos.tarjetaElemento}>
+                      <View style={estilos.encabezadoTarjeta}>
+                        <Text style={estilos.tituloTarjeta}>{denuncia.titulo}</Text>
+                        <Text style={estilos.fechaTarjeta}>{denuncia.fecha}</Text>
+                      </View>
 
-        {/* Lista de Compras / Canjes */}
-        {pestanaActiva === 'compras' && (
-          <View style={estilos.contenedorLista}>
-            {MOCK_COMPRAS.map((compra) => (
-              <View key={compra.id} style={estilos.tarjetaElemento}>
-                <View style={estilos.encabezadoTarjeta}>
-                  <Text style={estilos.tituloTarjeta}>{compra.nombreProducto}</Text>
-                  <Text style={estilos.textoPuntosGastados}>-{compra.puntosUsados} pts</Text>
-                </View>
-                <Text style={estilos.subtextoTarjeta}>Estado del canje: {compra.estado}</Text>
-                <Text style={estilos.fechaTarjeta}>Fecha: {compra.fecha}</Text>
+                      <Text style={estilos.subtextoTarjeta}>📌 Categoría: {denuncia.categoria}</Text>
+                      <Text style={estilos.subtextoTarjeta}>📍 Ubicación: {denuncia.ubicacion}</Text>
+
+                      {denuncia.fotoUrl && (
+                        <Image source={{ uri: denuncia.fotoUrl }} style={estilos.imagenEvidencia} />
+                      )}
+
+                      <Text style={estilos.descripcionTarjeta} numberOfLines={2}>
+                        {denuncia.descripcion}
+                      </Text>
+
+                      {/* Componente dinámico de trazabilidad */}
+                      <BarraEstadoDenuncia estado={denuncia.estado} />
+                    </View>
+                  ))
+                )}
               </View>
-            ))}
-          </View>
-        )}
+            )}
 
+            {/* Lista de Compras / Canjes */}
+            {pestanaActiva === 'compras' && (
+              <View style={estilos.contenedorLista}>
+                {canjes.length === 0 ? (
+                  <View style={estilos.contenedorVacio}>
+                    <MaterialCommunityIcons name="cart-off" size={48} color={COLORS.textoSecundario} />
+                    <Text style={estilos.textoVacio}>Aún no realizaste canjes de productos ecológicos.</Text>
+                  </View>
+                ) : (
+                  canjes.map((canje) => (
+                    <View key={canje.id} style={estilos.tarjetaElemento}>
+                      <View style={estilos.encabezadoTarjeta}>
+                        <Text style={estilos.tituloTarjeta}>Código: {canje.codigoRetiro}</Text>
+                        <Text style={estilos.textoPuntosGastados}>-{canje.puntosDescontados} PTS</Text>
+                      </View>
+                      <Text style={estilos.subtextoTarjeta}>Fecha: {canje.fecha}</Text>
+                    </View>
+                  ))
+                )}
+              </View>
+            )}
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -235,15 +290,15 @@ const estilos = StyleSheet.create({
     backgroundColor: COLORS.fondoAplicacion,
   },
   contenidoScroll: {
-    paddingBottom: 24,
+    paddingBottom: SPACING.lg * 2,
   },
   cabecera: {
     backgroundColor: COLORS.fondoEncabezado,
     alignItems: 'center',
-    paddingVertical: 24,
-    paddingHorizontal: 16,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    paddingVertical: SPACING.lg,
+    paddingHorizontal: SPACING.md,
+    borderBottomLeftRadius: BORDER_RADIUS.lg,
+    borderBottomRightRadius: BORDER_RADIUS.lg,
   },
   contenedorAvatar: {
     position: 'relative',
@@ -253,12 +308,8 @@ const estilos = StyleSheet.create({
     backgroundColor: COLORS.superficieTarjeta,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: SPACING.sm,
     elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
   },
   imagenPerfil: {
     width: 84,
@@ -291,15 +342,13 @@ const estilos = StyleSheet.create({
   contenedorPuntos: {
     flexDirection: 'row',
     backgroundColor: COLORS.superficieTarjeta,
-    marginHorizontal: 16,
+    marginHorizontal: SPACING.md,
     marginTop: -20,
-    borderRadius: 12,
-    paddingVertical: 16,
+    borderRadius: BORDER_RADIUS.md,
+    paddingVertical: SPACING.md,
     elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    borderWidth: 1,
+    borderColor: COLORS.bordeSuave,
   },
   tarjetaPunto: {
     flex: 1,
@@ -307,7 +356,7 @@ const estilos = StyleSheet.create({
   },
   divisorPuntos: {
     width: 1,
-    backgroundColor: '#e5eedb',
+    backgroundColor: COLORS.bordeSuave,
   },
   valorPunto: {
     fontSize: 22,
@@ -321,10 +370,10 @@ const estilos = StyleSheet.create({
   },
   barraPestanas: {
     flexDirection: 'row',
-    marginHorizontal: 16,
-    marginTop: 24,
-    marginBottom: 12,
-    borderRadius: 8,
+    marginHorizontal: SPACING.md,
+    marginTop: SPACING.lg,
+    marginBottom: SPACING.sm,
+    borderRadius: BORDER_RADIUS.sm,
     backgroundColor: COLORS.fondoTarjeta,
     padding: 4,
   },
@@ -332,7 +381,7 @@ const estilos = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     alignItems: 'center',
-    borderRadius: 6,
+    borderRadius: BORDER_RADIUS.sm - 2,
   },
   botonPestanaActiva: {
     backgroundColor: COLORS.superficieTarjeta,
@@ -347,21 +396,31 @@ const estilos = StyleSheet.create({
     color: COLORS.textoVerdeOscuro,
   },
   contenedorLista: {
-    paddingHorizontal: 16,
+    paddingHorizontal: SPACING.md,
+  },
+  contenedorVacio: {
+    alignItems: 'center',
+    marginTop: SPACING.lg,
+    gap: SPACING.xs,
+  },
+  textoVacio: {
+    fontSize: 13,
+    color: COLORS.textoSecundario,
+    textAlign: 'center',
   },
   tarjetaElemento: {
     backgroundColor: COLORS.superficieTarjeta,
-    borderRadius: 10,
-    padding: 14,
-    marginBottom: 12,
+    borderRadius: BORDER_RADIUS.md,
+    padding: SPACING.md,
+    marginBottom: SPACING.sm,
     borderWidth: 1,
-    borderColor: '#e5eedb',
+    borderColor: COLORS.bordeSuave,
   },
   encabezadoTarjeta: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: SPACING.xs,
   },
   tituloTarjeta: {
     fontSize: 15,
@@ -369,28 +428,29 @@ const estilos = StyleSheet.create({
     color: COLORS.textoVerdeOscuro,
     flex: 1,
   },
-  placaEstado: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  textoPlaca: {
-    fontSize: 11,
-    fontWeight: '700',
-  },
   subtextoTarjeta: {
-    fontSize: 13,
+    fontSize: 12,
     color: COLORS.textoSecundario,
     marginBottom: 2,
   },
+  descripcionTarjeta: {
+    fontSize: 12,
+    color: COLORS.textoVerdeOscuro,
+    marginVertical: SPACING.xs,
+  },
+  imagenEvidencia: {
+    width: '100%',
+    height: 120,
+    borderRadius: BORDER_RADIUS.sm,
+    marginVertical: SPACING.xs,
+  },
   fechaTarjeta: {
     fontSize: 11,
-    color: '#888',
-    marginTop: 4,
+    color: COLORS.textoSecundario,
   },
   textoPuntosGastados: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.textoVerde,
+    color: COLORS.textoPeligro,
   },
 });

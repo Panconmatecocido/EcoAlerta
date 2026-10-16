@@ -1,8 +1,6 @@
 // src/services/adminService.ts
-
-import { clienteApi } from './api';
-import { DenunciaMock } from '../mocks/denuncias';
-import { AgenteResumen, MetricasAdmin } from '../mocks/adminDashboard';
+import { api } from './api';
+import { MetricasAdmin } from '../mocks/adminDashboard';
 
 export interface RespuestaApi<T> {
   success: boolean;
@@ -10,63 +8,75 @@ export interface RespuestaApi<T> {
   message?: string;
 }
 
+export interface Agente {
+  id: string;
+  nombre: string;
+  email: string;
+  disponible: boolean;
+  casosAsignados: number;
+}
+
+export interface Denuncia {
+  id: string;
+  titulo: string;
+  categoria: string;
+  ubicacion: string;
+  fecha: string;
+  estado: 'PENDIENTE' | 'EN_PROCESO' | 'RESUELTO' | 'RECHAZADO';
+  agenteAsignadoId?: string;
+  agenteAsignadoNombre?: string;
+}
+
 export const adminService = {
-  // Obtener métricas para el inicio del Admin
+  // Métricas
   obtenerMetricas: async (municipioId?: string): Promise<MetricasAdmin> => {
     const query = municipioId ? `?municipioId=${municipioId}` : '';
-    const res = await clienteApi<RespuestaApi<MetricasAdmin>>(`/denuncias/metricas${query}`);
-    return res.data;
+    const res = await api.get<RespuestaApi<MetricasAdmin> | MetricasAdmin>(
+      `/api/denuncias/metricas${query}`
+    );
+    return 'data' in res ? res.data : res;
   },
 
-  // Obtener lista de denuncias filtradas
-  obtenerDenuncias: async (filtro = 'TODAS', busqueda = '', municipioId?: string): Promise<DenunciaMock[]> => {
-    const params = new URLSearchParams();
-    if (filtro !== 'TODAS') params.append('estado', filtro);
-    if (busqueda) params.append('busqueda', busqueda);
-    if (municipioId) params.append('municipioId', municipioId);
+  // Denuncias
+  obtenerDenuncias: async (params?: { estado?: string; busqueda?: string; municipioId?: string }): Promise<Denuncia[]> => {
+    const cleanParams: Record<string, string> = {};
+    if (params?.estado && params.estado !== 'TODAS') cleanParams.estado = params.estado;
+    if (params?.busqueda) cleanParams.busqueda = params.busqueda;
+    if (params?.municipioId) cleanParams.municipioId = params.municipioId;
 
-    const query = params.toString() ? `?${params.toString()}` : '';
-    const res = await clienteApi<RespuestaApi<any[]>>(`/denuncias${query}`);
+    const queryStr = new URLSearchParams(cleanParams).toString();
+    const endpoint = queryStr ? `/api/denuncias?${queryStr}` : '/api/denuncias';
+    const res = await api.get<RespuestaApi<any[]> | any[]>(endpoint);
+    const lista = Array.isArray(res) ? res : res.data || [];
 
-    // Mapeo para adaptar los campos de la base de datos de Supabase a los componentes del cliente
-    return res.data.map((item) => ({
+    return lista.map((item: any) => ({
       id: item.id,
       titulo: item.titulo,
       categoria: item.categoria,
-      fecha: new Date(item.creadoEn).toISOString().split('T')[0],
+      ubicacion: item.ubicacion ?? item.direccion ?? '',
+      fecha: item.fecha ?? (item.creadoEn ? new Date(item.creadoEn).toISOString().split('T')[0] : ''),
       estado: item.estado,
-      ubicacion: item.direccion,
+      agenteAsignadoId: item.agenteAsignadoId ?? item.agenteId ?? item.agente?.id,
+      agenteAsignadoNombre: item.agenteAsignadoNombre ?? item.agente?.nombre,
     }));
   },
 
-  // Cambiar estado de una denuncia
-  cambiarEstadoDenuncia: async (id: string, nuevoEstado: string) => {
-    return clienteApi<RespuestaApi<any>>(`/denuncias/${id}/estado`, {
-      method: 'PATCH',
-      body: JSON.stringify({ estado: nuevoEstado }),
-    });
+  actualizarEstadoDenuncia: async (id: string, estado: string) => {
+    return await api.patch<RespuestaApi<any>>(`/api/denuncias/${id}/estado`, { estado });
   },
 
-  // Asignar agente de campo
-  asignarAgente: async (denunciaId: string, agenteId: string) => {
-    return clienteApi<RespuestaApi<any>>(`/denuncias/${denunciaId}/asignar`, {
-      method: 'PATCH',
-      body: JSON.stringify({ agenteId }),
-    });
+  asignarAgenteDenuncia: async (denunciaId: string, agenteId: string) => {
+    return await api.patch<RespuestaApi<any>>(`/api/denuncias/${denunciaId}/asignar`, { agenteId });
   },
 
-  // Obtener lista de agentes de campo
-  obtenerAgentes: async (municipioId?: string): Promise<AgenteResumen[]> => {
+  // Agentes
+  obtenerAgentes: async (municipioId?: string): Promise<Agente[]> => {
     const query = municipioId ? `?municipioId=${municipioId}` : '';
-    const res = await clienteApi<RespuestaApi<AgenteResumen[]>>(`/agentes${query}`);
-    return res.data;
+    const res = await api.get<RespuestaApi<Agente[]> | Agente[]>(`/api/agentes${query}`);
+    return Array.isArray(res) ? res : res.data || [];
   },
 
-  // Alternar disponibilidad de un agente
-  cambiarDisponibilidadAgente: async (agenteId: string, disponible: boolean) => {
-    return clienteApi<RespuestaApi<any>>(`/agentes/${agenteId}/disponibilidad`, {
-      method: 'PATCH',
-      body: JSON.stringify({ disponible }),
-    });
+  alternarDisponibilidadAgente: async (agenteId: string, disponible: boolean) => {
+    return await api.patch<RespuestaApi<any>>(`/api/agentes/${agenteId}/disponibilidad`, { disponible });
   },
 };

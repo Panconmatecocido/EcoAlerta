@@ -8,8 +8,7 @@ import {
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import { Header } from '../../components/Header';
-import { COLORS } from '../../utils/theme';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { COLORS, SPACING, BORDER_RADIUS } from '../../utils/theme';
 
 export const ReportScreen: React.FC = () => {
   const [permission, requestPermission] = useCameraPermissions();
@@ -42,6 +41,7 @@ export const ReportScreen: React.FC = () => {
         <TouchableOpacity
           style={styles.permissionButton}
           onPress={requestPermission}
+          activeOpacity={0.8}
         >
           <Text style={styles.permissionButtonText}>
             Permitir cámara
@@ -59,10 +59,7 @@ export const ReportScreen: React.FC = () => {
 
     console.log('Foto tomada:', photo?.uri);
 
-    // Más adelante acá vamos a:
-    // 1. Guardar la foto
-    // 2. Obtener ubicación GPS
-    // 3. Crear el reporte
+    // Flujo posterior: guardar imagen, obtener GPS y avanzar al formulario
   };
 
   return (
@@ -76,7 +73,7 @@ export const ReportScreen: React.FC = () => {
           facing="back"
         />
 
-        {/* Texto superior */}
+        {/* Texto superior en superposición */}
         <View style={styles.cameraOverlay}>
           <Text style={styles.cameraTitle}>
             Generar Reporte
@@ -120,19 +117,19 @@ const styles = StyleSheet.create({
 
   cameraOverlay: {
     position: 'absolute',
-    top: 20,
+    top: SPACING.md,
     left: 0,
     right: 0,
     alignItems: 'center',
-    paddingHorizontal: 25,
+    paddingHorizontal: SPACING.lg,
   },
 
   cameraTitle: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#FFFFFF',
-    marginBottom: 6,
-    textShadowColor: 'rgba(0,0,0,0.5)',
+    color: COLORS.superficieTarjeta,
+    marginBottom: SPACING.xs / 2,
+    textShadowColor: COLORS.superposicionOscura,
     textShadowOffset: {
       width: 1,
       height: 1,
@@ -142,9 +139,9 @@ const styles = StyleSheet.create({
 
   cameraSubtitle: {
     fontSize: 14,
-    color: '#FFFFFF',
+    color: COLORS.superficieTarjeta,
     textAlign: 'center',
-    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowColor: COLORS.superposicionOscura,
     textShadowOffset: {
       width: 1,
       height: 1,
@@ -154,7 +151,7 @@ const styles = StyleSheet.create({
 
   cameraControls: {
     position: 'absolute',
-    bottom: 35,
+    bottom: SPACING.lg,
     left: 0,
     right: 0,
     alignItems: 'center',
@@ -164,11 +161,11 @@ const styles = StyleSheet.create({
     width: 78,
     height: 78,
     borderRadius: 39,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.superficieTarjeta,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 4,
-    borderColor: 'rgba(255,255,255,0.7)',
+    borderColor: COLORS.bordeSuave,
   },
 
   captureButtonInner: {
@@ -176,7 +173,7 @@ const styles = StyleSheet.create({
     height: 62,
     borderRadius: 31,
     borderWidth: 3,
-    borderColor: '#333333',
+    borderColor: COLORS.textoVerdeOscuro,
   },
 
   permissionContainer: {
@@ -184,7 +181,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.fondoAplicacion,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 30,
+    paddingHorizontal: SPACING.lg,
   },
 
   permissionTitle: {
@@ -192,8 +189,8 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: COLORS.textoVerdeOscuro,
     textAlign: 'center',
-    marginTop: 20,
-    marginBottom: 10,
+    marginTop: SPACING.md,
+    marginBottom: SPACING.xs,
   },
 
   permissionText: {
@@ -201,18 +198,18 @@ const styles = StyleSheet.create({
     color: COLORS.textoSecundario,
     textAlign: 'center',
     lineHeight: 22,
-    marginBottom: 25,
+    marginBottom: SPACING.lg,
   },
 
   permissionButton: {
     backgroundColor: COLORS.camaraInferior,
-    paddingHorizontal: 28,
-    paddingVertical: 14,
-    borderRadius: 12,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.sm + 2,
+    borderRadius: BORDER_RADIUS.md,
   },
 
   permissionButtonText: {
-    color: '#FFFFFF',
+    color: COLORS.superficieTarjeta,
     fontSize: 16,
     fontWeight: '700',
   },
