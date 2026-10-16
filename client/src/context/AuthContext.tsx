@@ -17,6 +17,7 @@ interface AuthContextType {
   register: (data: RegisterData) => Promise<{ success: boolean; message?: string }>;
   logout: () => Promise<void>;
   loginWithGoogle: () => Promise<{ success: boolean; message?: string }>;
+  updateUserPoints?: (nuevosPuntos: number) => void; // <- Declarado en la interfaz
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -100,6 +101,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     initializeAuth();
   }, []);
+
+  // Actualizar puntos del usuario autenticado
+  const updateUserPoints = async (nuevosPuntos: number) => {
+    if (user) {
+      const usuarioActualizado = { ...user, points: nuevosPuntos };
+      setUser(usuarioActualizado);
+      await saveCurrentUser(usuarioActualizado);
+    }
+  };
 
   const login = async (
     credentials: LoginCredentials
@@ -230,6 +240,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         register,
         logout,
         loginWithGoogle,
+        updateUserPoints, // <- Expuesto en el Provider
       }}
     >
       {children}

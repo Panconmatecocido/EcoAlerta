@@ -15,6 +15,7 @@ interface ContextoCarritoTipo {
   agregarAlCarrito: (producto: Producto) => void;
   actualizarCantidad: (productoId: string, delta: number) => void;
   eliminarDelCarrito: (productoId: string) => void;
+  vaciarCarrito: () => void; // <- Declarado en la interfaz
   obtenerSubtotalPuntos: () => number;
   obtenerTotalPuntos: () => number;
 }
@@ -68,6 +69,11 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
   };
 
+  // Vaciar el carrito completamente tras procesar un canje
+  const vaciarCarrito = () => {
+    setCarrito([]);
+  };
+
   // Subtotal de puntos del carrito
   const obtenerSubtotalPuntos = () => {
     return carrito.reduce((acumulado, item) => {
@@ -92,6 +98,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         agregarAlCarrito,
         actualizarCantidad,
         eliminarDelCarrito,
+        vaciarCarrito, // <- Expuesto en el Provider
         obtenerSubtotalPuntos,
         obtenerTotalPuntos,
       }}
