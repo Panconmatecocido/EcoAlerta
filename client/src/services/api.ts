@@ -1,6 +1,34 @@
 // src/services/api.ts
+import { Producto } from '../interfaces/product';
+import { MOCK_PRODUCTOS } from '../mocks/productos';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.0.47:4000';
+
+export const obtenerProductos = async (
+  categoria?: string,
+  busqueda?: string
+): Promise<Producto[]> => {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+
+  let resultados = [...MOCK_PRODUCTOS];
+
+  if (categoria && categoria !== 'Todos') {
+    resultados = resultados.filter(
+      (prod) => prod.categoria?.toLowerCase() === categoria.toLowerCase()
+    );
+  }
+
+  if (busqueda && busqueda.trim() !== '') {
+    const termino = busqueda.toLowerCase();
+    resultados = resultados.filter(
+      (prod) =>
+        prod.nombre.toLowerCase().includes(termino) ||
+        prod.descripcion?.toLowerCase().includes(termino)
+    );
+  }
+
+  return resultados;
+};
 
 export const clienteApi = async <T>(
   endpoint: string,
