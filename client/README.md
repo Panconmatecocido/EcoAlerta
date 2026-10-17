@@ -5,8 +5,6 @@ Primero clonar el repositorio de Github a una carpeta que podamos encontrar con 
 
 git clone https://github.com/Panconmatecocido/EcoAlerta.git
 
-Segundo revisar que esten parados en la carpeta raiz para poder hacer:
-
 npm install
 
 

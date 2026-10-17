@@ -14,14 +14,20 @@ enum Role {
   CITIZEN
   AGENT
   ADMIN
+  COLLABORATOR
 }
 
 enum EstadoDenuncia {
   PENDIENTE
   APROBADO
   EN_PROCESO
+  EN_VERIFICACION
+  VERIFICADO_PENDIENTE
+  EN_SANEAMIENTO
+  RESUELTO_TECNICO
   RESUELTO
   RECHAZADO
+  CERRADO_INACCESIBLE
 }
 
 enum Prioridad {
@@ -32,6 +38,7 @@ enum Prioridad {
 }
 
 enum EstadoCanje {
+  RESERVADO_PENDIENTE
   PENDIENTE_RETIRO
   ENTREGADO
   CANCELADO
@@ -42,15 +49,35 @@ enum EstadoCanje {
 // --------------------------------------------------------
 model Municipio {
   id        String     @id @default(uuid())
-  nombre    String     // Ej: "Pilar", "Escobar"
+  nombre    String     // Ej: "Municipio de Pilar"
   codigo    String     @unique // Ej: "PILAR-BA"
   creadoEn  DateTime   @default(now())
 
-  usuarios  User[]
-  denuncias Denuncia[]
-  productos Producto[]
+  usuarios   User[]
+  denuncias  Denuncia[]
+  productos  Producto[]
+  sucursales Sucursal[]
 
   @@map("municipios")
+}
+
+// --------------------------------------------------------
+// SUCURSALES / PUNTOS DE RETIRO MUNICIPAL
+// --------------------------------------------------------
+model Sucursal {
+  id          String    @id @default(uuid())
+  nombre      String    // Ej: "Palacio Municipal Pilar", "Delegación Derqui"
+  direccion   String
+  horario     String?   // Ej: "Lunes a Viernes de 08:00 a 14:00 hs"
+  activa      Boolean   @default(true)
+
+  municipioId String
+  municipio   Municipio @relation(fields: [municipioId], references: [id])
+  canjes      Canje[]
+
+  creadoEn    DateTime  @default(now())
+
+  @@map("sucursales")
 }
 
 // --------------------------------------------------------
@@ -62,8 +89,8 @@ model User {
   email        String     @unique
   passwordHash String
   rol          Role       @default(CITIZEN)
-  puntos       Int        @default(50) // Puntos acumulados por denuncias
-  disponible   Boolean    @default(true) // Disponibilidad de agentes de campo
+  puntos       Int        @default(0)
+  disponible   Boolean    @default(true)
   
   municipioId  String
   municipio    Municipio  @relation(fields: [municipioId], references: [id])
@@ -72,7 +99,7 @@ model User {
   denunciasAsignadas Denuncia[] @relation("AgenteDenuncias")
   canjesRealizados   Canje[]    @relation("CiudadanoCanjes")
 
-  creadoEn     DateTime   @default(now())
+  creadoEn      DateTime   @default(now())
   actualizadoEn DateTime   @updatedAt
 
   @@map("usuarios")
@@ -90,13 +117,22 @@ model Denuncia {
   estado       EstadoDenuncia @default(PENDIENTE)
   prioridad    Prioridad      @default(MEDIA)
   
-  // Ubicación GPS + Referencia manual (Dirección)
+  // Ubicación GPS + Dirección de referencia
   direccion    String
   latitud      Float?
   longitud     Float?
   
-  // Evidencia Fotográfica (URL de Supabase Storage)
-  imagenUrl    String?
+  // Evidencias Fotográficas e Informes
+  imagenUrl            String?   // Foto inicial "Antes" del Ciudadano
+  fotoVerificacionUrl  String?   // Foto in-situ del Agente
+  fotoSolucionUrl      String?   // Foto final "Después" del Agente
+  informeSolucion      String?   // Informe técnico del Agente
+  observacionesAdmin   String?   // Justificación de rechazo o notas de triaje
+
+  // Reglas de negocio y auditoría
+  puntosOtorgados      Int?      @default(0)
+  intentosInaccesible  Int       @default(0)
+  ocultarUsuario       Boolean   @default(false)
 
   municipioId  String
   municipio    Municipio      @relation(fields: [municipioId], references: [id])
@@ -107,8 +143,10 @@ model Denuncia {
   agenteId     String?
   agente       User?          @relation("AgenteDenuncias", fields: [agenteId], references: [id])
 
-  creadoEn     DateTime       @default(now())
-  actualizadoEn DateTime       @updatedAt
+  fechaVerificacion DateTime?
+  fechaResolucion   DateTime?
+  creadoEn          DateTime      @default(now())
+  actualizadoEn     DateTime      @updatedAt
 
   @@map("denuncias")
 }
@@ -117,36 +155,46 @@ model Denuncia {
 // MÓDULO DE TIENDA Y CANJE DE PUNTOS ECOLÓGICOS
 // --------------------------------------------------------
 model Producto {
-  id          String   @id @default(uuid())
-  titulo      String   // Ej: "Bolsa Ecológica", "Botella Reutilizable"
+  id          String      @id @default(uuid())
+  titulo      String
   descripcion String
   costoPuntos Int
-  stock       Int      @default(10)
+  stock       Int         @default(10)
   imagenUrl   String?
-  activo      Boolean  @default(true)
+  activo      Boolean     @default(true)
 
   municipioId String
-  municipio   Municipio @relation(fields: [municipioId], references: [id])
+  municipio   Municipio   @relation(fields: [municipioId], references: [id])
 
   itemsCanje  ItemCanje[]
 
-  creadoEn    DateTime @default(now())
+  creadoEn    DateTime    @default(now())
 
   @@map("productos")
 }
 
 model Canje {
-  id            String      @id @default(uuid())
-  codigoRetiro  String      @unique // Código generado para retirar en el municipio
-  totalPuntos   Int
-  estado        EstadoCanje @default(PENDIENTE_RETIRO)
+  id              String      @id @default(uuid())
+  codigoRetiro    String      @unique // Ej: "ECO-7894-K"
+  totalPuntos     Int
+  estado          EstadoCanje @default(PENDIENTE_RETIRO)
 
-  ciudadanoId   String
-  ciudadano     User        @relation("CiudadanoCanjes", fields: [ciudadanoId], references: [id])
+  // Control de Reserva de 5 min y Caducidad a 30 días
+  bloqueadoHasta  DateTime?
+  fechaExpiracion DateTime?
+  fechaEntrega    DateTime?
 
-  items         ItemCanje[]
+  // Sucursal física de retiro
+  sucursalId      String?
+  sucursal        Sucursal?   @relation(fields: [sucursalId], references: [id])
 
-  creadoEn      DateTime    @default(now())
+  ciudadanoId     String
+  ciudadano       User        @relation("CiudadanoCanjes", fields: [ciudadanoId], references: [id])
+
+  items           ItemCanje[]
+
+  creadoEn        DateTime    @default(now())
+  actualizadoEn   DateTime    @updatedAt
 
   @@map("canjes")
 }
