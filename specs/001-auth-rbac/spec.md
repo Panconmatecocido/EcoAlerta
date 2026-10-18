@@ -138,6 +138,7 @@ Un ciudadano puede optar por el botón de acceso rápido con Google para ingresa
 
 - **NFR-001 (RNF-09 - Arranque Inmediato en Modo Invitado y Respuesta del Auth Gate)**: La carga inicial en Modo Invitado DEBE mostrar el Home de Bienvenida en menos de `300 ms` sin exigir credenciales, y la intercepción de acciones protegidas (Auth Gate) DEBE responder en menos de `100 ms` mostrando el aviso o pantalla de registro sin cierres inesperados.
 - **NFR-002 (RNF-01 y 06 - Resiliencia y Tiempos de Respuesta)**: Las consultas de autenticación al servidor central DEBEN responder en menos de `600 ms` y conmutar automáticamente al repositorio local en caso de falla de red.
+- **NFR-003 (RNF-10 - Bloqueo de UI con Spinner Transaccional en DB)**: Al enviar solicitudes de Registro o Inicio de Sesión a la Base de Datos, el sistema DEBE mostrar un spinner bloqueante (`TransactionLoaderModal` / botón deshabilitado) impidiendo pulsaciones repetidas hasta conocer el estado de la transacción: si es positiva, avanza en el flujo; si es negativa, permanece en el formulario y muestra un mensaje de error invitando a reintentar.
 
 ### Key Entities
 

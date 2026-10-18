@@ -134,7 +134,12 @@ export const StoreScreen = () => {
 
       {/* 4. Lista de Productos */}
       {cargando ? (
-        <ActivityIndicator size="large" color={COLORS.botonPrincipal} style={estilos.cargando} />
+        <View style={{ alignItems: 'center', marginTop: SPACING.xl, gap: SPACING.xs }}>
+          <ActivityIndicator size="large" color={COLORS.botonPrincipal} />
+          <Text style={{ fontSize: 13, fontWeight: '600', color: COLORS.textoVerdeOscuro }}>
+            Cargando productos ({categoriaSeleccionada})...
+          </Text>
+        </View>
       ) : (
         <FlatList
           data={productos}

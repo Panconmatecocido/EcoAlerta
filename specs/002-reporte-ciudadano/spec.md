@@ -75,6 +75,7 @@ Una vez que el ciudadano ya recibió los puntos por su denuncia verificada (o el
 - **FR-006 (RF-REP-06 - Seguimiento Ciudadano)**: El sistema DEBE mostrar al ciudadano el listado y métricas de sus propios reportes filtrando aquellos marcados como ocultos (`ocultarUsuario = false`).
 - **FR-007 (RF-REP-07 y RNF-08 - Soft Delete Ciudadano)**: El sistema DEBE permitir al ciudadano ocultar visualmente de su bandeja un reporte ya validado o finalizado cambiando el indicador `ocultarUsuario = true`, conservando el registro íntegro en la base de datos municipal.
 - **FR-008 (RF-AUT-08 - Restricción para Usuarios Invitados)**: El sistema DEBE verificar que el usuario tenga sesión activa antes de permitir abrir la cámara de reportes o consultar el perfil de denuncias; si es un invitado (`user === null`), DEBE solicitarle registrarse para continuar.
+- **FR-009 (RNF-10 - Spinner en Mutaciones de BD y en Filtros/Pestañas de Listas)**: Al enviar un nuevo reporte ambiental o al ejecutar el ocultamiento visual (`ocultarUsuario = true`) en la Base de Datos, el sistema DEBE desplegar inmediatamente un spinner bloqueante (`TransactionLoaderModal`) que impida volver a presionar los botones hasta recibir respuesta de la transacción (positiva: continúa el flujo; negativa: mantiene vista actual y pide reintentar). Asimismo, al cambiar entre pestañas o filtros de listado en Perfil/Home, DEBE mostrarse un spinner de carga hasta recibir el resultado.
 
 ### Key Entities
 

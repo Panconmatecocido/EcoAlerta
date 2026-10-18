@@ -26,15 +26,17 @@ export const obtenerAgentes = async (req: Request, res: Response): Promise<void>
         email: true,
         disponible: true,
         creadoEn: true,
-        _count: {
-          select: {
-            denunciasAsignadas: {
-              where: {
-                estado: {
-                  in: ['PENDIENTE', 'EN_PROCESO'],
-                },
-              },
+        denunciasAsignadas: {
+          where: {
+            estado: {
+              in: ['PENDIENTE', 'EN_PROCESO', 'EN_VERIFICACION', 'EN_SANEAMIENTO'],
             },
+          },
+          select: {
+            id: true,
+            codigo: true,
+            titulo: true,
+            estado: true,
           },
         },
       },
@@ -47,7 +49,11 @@ export const obtenerAgentes = async (req: Request, res: Response): Promise<void>
       nombre: agente.nombre,
       email: agente.email,
       disponible: agente.disponible,
-      casosAsignados: agente._count.denunciasAsignadas,
+      casosAsignados: agente.denunciasAsignadas.length,
+      casoActivoId: agente.denunciasAsignadas[0]?.id,
+      casoActivoCodigo: agente.denunciasAsignadas[0]?.codigo,
+      casoActivoTitulo: agente.denunciasAsignadas[0]?.titulo,
+      casoActivoEstado: agente.denunciasAsignadas[0]?.estado,
     }));
 
     res.status(200).json({

@@ -103,6 +103,11 @@ Unauthenticated visitors (`user === null`, Guest Mode) MUST NOT be blocked at th
 - **RNF-07 (Security & Encryption):** Passwords MUST never be stored in plain text. JWT/Session tokens must be securely stored.
 - **RNF-08 (Auditing & Soft Deletes):** Timestamps (`creadoEn`, `actualizadoEn`, `fechaVerificacion`, `fechaResolucion`) and audit logs MUST be captured for every administrative state change.
 - **RNF-09 (Frictionless Guest Onboarding & Auth Gate Latency):** Cold start for unauthenticated users MUST land on the Guest Welcome Home in `< 300 ms`, and Auth Gate interceptions on protected actions (Camera, Profile, Add to Cart) MUST trigger in `< 100 ms` without crashes.
+- **RNF-10 (Blocking Transaction Spinner, Filter Loading Feedback & Strict Success/Error Flow):**
+  - **Mutations (Write Requests):** Every time a mutation/write request is sent to the Database (creating/hiding a report, triaging, taking/releasing/verifying/solving a case, awarding points, reserving/confirming checkout, or confirming reward delivery), the UI MUST immediately render a blocking loader/spinner (`TransactionLoaderModal` or button modal lock) preventing repeated button presses while waiting for the DB transaction status:
+    - **Positive Status (Success):** Update local state directly from the response without redundant blocking round-trips, hide the spinner, transition the view/modal, and display the confirmation alert.
+    - **Negative Status (Error):** Keep the user on the current screen/form without losing input data, hide the spinner, and display a clear error alert asking the user to try again.
+  - **List Filters, Tabs & Searches (Read Queries):** In every screen with list filters, category chips, search inputs, or view tabs (`AdminDenunciasScreen`, `AgentHomeScreen`, `StoreScreen`, `ProfileScreen`, `AdminCatalogoScreen`, `CollaboratorDeliveryScreen`), changing any filter or tab MUST immediately render a loading spinner (`ActivityIndicator` + contextual label) in the list container until the filtered dataset is returned.
 
 ## Development Workflow & Spec Kit Quality Gates
 
@@ -125,6 +130,6 @@ The engineering team adheres strictly to the following 4-step Spec Kit lifecycle
    - **MAJOR (X.0.0):** Incompatible governance shifts, architectural overhauls, or breaking model deletions.
    - **MINOR (1.X.0):** Addition of new modules, principles, roles, or non-destructive schema extensions.
    - **PATCH (1.0.X):** Refinements, wording clarifications, and bug fixes in documentation.
-4. **Compliance Verification:** Prior to merging any Spec Kit task, the implementer must verify adherence to Principles I through VIII.
+4. **Compliance Verification:** Prior to merging any Spec Kit task, the implementer must verify adherence to Principles I through VIII and RNF-01 through RNF-10.
 
-**Version**: 1.2.0 | **Ratified**: 2026-10-14 | **Last Amended**: 2026-10-15
+**Version**: 1.3.0 | **Ratified**: 2026-10-14 | **Last Amended**: 2026-10-18

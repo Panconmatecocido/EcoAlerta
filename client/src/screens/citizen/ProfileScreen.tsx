@@ -36,7 +36,10 @@ export const ProfileScreen: React.FC = () => {
   const [fotoPerfilUri, setFotoPerfilUri] = useState<string | null>(null);
 
   // Carga de datos desde la API
-  const cargarDatosPerfil = useCallback(async () => {
+  const cargarDatosPerfil = useCallback(async (esRefresco = false) => {
+    if (!esRefresco) {
+      setCargando(true);
+    }
     try {
       const [misDenuncias] = await Promise.all([
         denunciaService.obtenerMisDenuncias(),
@@ -52,12 +55,18 @@ export const ProfileScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    cargarDatosPerfil();
+    cargarDatosPerfil(false);
   }, [cargarDatosPerfil]);
+
+  const cambiarPestana = (nuevaPestana: 'denuncias' | 'compras') => {
+    if (cargando) return;
+    setPestanaActiva(nuevaPestana);
+    cargarDatosPerfil(false);
+  };
 
   const alRefrescar = () => {
     setRefrescando(true);
-    cargarDatosPerfil();
+    cargarDatosPerfil(true);
   };
 
   // Puntos consumidos calculados sobre denuncias/canjes
@@ -186,7 +195,8 @@ export const ProfileScreen: React.FC = () => {
               estilos.botonPestana,
               pestanaActiva === 'denuncias' && estilos.botonPestanaActiva,
             ]}
-            onPress={() => setPestanaActiva('denuncias')}
+            onPress={() => cambiarPestana('denuncias')}
+            disabled={cargando}
           >
             <Text
               style={[
@@ -203,7 +213,8 @@ export const ProfileScreen: React.FC = () => {
               estilos.botonPestana,
               pestanaActiva === 'compras' && estilos.botonPestanaActiva,
             ]}
-            onPress={() => setPestanaActiva('compras')}
+            onPress={() => cambiarPestana('compras')}
+            disabled={cargando}
           >
             <Text
               style={[
@@ -218,7 +229,12 @@ export const ProfileScreen: React.FC = () => {
 
         {/* Contenido de Pestañas */}
         {cargando ? (
-          <ActivityIndicator size="large" color={COLORS.botonPrincipal} style={{ marginTop: SPACING.lg }} />
+          <View style={{ alignItems: 'center', marginTop: SPACING.lg, gap: SPACING.xs }}>
+            <ActivityIndicator size="large" color={COLORS.botonPrincipal} />
+            <Text style={{ fontSize: 13, color: COLORS.textoVerdeOscuro, fontWeight: '600' }}>
+              Cargando {pestanaActiva === 'denuncias' ? 'mis denuncias' : 'mis canjes'}...
+            </Text>
+          </View>
         ) : (
           <>
             {/* Lista de Denuncias */}

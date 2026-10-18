@@ -5,7 +5,7 @@ import { PrismaClient, Role, EstadoDenuncia, Prioridad } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Sembrando datos en Supabase...');
+  console.log('🌱 Sembrando y verificando datos en Supabase...');
 
   // 1. Crear Municipio Pilar
   const municipio = await prisma.municipio.upsert({
@@ -17,7 +17,7 @@ async function main() {
     },
   });
 
-  // 2. Usuarios Demo (Ciudadano, Agente, Admin)
+  // 2. Usuarios Demo (Ciudadano, Agente, Admin, Colaborador)
   const ciudadano = await prisma.user.upsert({
     where: { email: 'ejemplo@email.com' },
     update: {},
@@ -56,7 +56,19 @@ async function main() {
     },
   });
 
-  // 3. Denuncias Demo
+  await prisma.user.upsert({
+    where: { email: 'colaborador@ecoalerta.gob.ar' },
+    update: {},
+    create: {
+      nombre: 'Operador de Entrega Municipal',
+      email: 'colaborador@ecoalerta.gob.ar',
+      passwordHash: 'colaborador123',
+      rol: Role.COLLABORATOR,
+      municipioId: municipio.id,
+    },
+  });
+
+  // 3. Denuncias Demo (incluyendo casos en PENDIENTE para Triaje y APROBADO para Bolsa de Agentes)
   await prisma.denuncia.upsert({
     where: { codigo: 'REP-2026-001' },
     update: {},
@@ -68,6 +80,8 @@ async function main() {
       estado: EstadoDenuncia.PENDIENTE,
       prioridad: Prioridad.ALTA,
       direccion: 'Av. De Mayo y Calle 12, Presidente Derqui',
+      latitud: -34.4812,
+      longitud: -58.8421,
       ciudadanoId: ciudadano.id,
       municipioId: municipio.id,
     },
@@ -75,50 +89,122 @@ async function main() {
 
   await prisma.denuncia.upsert({
     where: { codigo: 'REP-2026-002' },
-    update: {},
+    update: {
+      estado: EstadoDenuncia.APROBADO,
+      agenteId: null,
+    },
     create: {
       codigo: 'REP-2026-002',
       titulo: 'Recipientes con agua estancada',
       descripcion: 'Posible foco de reproducción de dengue en terreno baldío.',
-      categoria: 'Foco Dengue',
-      estado: EstadoDenuncia.EN_PROCESO,
+      categoria: 'Foco de Dengue',
+      estado: EstadoDenuncia.APROBADO,
       prioridad: Prioridad.URGENTE,
-      direccion: 'Ruta 25 Km 4',
+      direccion: 'Ruta 25 Km 4, Pilar',
+      latitud: -34.4587,
+      longitud: -58.9142,
       ciudadanoId: ciudadano.id,
-      agenteId: agente.id,
+      agenteId: null,
       municipioId: municipio.id,
     },
   });
 
-// 4. Productos de Tienda Ecológica
-  await prisma.producto.createMany({
-    skipDuplicates: true,
-    data: [
-      {
-        titulo: 'Bolsa de Tela Reutilizable',
-        descripcion: 'Bolsa ecológica de algodón orgánico.',
-        costoPuntos: 40,
-        stock: 50,
-        municipioId: municipio.id,
-      },
-      {
-        titulo: 'Botella Térmica EcoAlerta',
-        descripcion: 'Botella de acero inoxidable 500ml.',
-        costoPuntos: 100,
-        stock: 20,
-        municipioId: municipio.id,
-      },
-      {
-        titulo: 'Gorra Oficial EcoAlerta',
-        descripcion: 'Gorra de material reciclado.',
-        costoPuntos: 80,
-        stock: 15,
-        municipioId: municipio.id,
-      },
-    ],
+  await prisma.denuncia.upsert({
+    where: { codigo: 'REP-2026-003' },
+    update: {},
+    create: {
+      codigo: 'REP-2026-003',
+      titulo: 'Neumáticos acumulados con agua tras lluvia',
+      descripcion: 'Foco crítico de dengue aprobado en triaje y disponible en bolsa general.',
+      categoria: 'Foco de Dengue',
+      estado: EstadoDenuncia.APROBADO,
+      prioridad: Prioridad.URGENTE,
+      direccion: 'Av. Tratado del Pilar 850, Pilar',
+      latitud: -34.4562,
+      longitud: -58.9115,
+      ciudadanoId: ciudadano.id,
+      municipioId: municipio.id,
+    },
   });
 
-  console.log('✅ Base de datos sembrada con éxito.');
+  await prisma.denuncia.upsert({
+    where: { codigo: 'REP-2026-004' },
+    update: {},
+    create: {
+      codigo: 'REP-2026-004',
+      titulo: 'Terreno baldío con pastizales y roedores',
+      descripcion: 'Predio cerrado que requiere verificación de agente en terreno.',
+      categoria: 'Terreno Baldío',
+      estado: EstadoDenuncia.APROBADO,
+      prioridad: Prioridad.ALTA,
+      direccion: 'San Martín 640, Pilar',
+      latitud: -34.4551,
+      longitud: -58.9188,
+      intentosInaccesible: 1,
+      observacionesAdmin: 'Visita 1/3 registrada: portón cerrado con candado.',
+      ciudadanoId: ciudadano.id,
+      municipioId: municipio.id,
+    },
+  });
+
+  // 4. Productos de Tienda Ecológica (solo si aún no existen)
+  const totalProductos = await prisma.producto.count({
+    where: { municipioId: municipio.id },
+  });
+
+  if (totalProductos === 0) {
+    await prisma.producto.createMany({
+      data: [
+        {
+          titulo: 'Bolsa de Tela Reutilizable',
+          descripcion: 'Bolsa ecológica de algodón orgánico.',
+          costoPuntos: 40,
+          stock: 50,
+          municipioId: municipio.id,
+        },
+        {
+          titulo: 'Botella Térmica EcoAlerta',
+          descripcion: 'Botella de acero inoxidable 500ml.',
+          costoPuntos: 100,
+          stock: 20,
+          municipioId: municipio.id,
+        },
+        {
+          titulo: 'Gorra Oficial EcoAlerta',
+          descripcion: 'Gorra de material reciclado.',
+          costoPuntos: 80,
+          stock: 15,
+          municipioId: municipio.id,
+        },
+      ],
+    });
+  }
+
+  // 5. Sucursales Municipales de Retiro (solo si aún no existen)
+  const totalSucursales = await prisma.sucursal.count({
+    where: { municipioId: municipio.id },
+  });
+
+  if (totalSucursales === 0) {
+    await prisma.sucursal.createMany({
+      data: [
+        {
+          nombre: 'Palacio Municipal de Pilar',
+          direccion: 'Rivadavia 660, Pilar Centro',
+          horario: 'Lunes a Viernes de 08:00 a 15:00 hs',
+          municipioId: municipio.id,
+        },
+        {
+          nombre: 'Delegación Municipal Presidente Derqui',
+          direccion: 'Av. De Mayo 450, Derqui',
+          horario: 'Lunes a Viernes de 08:00 a 14:00 hs',
+          municipioId: municipio.id,
+        },
+      ],
+    });
+  }
+
+  console.log('✅ Base de datos verificada y sembrada con éxito.');
 }
 
 main()

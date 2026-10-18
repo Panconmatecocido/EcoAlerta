@@ -93,6 +93,9 @@ Si un Agente sufre un imprevisto en la calle y pulsa "Liberar / Abandonar Caso" 
 - **FR-004 (RF-AGE-05 - Verificación In Situ)**: El sistema DEBE permitir al agente asignado registrar el resultado de su inspección adjuntando `fotoVerificacionUrl` (< 1.2 MB) y seleccionando entre: *Es Real* (`VERIFICADO_PENDIENTE`), *Es Falso* (`RECHAZADO`) o *Es Inaccesible*.
 - **FR-005 (RF-AGE-06 - Protocolo de 3 Intentos por Inaccesibilidad)**: Ante cada registro de *Es Inaccesible* con foto de aviso municipal, el sistema DEBE incrementar `intentosInaccesible` en `1`; si el contador alcanza `3`, el sistema DEBE cambiar automáticamente el estado a `CERRADO_INACCESIBLE` y liberar al agente.
 - **FR-006 (RF-AGE-07 y RF-ADM-06 - Liberación y Desasignación Inteligente)**: El sistema DEBE permitir tanto al agente asignado como al Administrador desvincular al agente (`agenteId = null`), retornando el caso a `APROBADO` si aún no fue validado, o manteniéndolo en `EN_SANEAMIENTO` si la veracidad y los puntos ya habían sido aprobados.
+- **FR-007 (RNF-10 - Spinner en Mutaciones de BD y en Cambio de Filtros de Listas)**:
+  - Toda acción que envíe una solicitud de escritura a la Base de Datos (Triaje Admin, Tomar Caso, Verificar In Situ y Liberar/Desasignar Caso) DEBE mostrar inmediatamente un modal bloqueante con spinner (`TransactionLoaderModal`) que impida dobles pulsaciones hasta recibir el estado de la transacción: si es positiva, actualiza el estado local, cambia de vista y muestra la confirmación sin demora; si es negativa, mantiene la vista actual y muestra una alerta de error invitando a reintentar.
+  - Siempre que el Administrador o el Agente cambien un filtro de lista (`TODAS`, `PENDIENTE`, `APROBADO`, etc., prioridad o pestaña), el área del listado DEBE mostrar inmediatamente un spinner de carga (`ActivityIndicator`) indicando que está filtrando hasta obtener el resultado.
 
 ### Key Entities
 
@@ -107,6 +110,7 @@ Si un Agente sufre un imprevisto en la calle y pulsa "Liberar / Abandonar Caso" 
 - **SC-002**: Ningún agente de campo puede tener más de `1` caso en estado activo (`EN_VERIFICACION` o `EN_SANEAMIENTO`) al mismo tiempo.
 - **SC-003**: El 100% de los casos que registran su 3.er intento de inaccesibilidad transicionan automáticamente a `CERRADO_INACCESIBLE` sin requerir cálculo manual del inspector.
 - **SC-004**: El 100% de los casos liberados cuando ya estaban en `EN_SANEAMIENTO` conservan dicho estado y no vuelven a la etapa de verificación inicial.
+- **SC-005 (RNF-10)**: El 100% de las mutaciones en BD despliegan `TransactionLoaderModal` en `< 50ms` bloqueando botones repetidos y resolviendo la transición de pantalla + cartel de confirmación o error inmediatamente al finalizar la transacción.
 
 ## Assumptions
 
