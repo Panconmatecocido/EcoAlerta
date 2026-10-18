@@ -10,11 +10,13 @@ import { COLORS } from '../utils/theme';
 import { AdminHomeScreen } from '../screens/admin/AdminHomeScreen';
 import { AdminDenunciasScreen } from '../screens/admin/AdminDenunciasScreen';
 import { AdminAgenteScreen } from '../screens/admin/AdminAgentesScreen';
+import { AdminProductosScreen } from '../screens/admin/AdminProductosScreen';
 
 export type AdminTabParamList = {
   InicioAdmin: undefined;
   DenunciasAdmin: undefined;
   AgentesAdmin: undefined;
+  ProductosAdmin: undefined;
 };
 
 const Tab = createBottomTabNavigator<AdminTabParamList>();
@@ -69,6 +71,16 @@ export const AdminNavigator: React.FC = () => {
           tabBarLabel: 'Agentes',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="account-group-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="ProductosAdmin"
+        component={AdminProductosScreen}
+        options={{
+          tabBarLabel: 'Catálogo',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="store-outline" size={size} color={color} />
           ),
         }}
       />

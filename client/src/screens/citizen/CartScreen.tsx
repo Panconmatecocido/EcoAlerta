@@ -1,6 +1,6 @@
 // src/screens/citizen/CartScreen.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,13 +9,19 @@ import {
   Image,
   TouchableOpacity,
   Alert,
-  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
-import { tiendaService, ResultadoCanje } from '../../services/tiendaService';
+import {
+  storeRepository,
+  StoreBranch,
+  ReservationResponse,
+  ConfirmRedemptionResponse,
+} from '../../repositories/store';
+import { CheckoutReservationModal } from '../../components/citizen/CheckoutReservationModal';
+import { TransactionLoaderModal } from '../../components/common/TransactionLoaderModal';
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
 
 export const CartScreen: React.FC = ({ navigation }: any) => {
@@ -29,92 +35,161 @@ export const CartScreen: React.FC = ({ navigation }: any) => {
     vaciarCarrito,
   } = useCart();
 
-  const [procesando, setProcesando] = useState(false);
-  const [comprobante, setComprobante] = useState<ResultadoCanje | null>(null);
+  // Estados del flujo de Checkout
+  const [procesandoReserva, setProcesandoReserva] = useState(false);
+  const [confirmandoCanje, setConfirmandoCanje] = useState(false);
+  const [modalCheckoutVisible, setModalCheckoutVisible] = useState(false);
+  const [canjeActivo, setCanjeActivo] = useState<ReservationResponse | null>(null);
+  const [sucursales, setSucursales] = useState<StoreBranch[]>([]);
+  const [sucursalSeleccionadaId, setSucursalSeleccionadaId] = useState<string>('');
+  const [comprobante, setComprobante] = useState<ConfirmRedemptionResponse | null>(null);
 
   const userPoints = user?.points ?? 0;
-  const subtotal = obtenerSubtotalPuntos();
+  const subtotalPuntos = obtenerSubtotalPuntos();
   const totalPuntos = obtenerTotalPuntos();
   const saldoInsuficiente = userPoints < totalPuntos;
 
-  const procesarCanje = async () => {
+  // Cargar sucursales al montar
+  useEffect(() => {
+    const cargarSucursales = async () => {
+      try {
+        const branches = await storeRepository.getBranches({
+          municipioId: (user as any)?.municipioId,
+        });
+        setSucursales(branches);
+        if (branches.length > 0 && !sucursalSeleccionadaId) {
+          setSucursalSeleccionadaId(branches[0].id);
+        }
+      } catch (error) {
+        console.error('Error al cargar sucursales municipales:', error);
+      }
+    };
+
+    cargarSucursales();
+  }, [user]);
+
+  // Validar si algún producto supera el stock disponible
+  const hayItemSuperaStock = carrito.some((item) => item.cantidad > item.producto.stock);
+
+  // Iniciar Checkout: Fase 1 (Bloqueo Temporal de Stock por 5 minutos)
+  const iniciarCheckout = async () => {
+    if (!user) {
+      Alert.alert(
+        'Inicio de Sesión Requerido',
+        'Debes identificarte como vecino para canjear tus puntos ecológicos.',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          { text: 'Iniciar Sesión', onPress: () => navigation.navigate('Login') },
+        ]
+      );
+      return;
+    }
+
+    if (user.role === 'agent') {
+      Alert.alert(
+        'Acceso Restringido',
+        'Las cuentas operativas de Agente de Campo no pueden canjear productos de la tienda.'
+      );
+      return;
+    }
+
     if (carrito.length === 0) return;
 
     if (saldoInsuficiente) {
       Alert.alert(
         'Puntos insuficientes',
-        `Tenés ${userPoints.toLocaleString()} PTS y necesitás ${totalPuntos.toLocaleString()} PTS para confirmar este pedido. ¡Seguí reportando alertas para sumar puntos!`
+        `Tenés ${userPoints.toLocaleString()} PTS y necesitás ${totalPuntos.toLocaleString()} PTS para este canje. ¡Seguí reportando alertas para sumar puntos!`
+      );
+      return;
+    }
+
+    if (hayItemSuperaStock) {
+      Alert.alert(
+        'Stock insuficiente',
+        'Alguno de los productos en tu carrito supera el stock físico disponible. Por favor ajustá las cantidades.'
       );
       return;
     }
 
     try {
-      setProcesando(true);
+      setProcesandoReserva(true);
+
       const itemsPayload = carrito.map((item) => ({
         productoId: item.producto.id,
         cantidad: item.cantidad,
       }));
 
-      const resultado = await tiendaService.procesarCanje(itemsPayload);
+      // Iniciar reserva temporal con TTL 5 min
+      const res = await storeRepository.reserveCart(user.id, itemsPayload);
+      setCanjeActivo(res);
+      setModalCheckoutVisible(true);
+    } catch (error: any) {
+      Alert.alert(
+        'Error al Reservar Stock',
+        error?.message || 'No se pudo reservar el stock de los productos. Inténtalo nuevamente.'
+      );
+    } finally {
+      setProcesandoReserva(false);
+    }
+  };
+
+  // Confirmar Canje: Fase 2 (Descuento atómico de puntos y emisión del voucher)
+  const handleConfirmarCanje = async () => {
+    if (!canjeActivo) return;
+    if (!sucursalSeleccionadaId) {
+      Alert.alert('Sucursal requerida', 'Por favor selecciona la sucursal municipal donde retirarás tus insumos.');
+      return;
+    }
+
+    try {
+      setConfirmandoCanje(true);
+
+      const resultado = await storeRepository.confirmRedemption(
+        canjeActivo.canjeId,
+        sucursalSeleccionadaId,
+        user?.id
+      );
+
       setComprobante(resultado);
 
-      // Vaciar el carrito local y actualizar balance global
+      // Vaciar carrito tras confirmación exitosa y actualizar saldo en AuthContext
       vaciarCarrito();
-      if (updateUserPoints) {
+      if (updateUserPoints && typeof resultado.nuevoSaldoPuntos === 'number') {
         updateUserPoints(resultado.nuevoSaldoPuntos);
       }
     } catch (error: any) {
       Alert.alert(
-        'Error en el canje',
-        error?.message || 'No se pudo procesar la solicitud. Intentalo nuevamente.'
+        'Error en la Confirmación',
+        error?.message || 'No se pudo confirmar el canje. Verifica tu saldo y conexión.'
       );
     } finally {
-      setProcesando(false);
+      setConfirmandoCanje(false);
     }
   };
 
-  // VISTA COMPROBANTE DE CANJE / CÓDIGO DE RETIRO
-  if (comprobante) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.comprobanteContainer}>
-          <MaterialCommunityIcons
-            name="check-circle-outline"
-            size={80}
-            color={COLORS.botonPrincipal}
-          />
-          <Text style={styles.comprobanteTitulo}>¡Canje Confirmado!</Text>
-          <Text style={styles.comprobanteSubtitulo}>
-            Presentá el siguiente código en el punto ecológico de tu municipio para retirar tus insumos:
-          </Text>
+  // Cancelar reserva manualmente o al cerrar modal
+  const handleCerrarModalReserva = async () => {
+    if (canjeActivo && !comprobante) {
+      try {
+        await storeRepository.cancelReservation(canjeActivo.canjeId);
+      } catch (err) {
+        console.warn('Error al cancelar reserva:', err);
+      }
+    }
+    setModalCheckoutVisible(false);
+    setCanjeActivo(null);
+    setComprobante(null);
+  };
 
-          <View style={styles.codigoBox}>
-            <Text style={styles.codigoTexto}>{comprobante.codigoRetiro}</Text>
-          </View>
-
-          <View style={styles.resumenDescuentoBox}>
-            <Text style={styles.textoPuntosDescontados}>
-              Puntos descontados: -{comprobante.puntosDescontados.toLocaleString()} PTS
-            </Text>
-            <Text style={styles.textoSaldoRestante}>
-              Nuevo Saldo: {comprobante.nuevoSaldoPuntos.toLocaleString()} PTS
-            </Text>
-          </View>
-
-          <TouchableOpacity
-            style={styles.botonVolver}
-            onPress={() => {
-              setComprobante(null);
-              navigation.navigate('HomeCitizen');
-            }}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.botonVolverTexto}>Volver al Inicio</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
+  // Manejo de expiración de los 5 minutos (TTL)
+  const handleExpirarReserva = () => {
+    Alert.alert(
+      'Reserva Expirada',
+      'El tiempo límite de 5 minutos ha expirado. El stock fue liberado automáticamente para otros vecinos.'
     );
-  }
+    setModalCheckoutVisible(false);
+    setCanjeActivo(null);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -126,8 +201,8 @@ export const CartScreen: React.FC = ({ navigation }: any) => {
               <MaterialCommunityIcons name="account" size={ICON_SIZE.md} color={COLORS.textoVerdeOscuro} />
             </View>
             <View>
-              <Text style={styles.welcomeText}>¡Bienvenido, {user?.name || 'Vecino'}!</Text>
-              <Text style={styles.subWelcomeText}>Juntos hacemos una ciudad más limpia 🍃</Text>
+              <Text style={styles.welcomeText}>¡Hola, {user?.name || 'Vecino'}!</Text>
+              <Text style={styles.subWelcomeText}>Canjes 100% en puntos sustentables 🍃</Text>
             </View>
           </View>
           <View style={styles.pointsBadge}>
@@ -136,28 +211,43 @@ export const CartScreen: React.FC = ({ navigation }: any) => {
           </View>
         </View>
 
-        <Text style={styles.screenTitle}>TU CARRITO DE COMPRAS</Text>
+        <Text style={styles.screenTitle}>TU CARRITO DE CANJE</Text>
 
         {/* Lista de Productos */}
         {carrito.length === 0 ? (
           <View style={styles.emptyContainer}>
             <MaterialCommunityIcons name="cart-outline" size={60} color={COLORS.textoSecundario} />
             <Text style={styles.emptyText}>Tu carrito de canje está vacío 🛒</Text>
+            <TouchableOpacity
+              style={styles.botonExplorarTienda}
+              onPress={() => navigation.navigate('Tienda')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.textoBotonExplorar}>Explorar Tienda Ecológica</Text>
+            </TouchableOpacity>
           </View>
         ) : (
           carrito.map((item) => {
             const { producto, cantidad } = item;
-            const imagenUri = producto.urlImagen || 'https://via.placeholder.com/150';
+            const imagenUri = producto.imagenUrl || 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=300&q=80';
+            const superaStock = cantidad > producto.stock;
 
             return (
-              <View key={producto.id} style={styles.card}>
+              <View key={producto.id} style={[styles.card, superaStock && styles.cardAlertaStock]}>
                 <Image source={{ uri: imagenUri }} style={styles.productImage} />
                 <View style={styles.productDetails}>
-                  <Text style={styles.productTitle}>{producto.nombre}</Text>
+                  <Text style={styles.productTitle} numberOfLines={2}>
+                    {producto.titulo}
+                  </Text>
                   <View style={styles.pointsTag}>
-                    <Text style={styles.pointsText}>⭐ {producto.precio.toLocaleString()} pts</Text>
+                    <Text style={styles.pointsText}>⭐ {producto.costoPuntos.toLocaleString()} pts c/u</Text>
                   </View>
+                  <Text style={styles.stockDisponibleTexto}>Stock disponible: {producto.stock}</Text>
+                  {superaStock && (
+                    <Text style={styles.textoErrorStock}>Supera stock disponible</Text>
+                  )}
                 </View>
+
                 <View style={styles.actionsContainer}>
                   <View style={styles.quantityContainer}>
                     <TouchableOpacity
@@ -169,13 +259,20 @@ export const CartScreen: React.FC = ({ navigation }: any) => {
                     </TouchableOpacity>
                     <Text style={styles.quantityText}>{cantidad}</Text>
                     <TouchableOpacity
-                      style={styles.qtyBtn}
-                      onPress={() => actualizarCantidad(producto.id, 1)}
+                      style={[styles.qtyBtn, cantidad >= producto.stock && styles.qtyBtnDisabled]}
+                      onPress={() => {
+                        const pudo = actualizarCantidad(producto.id, 1);
+                        if (!pudo) {
+                          Alert.alert('Tope de Stock', `Has alcanzado el stock disponible (${producto.stock}).`);
+                        }
+                      }}
+                      disabled={cantidad >= producto.stock}
                       activeOpacity={0.7}
                     >
                       <Text style={styles.qtyBtnText}>+</Text>
                     </TouchableOpacity>
                   </View>
+
                   <TouchableOpacity
                     style={styles.deleteButton}
                     onPress={() => eliminarDelCarrito(producto.id)}
@@ -189,20 +286,37 @@ export const CartScreen: React.FC = ({ navigation }: any) => {
           })
         )}
 
-        {/* Resumen y Procesamiento de Canje */}
+        {/* Resumen del Canje (Sin costos en dinero ni cargos en ARS) */}
         {carrito.length > 0 && (
           <>
             <View style={styles.summaryCard}>
               <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>SUBTOTAL:</Text>
-                <Text style={styles.summaryValue}>{subtotal.toLocaleString()} PUNTOS</Text>
+                <Text style={styles.summaryLabel}>Subtotal Insumos:</Text>
+                <Text style={styles.summaryValue}>{subtotalPuntos.toLocaleString()} PTS</Text>
+              </View>
+
+              <View style={styles.summaryRow}>
+                <Text style={styles.summaryLabel}>Modalidad de Entrega:</Text>
+                <Text style={styles.textoRetiroGratis}>Retiro Presencial Municipal ($0 ARS)</Text>
               </View>
 
               <View style={styles.divider} />
 
               <View style={styles.summaryRow}>
-                <Text style={styles.totalLabel}>TOTAL CANJE:</Text>
-                <Text style={styles.totalValue}>{totalPuntos.toLocaleString()} PUNTOS</Text>
+                <Text style={styles.totalLabel}>TOTAL A CANJEAR:</Text>
+                <Text style={styles.totalValue}>{totalPuntos.toLocaleString()} PTS</Text>
+              </View>
+
+              {/* Comparativa Saldo Actual vs Total */}
+              <View style={styles.comparativaBox}>
+                <Text style={styles.textoComparativa}>
+                  Tu saldo actual: <Text style={{ fontWeight: 'bold' }}>{userPoints.toLocaleString()} PTS</Text>
+                </Text>
+                <Text style={[styles.textoComparativaRestante, saldoInsuficiente && styles.textoComparativaAlerta]}>
+                  {saldoInsuficiente
+                    ? `Faltan: ${(totalPuntos - userPoints).toLocaleString()} PTS`
+                    : `Saldo posterior: ${(userPoints - totalPuntos).toLocaleString()} PTS`}
+                </Text>
               </View>
             </View>
 
@@ -210,33 +324,60 @@ export const CartScreen: React.FC = ({ navigation }: any) => {
               <View style={styles.insufficientBox}>
                 <MaterialCommunityIcons name="alert-circle-outline" size={20} color={COLORS.textoPeligro} />
                 <Text style={styles.insufficientText}>
-                  Te faltan {(totalPuntos - userPoints).toLocaleString()} puntos para realizar este canje.
+                  Puntos insuficientes. Te faltan {(totalPuntos - userPoints).toLocaleString()} PTS para completar este canje.
                 </Text>
               </View>
             ) : (
               <Text style={styles.infoText}>
-                Al confirmar, se descontarán {totalPuntos.toLocaleString()} puntos de tu saldo y obtendrás un código único para retirar tus insumos.
+                Al continuar se reservará el stock durante 5 minutos para que elijas la sucursal de retiro sin costo monetario.
               </Text>
             )}
 
             <TouchableOpacity
               style={[
                 styles.checkoutButton,
-                (saldoInsuficiente || procesando) && styles.disabledButton,
+                (saldoInsuficiente || procesandoReserva || hayItemSuperaStock) && styles.disabledButton,
               ]}
-              onPress={procesarCanje}
-              disabled={saldoInsuficiente || procesando}
+              onPress={iniciarCheckout}
+              disabled={saldoInsuficiente || procesandoReserva || hayItemSuperaStock}
               activeOpacity={0.8}
             >
-              {procesando ? (
-                <ActivityIndicator size="small" color={COLORS.superficieTarjeta} />
-              ) : (
-                <Text style={styles.checkoutButtonText}>PROCESAR CANJE Y CONFIRMAR 🛒</Text>
-              )}
+              <Text style={styles.checkoutButtonText}>
+                {saldoInsuficiente ? 'PUNTOS INSUFICIENTES' : 'CONTINUAR AL CANJE (RESERVA 5 MIN) 🛒'}
+              </Text>
             </TouchableOpacity>
           </>
         )}
       </ScrollView>
+
+      {/* Modal de Checkout con Bloqueo TTL de 5 Minutos y Comprobante Voucher */}
+      <CheckoutReservationModal
+        visible={modalCheckoutVisible}
+        onClose={handleCerrarModalReserva}
+        canjeId={canjeActivo?.canjeId || ''}
+        totalPuntos={totalPuntos}
+        tiempoRestanteInicial={canjeActivo?.tiempoRestanteSegundos || 300}
+        sucursales={sucursales}
+        sucursalSeleccionadaId={sucursalSeleccionadaId}
+        onSeleccionarSucursal={setSucursalSeleccionadaId}
+        onConfirmarCanje={handleConfirmarCanje}
+        confirmando={confirmandoCanje}
+        comprobante={comprobante}
+        onFinalizarComprobante={() => {
+          setModalCheckoutVisible(false);
+          setCanjeActivo(null);
+          setComprobante(null);
+          navigation.navigate('Tienda');
+        }}
+        onExpirarReserva={handleExpirarReserva}
+      />
+
+      {/* Spinner Bloqueante RNF-10 durante la mutación de reserva */}
+      <TransactionLoaderModal
+        visible={procesandoReserva}
+        mensaje="Iniciando Reserva Temporal..."
+        submensaje="Bloqueando stock por 5 minutos en el servidor central"
+      />
     </SafeAreaView>
   );
 };
@@ -309,6 +450,18 @@ const styles = StyleSheet.create({
     color: COLORS.textoSecundario,
     marginTop: SPACING.xs,
   },
+  botonExplorarTienda: {
+    backgroundColor: COLORS.botonPrincipal,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: BORDER_RADIUS.md,
+    marginTop: SPACING.md,
+  },
+  textoBotonExplorar: {
+    color: COLORS.superficieTarjeta,
+    fontWeight: 'bold',
+    fontSize: 13,
+  },
   card: {
     backgroundColor: COLORS.superficieTarjeta,
     borderRadius: BORDER_RADIUS.md,
@@ -319,27 +472,43 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.sm,
     alignItems: 'center',
   },
+  cardAlertaStock: {
+    borderColor: COLORS.textoPeligro,
+    backgroundColor: COLORS.fondoPeligro,
+  },
   productImage: {
     width: 65,
     height: 65,
     borderRadius: BORDER_RADIUS.sm,
+    resizeMode: 'cover',
   },
   productDetails: {
     flex: 1,
     marginLeft: SPACING.sm,
   },
   productTitle: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 'bold',
     color: COLORS.textoVerdeOscuro,
   },
   pointsTag: {
-    marginTop: SPACING.xs,
+    marginTop: 2,
   },
   pointsText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
     color: COLORS.textoVerde,
+  },
+  stockDisponibleTexto: {
+    fontSize: 10,
+    color: COLORS.textoSecundario,
+    marginTop: 2,
+  },
+  textoErrorStock: {
+    fontSize: 10,
+    color: COLORS.textoPeligro,
+    fontWeight: 'bold',
+    marginTop: 2,
   },
   actionsContainer: {
     alignItems: 'flex-end',
@@ -355,6 +524,9 @@ const styles = StyleSheet.create({
   qtyBtn: {
     paddingHorizontal: SPACING.sm,
     paddingVertical: 2,
+  },
+  qtyBtnDisabled: {
+    opacity: 0.3,
   },
   qtyBtnText: {
     fontSize: 16,
@@ -386,7 +558,8 @@ const styles = StyleSheet.create({
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginVertical: 2,
+    alignItems: 'center',
+    marginVertical: 3,
   },
   summaryLabel: {
     fontSize: 13,
@@ -396,6 +569,11 @@ const styles = StyleSheet.create({
   summaryValue: {
     fontSize: 13,
     color: COLORS.textoVerdeOscuro,
+    fontWeight: 'bold',
+  },
+  textoRetiroGratis: {
+    fontSize: 12,
+    color: COLORS.textoVerde,
     fontWeight: 'bold',
   },
   divider: {
@@ -409,9 +587,30 @@ const styles = StyleSheet.create({
     color: COLORS.textoVerdeOscuro,
   },
   totalValue: {
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: 'bold',
     color: COLORS.botonPrincipal,
+  },
+  comparativaBox: {
+    backgroundColor: COLORS.fondoTarjeta,
+    padding: SPACING.sm,
+    borderRadius: BORDER_RADIUS.sm,
+    marginTop: SPACING.sm,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  textoComparativa: {
+    fontSize: 11,
+    color: COLORS.textoVerdeOscuro,
+  },
+  textoComparativaRestante: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: COLORS.textoVerde,
+  },
+  textoComparativaAlerta: {
+    color: COLORS.textoPeligro,
   },
   insufficientBox: {
     flexDirection: 'row',
@@ -432,9 +631,9 @@ const styles = StyleSheet.create({
   },
   infoText: {
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: 11,
     color: COLORS.textoSecundario,
-    marginVertical: SPACING.md,
+    marginVertical: SPACING.sm,
   },
   checkoutButton: {
     backgroundColor: COLORS.botonPrincipal,
@@ -448,66 +647,6 @@ const styles = StyleSheet.create({
   checkoutButtonText: {
     color: COLORS.superficieTarjeta,
     fontWeight: 'bold',
-    fontSize: 14,
-  },
-  comprobanteContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: SPACING.lg,
-  },
-  comprobanteTitulo: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: COLORS.textoVerdeOscuro,
-    marginTop: SPACING.md,
-  },
-  comprobanteSubtitulo: {
     fontSize: 13,
-    color: COLORS.textoSecundario,
-    textAlign: 'center',
-    marginVertical: SPACING.sm,
-  },
-  codigoBox: {
-    backgroundColor: COLORS.superficieTarjeta,
-    borderWidth: 2,
-    borderColor: COLORS.botonPrincipal,
-    borderStyle: 'dashed',
-    borderRadius: BORDER_RADIUS.md,
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-    marginVertical: SPACING.md,
-  },
-  codigoTexto: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: COLORS.botonPrincipal,
-    letterSpacing: 2,
-  },
-  resumenDescuentoBox: {
-    alignItems: 'center',
-    marginBottom: SPACING.lg,
-  },
-  textoPuntosDescontados: {
-    fontSize: 13,
-    color: COLORS.textoPeligro,
-    fontWeight: '600',
-  },
-  textoSaldoRestante: {
-    fontSize: 14,
-    color: COLORS.textoVerdeOscuro,
-    fontWeight: 'bold',
-    marginTop: 2,
-  },
-  botonVolver: {
-    backgroundColor: COLORS.botonPrincipal,
-    paddingHorizontal: SPACING.xl,
-    paddingVertical: SPACING.sm + 2,
-    borderRadius: BORDER_RADIUS.md,
-  },
-  botonVolverTexto: {
-    color: COLORS.superficieTarjeta,
-    fontWeight: 'bold',
-    fontSize: 14,
   },
 });

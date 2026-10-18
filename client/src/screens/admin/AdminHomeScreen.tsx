@@ -11,12 +11,14 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
 import { useAuth } from '../../context/AuthContext';
 import { adminService } from '../../services/adminService';
 import { MetricasAdmin } from '../../mocks/adminDashboard';
 
 export const AdminHomeScreen: React.FC = () => {
+  const navigation = useNavigation<any>();
   const { logout, user } = useAuth();
   const [metricas, setMetricas] = useState<MetricasAdmin | null>(null);
   const [cargando, setCargando] = useState<boolean>(true);
@@ -119,6 +121,25 @@ export const AdminHomeScreen: React.FC = () => {
             </View>
           </View>
         )}
+
+        {/* Acceso Rápido al ABM de Catálogo y Sucursales */}
+        <Text style={styles.tituloSeccion}>Gestión Municipal de Insumos</Text>
+        <TouchableOpacity
+          style={styles.tarjetaAccesoRapido}
+          onPress={() => navigation.navigate('ProductosAdmin')}
+          activeOpacity={0.8}
+        >
+          <View style={styles.iconoAccesoRapido}>
+            <MaterialCommunityIcons name="storefront-outline" size={28} color={COLORS.botonPrincipal} />
+          </View>
+          <View style={styles.textosAccesoRapido}>
+            <Text style={styles.tituloAccesoRapido}>ABM de Catálogo y Sucursales</Text>
+            <Text style={styles.descripcionAccesoRapido}>
+              Gestionar stock, premios ecológicos, baja lógica y puntos de retiro municipales.
+            </Text>
+          </View>
+          <MaterialCommunityIcons name="chevron-right" size={24} color={COLORS.textoSecundario} />
+        </TouchableOpacity>
 
         {/* Sección Auditoría de Actividad */}
         <Text style={styles.tituloSeccion}>Últimas Acciones del Personal</Text>
@@ -245,5 +266,38 @@ const styles = StyleSheet.create({
   horaAuditoria: {
     fontSize: 10,
     color: COLORS.textoDesactivado,
+  },
+  tarjetaAccesoRapido: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.superficieTarjeta,
+    borderRadius: BORDER_RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.bordeSuave,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
+  },
+  iconoAccesoRapido: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: COLORS.fondoTarjeta,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: SPACING.sm,
+  },
+  textosAccesoRapido: {
+    flex: 1,
+    marginRight: SPACING.xs,
+  },
+  tituloAccesoRapido: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: COLORS.textoVerdeOscuro,
+  },
+  descripcionAccesoRapido: {
+    fontSize: 11,
+    color: COLORS.textoSecundario,
+    marginTop: 2,
   },
 });

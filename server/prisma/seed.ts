@@ -147,61 +147,92 @@ async function main() {
     },
   });
 
-  // 4. Productos de Tienda Ecológica (solo si aún no existen)
-  const totalProductos = await prisma.producto.count({
-    where: { municipioId: municipio.id },
+  // 4. Asegurar Municipio MUN-001
+  const municipioMun = await prisma.municipio.upsert({
+    where: { codigo: 'MUN-001' },
+    update: {},
+    create: {
+      nombre: 'Municipio de Pilar',
+      codigo: 'MUN-001',
+    },
   });
 
-  if (totalProductos === 0) {
-    await prisma.producto.createMany({
-      data: [
-        {
-          titulo: 'Bolsa de Tela Reutilizable',
-          descripcion: 'Bolsa ecológica de algodón orgánico.',
-          costoPuntos: 40,
-          stock: 50,
-          municipioId: municipio.id,
-        },
-        {
-          titulo: 'Botella Térmica EcoAlerta',
-          descripcion: 'Botella de acero inoxidable 500ml.',
-          costoPuntos: 100,
-          stock: 20,
-          municipioId: municipio.id,
-        },
-        {
-          titulo: 'Gorra Oficial EcoAlerta',
-          descripcion: 'Gorra de material reciclado.',
-          costoPuntos: 80,
-          stock: 15,
-          municipioId: municipio.id,
-        },
-      ],
-    });
-  }
+  const targetMunicipios = [municipio, municipioMun];
 
-  // 5. Sucursales Municipales de Retiro (solo si aún no existen)
-  const totalSucursales = await prisma.sucursal.count({
-    where: { municipioId: municipio.id },
-  });
-
-  if (totalSucursales === 0) {
-    await prisma.sucursal.createMany({
-      data: [
-        {
-          nombre: 'Palacio Municipal de Pilar',
-          direccion: 'Rivadavia 660, Pilar Centro',
-          horario: 'Lunes a Viernes de 08:00 a 15:00 hs',
-          municipioId: municipio.id,
-        },
-        {
-          nombre: 'Delegación Municipal Presidente Derqui',
-          direccion: 'Av. De Mayo 450, Derqui',
-          horario: 'Lunes a Viernes de 08:00 a 14:00 hs',
-          municipioId: municipio.id,
-        },
-      ],
+  for (const mun of targetMunicipios) {
+    // Productos de Tienda Ecológica (al menos 4)
+    const totalProductos = await prisma.producto.count({
+      where: { municipioId: mun.id },
     });
+
+    if (totalProductos === 0) {
+      await prisma.producto.createMany({
+        data: [
+          {
+            titulo: 'Bolsa de Tela Reutilizable',
+            descripcion: 'Bolsa ecológica de algodón orgánico para compras diarias.',
+            costoPuntos: 40,
+            stock: 50,
+            activo: true,
+            imagenUrl: 'https://images.unsplash.com/photo-1597484661643-2f5f74293e41?auto=format&fit=crop&w=300&q=80',
+            municipioId: mun.id,
+          },
+          {
+            titulo: 'Botella Térmica EcoAlerta',
+            descripcion: 'Botella térmica de acero inoxidable 500ml libre de BPA.',
+            costoPuntos: 100,
+            stock: 20,
+            activo: true,
+            imagenUrl: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=300&q=80',
+            municipioId: mun.id,
+          },
+          {
+            titulo: 'Gorra Oficial EcoAlerta',
+            descripcion: 'Gorra sustentable confeccionada con materiales reciclados.',
+            costoPuntos: 80,
+            stock: 15,
+            activo: true,
+            imagenUrl: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=300&q=80',
+            municipioId: mun.id,
+          },
+          {
+            titulo: 'Compostera Domiciliaria 20L',
+            descripcion: 'Compostera compacta aireada para tratamiento de residuos orgánicos.',
+            costoPuntos: 250,
+            stock: 10,
+            activo: true,
+            imagenUrl: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=300&q=80',
+            municipioId: mun.id,
+          },
+        ],
+      });
+    }
+
+    // Sucursales Municipales de Retiro (al menos 2)
+    const totalSucursales = await prisma.sucursal.count({
+      where: { municipioId: mun.id },
+    });
+
+    if (totalSucursales === 0) {
+      await prisma.sucursal.createMany({
+        data: [
+          {
+            nombre: 'Palacio Municipal de Pilar',
+            direccion: 'Rivadavia 660, Pilar Centro',
+            horario: 'Lunes a Viernes de 08:00 a 15:00 hs',
+            activa: true,
+            municipioId: mun.id,
+          },
+          {
+            nombre: 'Delegación Municipal Presidente Derqui',
+            direccion: 'Av. De Mayo 450, Derqui',
+            horario: 'Lunes a Viernes de 08:00 a 14:00 hs',
+            activa: true,
+            municipioId: mun.id,
+          },
+        ],
+      });
+    }
   }
 
   console.log('✅ Base de datos verificada y sembrada con éxito.');
