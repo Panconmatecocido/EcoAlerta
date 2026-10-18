@@ -719,3 +719,313 @@ export const liberarCaso = async (req: Request, res: Response): Promise<void> =>
     });
   }
 };
+
+// 11. Validación de Veracidad y Acreditación Atómica de Puntos por el Admin (FR-001, FR-002 / US1)
+export const validarVeracidad = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { decision, puntos, observacionesAdmin } = req.body || {};
+
+    if (!decision || !['APROBAR_VERACIDAD', 'RECHAZAR_FALSO'].includes(decision)) {
+      res.status(400).json({
+        success: false,
+        message: "Decisión inválida. Debe ser 'APROBAR_VERACIDAD' o 'RECHAZAR_FALSO'",
+      });
+      return;
+    }
+
+    const denuncia = await prisma.denuncia.findUnique({
+      where: { id },
+      include: { ciudadano: true },
+    });
+
+    if (!denuncia) {
+      res.status(404).json({
+        success: false,
+        message: 'Denuncia no encontrada',
+      });
+      return;
+    }
+
+    if (denuncia.estado !== EstadoDenuncia.VERIFICADO_PENDIENTE) {
+      res.status(400).json({
+        success: false,
+        message: `La denuncia no se encuentra en estado VERIFICADO_PENDIENTE (estado actual: ${denuncia.estado})`,
+      });
+      return;
+    }
+
+    // Caso Rechazar como Falso
+    if (decision === 'RECHAZAR_FALSO') {
+      const actualizada = await prisma.denuncia.update({
+        where: { id },
+        data: {
+          estado: EstadoDenuncia.RECHAZADO,
+          puntosOtorgados: 0,
+          agenteId: null,
+          observacionesAdmin: observacionesAdmin
+            ? String(observacionesAdmin).trim()
+            : 'Rechazado por falsedad en auditoría de veracidad por Administrador',
+        },
+      });
+
+      res.status(200).json({
+        success: true,
+        data: actualizada,
+        message: 'Denuncia rechazada como falsa (0 puntos acreditados).',
+      });
+      return;
+    }
+
+    // Idempotencia: Verificar que no haya otorgado puntos ya
+    if ((denuncia.puntosOtorgados ?? 0) > 0) {
+      res.status(400).json({
+        success: false,
+        message: 'Esta denuncia ya tiene puntos acreditados previamente (protección contra doble acreditación)',
+      });
+      return;
+    }
+
+    // Baremo oficial por prioridad
+    const BAREMO: Record<Prioridad, { min: number; max: number }> = {
+      BAJA: { min: 50, max: 80 },
+      MEDIA: { min: 100, max: 150 },
+      ALTA: { min: 200, max: 300 },
+      URGENTE: { min: 350, max: 500 },
+    };
+
+    const rango = BAREMO[denuncia.prioridad];
+    const puntosNum = Number(puntos);
+
+    if (
+      !rango ||
+      isNaN(puntosNum) ||
+      !Number.isInteger(puntosNum) ||
+      puntosNum < rango.min ||
+      puntosNum > rango.max
+    ) {
+      res.status(400).json({
+        success: false,
+        message: `Puntaje fuera de baremo para prioridad ${denuncia.prioridad} (Permitido: ${rango.min} a ${rango.max} pts).`,
+      });
+      return;
+    }
+
+    // Transacción atómica: actualiza Denuncia a EN_SANEAMIENTO y suma puntos al Ciudadano
+    const [denunciaActualizada, ciudadanoActualizado] = await prisma.$transaction([
+      prisma.denuncia.update({
+        where: { id },
+        data: {
+          estado: EstadoDenuncia.EN_SANEAMIENTO,
+          puntosOtorgados: puntosNum,
+          fechaVerificacion: denuncia.fechaVerificacion || new Date(),
+          observacionesAdmin: observacionesAdmin
+            ? String(observacionesAdmin).trim()
+            : denuncia.observacionesAdmin,
+        },
+      }),
+      prisma.user.update({
+        where: { id: denuncia.ciudadanoId },
+        data: {
+          puntos: {
+            increment: puntosNum,
+          },
+        },
+      }),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: denunciaActualizada,
+      puntosAcreditados: puntosNum,
+      nuevoSaldoCiudadano: ciudadanoActualizado.puntos,
+      message: `Veracidad aprobada con éxito. Se acreditaron ${puntosNum} puntos al vecino y el caso avanzó a EN_SANEAMIENTO.`,
+    });
+  } catch (error) {
+    console.error('Error en validarVeracidad:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno al validar la veracidad y acreditar puntos',
+    });
+  }
+};
+
+// 12. Cierre Técnico de Saneamiento por el Agente de Campo (FR-003 / US2)
+export const registrarCierreTecnico = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { fotoSolucionUrl, informeSolucion, agenteId } = req.body || {};
+
+    if (!fotoSolucionUrl || String(fotoSolucionUrl).trim().length === 0) {
+      res.status(400).json({
+        success: false,
+        message: 'La fotografía del "Después" (fotoSolucionUrl) es obligatoria para el cierre técnico.',
+      });
+      return;
+    }
+
+    if (!informeSolucion || String(informeSolucion).trim().length < 10) {
+      res.status(400).json({
+        success: false,
+        message: 'El informe técnico de saneamiento debe contener al menos 10 caracteres.',
+      });
+      return;
+    }
+
+    const denuncia = await prisma.denuncia.findUnique({ where: { id } });
+    if (!denuncia) {
+      res.status(404).json({
+        success: false,
+        message: 'Denuncia no encontrada',
+      });
+      return;
+    }
+
+    if (denuncia.estado !== EstadoDenuncia.EN_SANEAMIENTO) {
+      res.status(400).json({
+        success: false,
+        message: `La denuncia debe estar en estado EN_SANEAMIENTO para registrar cierre técnico (estado actual: ${denuncia.estado})`,
+      });
+      return;
+    }
+
+    // Si se envía agenteId, resolverlo y verificar que no pertenezca a otro agente
+    if (agenteId && denuncia.agenteId) {
+      const agente = await resolverAgenteEnDB(prisma, String(agenteId));
+      if (agente && denuncia.agenteId !== agente.id && denuncia.agenteId !== agenteId) {
+        res.status(403).json({
+          success: false,
+          message: 'No tienes asignado este caso de saneamiento.',
+        });
+        return;
+      }
+    }
+
+    const actualizada = await prisma.denuncia.update({
+      where: { id },
+      data: {
+        estado: EstadoDenuncia.RESUELTO_TECNICO,
+        fotoSolucionUrl: String(fotoSolucionUrl).trim(),
+        informeSolucion: String(informeSolucion).trim(),
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      data: actualizada,
+      message: 'Cierre técnico registrado con éxito (RESUELTO_TECNICO). En espera de certificación del Administrador.',
+    });
+  } catch (error) {
+    console.error('Error en registrarCierreTecnico:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno al registrar el cierre técnico de saneamiento',
+    });
+  }
+};
+
+// 13. Certificación Final "Antes vs. Después" u Observación por el Admin (FR-004, FR-005 / US3)
+export const certificarResolucionFinal = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { decision, observacionesAdmin } = req.body || {};
+
+    if (!decision || !['CERTIFICAR', 'OBSERVAR_REHACER'].includes(decision)) {
+      res.status(400).json({
+        success: false,
+        message: "Decisión inválida. Debe ser 'CERTIFICAR' u 'OBSERVAR_REHACER'",
+      });
+      return;
+    }
+
+    const denuncia = await prisma.denuncia.findUnique({ where: { id } });
+    if (!denuncia) {
+      res.status(404).json({
+        success: false,
+        message: 'Denuncia no encontrada',
+      });
+      return;
+    }
+
+    if (denuncia.estado !== EstadoDenuncia.RESUELTO_TECNICO) {
+      res.status(400).json({
+        success: false,
+        message: `La denuncia debe estar en estado RESUELTO_TECNICO para su certificación (estado actual: ${denuncia.estado})`,
+      });
+      return;
+    }
+
+    if (decision === 'OBSERVAR_REHACER') {
+      if (!observacionesAdmin || String(observacionesAdmin).trim().length < 5) {
+        res.status(400).json({
+          success: false,
+          message: 'Debe ingresar una observación técnica explicando qué falta corregir o sanear.',
+        });
+        return;
+      }
+
+      // Edge case: Si el agente original ya tiene otro caso activo o está fuera de servicio,
+      // el caso vuelve a la bolsa general (agenteId = null) en EN_SANEAMIENTO.
+      let agenteAsignadoFinal = denuncia.agenteId;
+      if (denuncia.agenteId) {
+        const agenteOcupado = await prisma.denuncia.findFirst({
+          where: {
+            id: { not: id },
+            agenteId: denuncia.agenteId,
+            estado: {
+              in: [
+                EstadoDenuncia.EN_VERIFICACION,
+                EstadoDenuncia.EN_SANEAMIENTO,
+                EstadoDenuncia.EN_PROCESO,
+              ],
+            },
+          },
+        });
+        const usuarioAgente = await prisma.user.findUnique({ where: { id: denuncia.agenteId } });
+        if (agenteOcupado || (usuarioAgente && !usuarioAgente.disponible)) {
+          agenteAsignadoFinal = null;
+        }
+      }
+
+      const actualizada = await prisma.denuncia.update({
+        where: { id },
+        data: {
+          estado: EstadoDenuncia.EN_SANEAMIENTO,
+          agenteId: agenteAsignadoFinal,
+          observacionesAdmin: String(observacionesAdmin).trim(),
+        },
+      });
+
+      res.status(200).json({
+        success: true,
+        data: actualizada,
+        message: 'Saneamiento observado. El caso regresó a EN_SANEAMIENTO con las notas correspondientes.',
+      });
+      return;
+    }
+
+    // decision === 'CERTIFICAR'
+    const actualizada = await prisma.denuncia.update({
+      where: { id },
+      data: {
+        estado: EstadoDenuncia.RESUELTO,
+        fechaResolucion: new Date(),
+        observacionesAdmin: observacionesAdmin
+          ? String(observacionesAdmin).trim()
+          : (denuncia.observacionesAdmin || 'Saneamiento certificado y cerrado definitivamente por Administrador'),
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      data: actualizada,
+      message: 'Caso certificado y cerrado definitivamente (RESUELTO).',
+    });
+  } catch (error) {
+    console.error('Error en certificarResolucionFinal:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno al certificar la resolución del caso',
+    });
+  }
+};

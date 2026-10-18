@@ -27,6 +27,8 @@ export interface CasoCampo {
   distanciaKm: number;
   imagenUrl?: string | null;
   fotoVerificacionUrl?: string | null;
+  fotoSolucionUrl?: string | null;
+  informeSolucion?: string | null;
   observacionesAdmin?: string | null;
   intentosInaccesible: number;
   puntosOtorgados?: number | null;
@@ -45,6 +47,11 @@ export interface DatosVerificacionInSitu {
   observaciones?: string;
 }
 
+export interface DatosCierreTecnico {
+  fotoSolucionUrl: string;
+  informeSolucion: string;
+}
+
 export interface IFieldAgentRepository {
   getBolsaYCasoActivo(agenteId: string, municipioId?: string): Promise<RespuestaBolsaCasos>;
   getBolsaCasos(municipioId?: string): Promise<CasoCampo[]>;
@@ -55,5 +62,11 @@ export interface IFieldAgentRepository {
     agenteId: string,
     datos: DatosVerificacionInSitu
   ): Promise<{ caso: CasoCampo; message: string }>;
+  enviarCierreTecnico(
+    casoId: string,
+    agenteId: string,
+    datos: DatosCierreTecnico
+  ): Promise<{ caso: CasoCampo; message: string }>;
   liberarCaso(casoId: string, motivo?: string): Promise<{ caso: CasoCampo; message: string }>;
 }
+

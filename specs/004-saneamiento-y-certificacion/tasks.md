@@ -18,7 +18,7 @@
 
 **Purpose**: Definir las constantes y validadores del baremo oficial de puntos por prioridad.
 
-- [ ] T001 Crear utilidad `pointsScale.ts` con los rangos oficiales (`BAJA: 50-80`, `MEDIA: 100-150`, `ALTA: 200-300`, `URGENTE: 350-500`) y funciones validadoras en `client/src/utils/pointsScale.ts`
+- [X] T001 Crear utilidad `pointsScale.ts` con los rangos oficiales (`BAJA: 50-80`, `MEDIA: 100-150`, `ALTA: 200-300`, `URGENTE: 350-500`) y funciones validadoras en `client/src/utils/pointsScale.ts`
 
 ---
 
@@ -28,11 +28,11 @@
 
 **⚠️ CRITICAL**: Bloqueante para los flujos de Admin y Agente de este módulo.
 
-- [ ] T002 Implementar `validarVeracidad` en el backend con `prisma.$transaction` (verifica `estado === 'VERIFICADO_PENDIENTE'`, `puntosOtorgados === 0`, valida baremo por prioridad, suma `User.puntos` y pasa a `EN_SANEAMIENTO`) en `server/src/controllers/denuncias.controller.ts`
-- [ ] T003 Implementar `registrarCierreTecnico` (`EN_SANEAMIENTO` -> `RESUELTO_TECNICO` exigiendo `fotoSolucionUrl` e `informeSolucion`) y `certificarResolucionFinal` (`RESUELTO_TECNICO` -> `RESUELTO` con `fechaResolucion` o retorno a `EN_SANEAMIENTO` con observación) en `server/src/controllers/denuncias.controller.ts`
-- [ ] T004 Registrar las rutas `PATCH /api/denuncias/:id/validar-veracidad`, `PATCH /api/denuncias/:id/cierre-tecnico` y `PATCH /api/denuncias/:id/certificar` en `server/src/routes/denuncias.routes.ts`
-- [ ] T005 [P] Extender `IFieldAgentRepository`, `RemoteFieldAgentRepository` y `LocalFieldAgentRepository` con el método `enviarCierreTecnico` en `client/src/repositories/agent/IFieldAgentRepository.ts`, `client/src/repositories/agent/RemoteFieldAgentRepository.ts` y `client/src/repositories/agent/LocalFieldAgentRepository.ts`
-- [ ] T006 [P] Extender `adminService.ts` con los métodos `validarVeracidadYAcreditarPuntos` y `certificarSaneamientoFinal` en `client/src/services/adminService.ts`
+- [X] T002 Implementar `validarVeracidad` en el backend con `prisma.$transaction` (verifica `estado === 'VERIFICADO_PENDIENTE'`, `puntosOtorgados === 0`, valida baremo por prioridad, suma `User.puntos` y pasa a `EN_SANEAMIENTO`) en `server/src/controllers/denuncias.controller.ts`
+- [X] T003 Implementar `registrarCierreTecnico` (`EN_SANEAMIENTO` -> `RESUELTO_TECNICO` exigiendo `fotoSolucionUrl` e `informeSolucion`) y `certificarResolucionFinal` (`RESUELTO_TECNICO` -> `RESUELTO` con `fechaResolucion` o retorno a `EN_SANEAMIENTO` con observación) en `server/src/controllers/denuncias.controller.ts`
+- [X] T004 Registrar las rutas `PATCH /api/denuncias/:id/validar-veracidad`, `PATCH /api/denuncias/:id/cierre-tecnico` y `PATCH /api/denuncias/:id/certificar` en `server/src/routes/denuncias.routes.ts`
+- [X] T005 [P] Extender `IFieldAgentRepository`, `RemoteFieldAgentRepository` y `LocalFieldAgentRepository` con el método `enviarCierreTecnico` en `client/src/repositories/agent/IFieldAgentRepository.ts`, `client/src/repositories/agent/RemoteFieldAgentRepository.ts` y `client/src/repositories/agent/LocalFieldAgentRepository.ts`
+- [X] T006 [P] Extender `adminService.ts` con los métodos `validarVeracidadYAcreditarPuntos` y `certificarSaneamientoFinal` en `client/src/services/adminService.ts`
 
 **Checkpoint**: Endpoints y servicios de acreditación, cierre técnico y certificación listos.
 
@@ -46,8 +46,8 @@
 
 ### Implementation for User Story 1
 
-- [ ] T007 [P] [US1] Crear el componente `PointsScaleModal` con `StyleSheet.create` y `theme.ts` que muestra `imagenUrl` vs. `fotoVerificacionUrl` y restringe los puntos al rango de `pointsScale.ts` en `client/src/components/admin/PointsScaleModal.tsx`
-- [ ] T008 [US1] Integrar `PointsScaleModal` en `AdminDenunciasScreen` para las denuncias en estado `VERIFICADO_PENDIENTE` en `client/src/screens/admin/AdminDenunciasScreen.tsx`
+- [X] T007 [P] [US1] Crear el componente `PointsScaleModal` con `StyleSheet.create` y `theme.ts` que muestra `imagenUrl` vs. `fotoVerificacionUrl` y restringe los puntos al rango de `pointsScale.ts` en `client/src/components/admin/PointsScaleModal.tsx`
+- [X] T008 [US1] Integrar `PointsScaleModal` en `AdminDenunciasScreen` para las denuncias en estado `VERIFICADO_PENDIENTE` en `client/src/screens/admin/AdminDenunciasScreen.tsx`
 
 **Checkpoint**: Acreditación de puntos por denuncia real verificada en funcionamiento.
 
@@ -61,8 +61,8 @@
 
 ### Implementation for User Story 2
 
-- [ ] T009 [P] [US2] Crear el componente `TechnicalClosureModal` con compresión de foto (`imageCompressor.ts` `< 1.2 MB`) y campo obligatorio `informeSolucion` en `client/src/components/agent/TechnicalClosureModal.tsx`
-- [ ] T010 [US2] Integrar `TechnicalClosureModal` en la tarjeta de `"Mi Caso Activo"` cuando `estado === 'EN_SANEAMIENTO'` (incluyendo visualización de observaciones si fue devuelto por el Admin) en `client/src/screens/agente/AgentHomeScreen.tsx`
+- [X] T009 [P] [US2] Crear el componente `TechnicalClosureModal` con compresión de foto (`imageCompressor.ts` `< 1.2 MB`) y campo obligatorio `informeSolucion` en `client/src/components/agent/TechnicalClosureModal.tsx`
+- [X] T010 [US2] Integrar `TechnicalClosureModal` en la tarjeta de `"Mi Caso Activo"` cuando `estado === 'EN_SANEAMIENTO'` (incluyendo visualización de observaciones si fue devuelto por el Admin) en `client/src/screens/agente/AgentHomeScreen.tsx`
 
 **Checkpoint**: Cierre técnico con evidencia del "Después" operativo.
 
@@ -76,8 +76,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T011 [P] [US3] Crear el componente `BeforeAfterAuditModal` con comparativa visual "Antes vs. Después", lectura de `informeSolucion` y botones `"Certificar Cierre Definitivo"` / `"Observar y Devolver a Saneamiento"` en `client/src/components/admin/BeforeAfterAuditModal.tsx`
-- [ ] T012 [US3] Integrar `BeforeAfterAuditModal` en `AdminDenunciasScreen` para las denuncias en estado `RESUELTO_TECNICO` en `client/src/screens/admin/AdminDenunciasScreen.tsx`
+- [X] T011 [P] [US3] Crear el componente `BeforeAfterAuditModal` con comparativa visual "Antes vs. Después", lectura de `informeSolucion` y botones `"Certificar Cierre Definitivo"` / `"Observar y Devolver a Saneamiento"` en `client/src/components/admin/BeforeAfterAuditModal.tsx`
+- [X] T012 [US3] Integrar `BeforeAfterAuditModal` en `AdminDenunciasScreen` para las denuncias en estado `RESUELTO_TECNICO` en `client/src/screens/admin/AdminDenunciasScreen.tsx`
 
 **Checkpoint**: Ciclo de vida completo del reporte (7 etapas) cerrado de punta a punta.
 
@@ -87,9 +87,9 @@
 
 **Purpose**: Pruebas unitarias de baremo, pruebas de integración de idempotencia de puntos y checklist manual en Expo Go.
 
-- [ ] T013 [P] Crear pruebas unitarias de `pointsScale.ts` (validación de límites por prioridad) en `client/src/utils/__tests__/pointsScale.test.ts`
-- [ ] T014 [P] Crear pruebas de integración para `PATCH /api/denuncias/:id/validar-veracidad` (incremento atómico de puntos, rechazo fuera de baremo e idempotencia ante doble llamada) y `PATCH /api/denuncias/:id/certificar` en `server/src/__tests__/denuncias.certification.test.ts`
-- [ ] T015 Ejecutar checklist de verificación manual en Expo Go (Acreditación de puntos por baremo, Cierre técnico del Agente y Certificación Antes vs. Después del Admin) en `specs/004-saneamiento-y-certificacion/checklists/requirements.md`
+- [X] T013 [P] Crear pruebas unitarias de `pointsScale.ts` (validación de límites por prioridad) en `client/src/utils/__tests__/pointsScale.test.ts`
+- [X] T014 [P] Crear pruebas de integración para `PATCH /api/denuncias/:id/validar-veracidad` (incremento atómico de puntos, rechazo fuera de baremo e idempotencia ante doble llamada) y `PATCH /api/denuncias/:id/certificar` en `server/src/__tests__/denuncias.certification.test.ts`
+- [X] T015 Ejecutar checklist de verificación manual en Expo Go (Acreditación de puntos por baremo, Cierre técnico del Agente y Certificación Antes vs. Después del Admin) en `specs/004-saneamiento-y-certificacion/checklists/requirements.md`
 
 ---
 

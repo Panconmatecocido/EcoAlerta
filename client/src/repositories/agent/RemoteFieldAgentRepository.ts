@@ -1,6 +1,7 @@
 import { api } from '../../services/api';
 import {
   CasoCampo,
+  DatosCierreTecnico,
   DatosVerificacionInSitu,
   IFieldAgentRepository,
   RespuestaBolsaCasos,
@@ -20,12 +21,15 @@ const mapearCasoServidor = (raw: any): CasoCampo => ({
   distanciaKm: typeof raw.distanciaKm === 'number' ? raw.distanciaKm : 1.2,
   imagenUrl: raw.imagenUrl || null,
   fotoVerificacionUrl: raw.fotoVerificacionUrl || null,
+  fotoSolucionUrl: raw.fotoSolucionUrl || null,
+  informeSolucion: raw.informeSolucion || null,
   observacionesAdmin: raw.observacionesAdmin || null,
   intentosInaccesible: typeof raw.intentosInaccesible === 'number' ? raw.intentosInaccesible : 0,
   puntosOtorgados: raw.puntosOtorgados ?? 0,
   agenteId: raw.agenteId || null,
   creadoEn: raw.creadoEn || new Date().toISOString(),
 });
+
 
 export class RemoteFieldAgentRepository implements IFieldAgentRepository {
   async getBolsaYCasoActivo(agenteId: string, municipioId?: string): Promise<RespuestaBolsaCasos> {
@@ -86,7 +90,27 @@ export class RemoteFieldAgentRepository implements IFieldAgentRepository {
     };
   }
 
+  async enviarCierreTecnico(
+    casoId: string,
+    agenteId: string,
+    datos: DatosCierreTecnico
+  ): Promise<{ caso: CasoCampo; message: string }> {
+    const res = await api.patch<{ success: boolean; data: any; message: string }>(
+      `/api/denuncias/${casoId}/cierre-tecnico`,
+      {
+        agenteId,
+        fotoSolucionUrl: datos.fotoSolucionUrl,
+        informeSolucion: datos.informeSolucion,
+      }
+    );
+    return {
+      caso: mapearCasoServidor(res.data),
+      message: res.message || 'Cierre técnico registrado con éxito',
+    };
+  }
+
   async liberarCaso(casoId: string, motivo?: string): Promise<{ caso: CasoCampo; message: string }> {
+
     const res = await api.patch<{ success: boolean; data: any; message: string }>(
       `/api/denuncias/${casoId}/liberar`,
       { motivo }

@@ -48,6 +48,14 @@ export interface Denuncia {
   puntosOtorgados?: number;
   agenteAsignadoId?: string;
   agenteAsignadoNombre?: string;
+  imagenUrl?: string;
+  fotoVerificacionUrl?: string;
+  fotoSolucionUrl?: string;
+  informeSolucion?: string;
+  fechaVerificacion?: string;
+  fechaResolucion?: string;
+  ciudadanoId?: string;
+  ciudadanoNombre?: string;
 }
 
 export const adminService = {
@@ -97,6 +105,14 @@ export const adminService = {
       puntosOtorgados: item.puntosOtorgados ?? 0,
       agenteAsignadoId: item.agenteAsignadoId ?? item.agenteId ?? item.agente?.id,
       agenteAsignadoNombre: item.agenteAsignadoNombre ?? item.agente?.nombre,
+      imagenUrl: item.imagenUrl ?? undefined,
+      fotoVerificacionUrl: item.fotoVerificacionUrl ?? undefined,
+      fotoSolucionUrl: item.fotoSolucionUrl ?? undefined,
+      informeSolucion: item.informeSolucion ?? undefined,
+      fechaVerificacion: item.fechaVerificacion ?? undefined,
+      fechaResolucion: item.fechaResolucion ?? undefined,
+      ciudadanoId: item.ciudadanoId ?? item.ciudadano?.id,
+      ciudadanoNombre: item.ciudadanoNombre ?? item.ciudadano?.nombre,
     }));
   },
 
@@ -116,6 +132,29 @@ export const adminService = {
     return await api.patch<RespuestaApi<any>>(`/api/denuncias/${id}/triaje`, payload);
   },
 
+  // Validación de Veracidad y Acreditación Atómica de Puntos (FR-001, FR-002 / US1)
+  validarVeracidadYAcreditarPuntos: async (
+    id: string,
+    payload: {
+      decision: 'APROBAR_VERACIDAD' | 'RECHAZAR_FALSO';
+      puntos?: number;
+      observacionesAdmin?: string;
+    }
+  ) => {
+    return await api.patch<RespuestaApi<any>>(`/api/denuncias/${id}/validar-veracidad`, payload);
+  },
+
+  // Certificación Final Antes vs. Después u Observación (FR-004, FR-005 / US3)
+  certificarSaneamientoFinal: async (
+    id: string,
+    payload: {
+      decision: 'CERTIFICAR' | 'OBSERVAR_REHACER';
+      observacionesAdmin?: string;
+    }
+  ) => {
+    return await api.patch<RespuestaApi<any>>(`/api/denuncias/${id}/certificar`, payload);
+  },
+
   // Desasignar / Liberar Caso a la Bolsa General (FR-006: retorna a APROBADO o mantiene EN_SANEAMIENTO)
   liberarCasoAgente: async (denunciaId: string, motivo?: string) => {
     return await api.patch<RespuestaApi<any>>(`/api/denuncias/${denunciaId}/liberar`, {
@@ -128,6 +167,7 @@ export const adminService = {
       agenteId,
     });
   },
+
 
   // Agentes
   obtenerAgentes: async (municipioId?: string): Promise<Agente[]> => {

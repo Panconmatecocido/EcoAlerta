@@ -1,10 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   CasoCampo,
+  DatosCierreTecnico,
   DatosVerificacionInSitu,
   IFieldAgentRepository,
   RespuestaBolsaCasos,
 } from './IFieldAgentRepository';
+
 import { PrioridadCaso } from '../../components/agent/PrioritySemaphoreBadge';
 
 const STORAGE_KEY_CASOS_AGENTE = '@ecoalerta_field_cases_v1';
@@ -254,7 +256,36 @@ export class LocalFieldAgentRepository implements IFieldAgentRepository {
     return { caso: actualizado, message };
   }
 
+  async enviarCierreTecnico(
+    casoId: string,
+    _agenteId: string,
+    datos: DatosCierreTecnico
+  ): Promise<{ caso: CasoCampo; message: string }> {
+    const casos = await this.cargarCasos();
+    const idx = casos.findIndex((c) => c.id === casoId);
+    if (idx === -1) {
+      throw new Error('Caso no encontrado');
+    }
+
+    const actual = casos[idx];
+    const actualizado: CasoCampo = {
+      ...actual,
+      estado: 'RESUELTO_TECNICO',
+      fotoSolucionUrl: datos.fotoSolucionUrl,
+      informeSolucion: datos.informeSolucion,
+    };
+
+    casos[idx] = actualizado;
+    await this.guardarCasos(casos);
+
+    return {
+      caso: actualizado,
+      message: 'Cierre técnico registrado con éxito (RESUELTO_TECNICO). En espera de certificación del Administrador.',
+    };
+  }
+
   async liberarCaso(casoId: string, motivo?: string): Promise<{ caso: CasoCampo; message: string }> {
+
     const casos = await this.cargarCasos();
     const idx = casos.findIndex((c) => c.id === casoId);
     if (idx === -1) {

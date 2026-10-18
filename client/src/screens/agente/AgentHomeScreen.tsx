@@ -21,6 +21,7 @@ import {
   VerificationFormModal,
   ResultadoVerificacion,
 } from '../../components/agent/VerificationFormModal';
+import { TechnicalClosureModal } from '../../components/agent/TechnicalClosureModal';
 import { TransactionLoaderModal } from '../../components/common/TransactionLoaderModal';
 import { fieldAgentRepository, CasoCampo } from '../../repositories/agent';
 
@@ -63,6 +64,8 @@ export const AgentHomeScreen: React.FC = () => {
   const [cargando, setCargando] = useState<boolean>(true);
   const [refrescando, setRefrescando] = useState<boolean>(false);
   const [modalVerificacionVisible, setModalVerificacionVisible] = useState<boolean>(false);
+  const [modalCierreTecnicoVisible, setModalCierreTecnicoVisible] = useState<boolean>(false);
+
 
   // Estado de bloqueo transaccional con spinner (RNF-10)
   const [transaccionEnCurso, setTransaccionEnCurso] = useState<boolean>(false);
@@ -229,7 +232,42 @@ export const AgentHomeScreen: React.FC = () => {
     }
   };
 
+  const manejarEnviarCierreTecnico = async (datos: {
+    fotoSolucionUrl: string;
+    informeSolucion: string;
+  }) => {
+    if (!casoActivo || transaccionEnCurso) return;
+
+    setMensajeTransaccion('Enviando cierre técnico a la base de datos...');
+    setTransaccionEnCurso(true);
+
+    try {
+      const { caso: actualizado, message } = await fieldAgentRepository.enviarCierreTecnico(
+        casoActivo.id,
+        agenteId,
+        datos
+      );
+
+      // Transacción positiva: cerrar modal, spinner y liberar bandeja de caso activo
+      setModalCierreTecnicoVisible(false);
+      setTransaccionEnCurso(false);
+      setCasoActivo(null);
+      setPestana('BOLSA');
+      await cargarBolsaYActivo(false);
+
+      Alert.alert('Saneamiento Completado', message);
+    } catch (error: any) {
+      // Transacción negativa: conservar el formulario abierto para reintentar
+      setTransaccionEnCurso(false);
+      Alert.alert(
+        'Error al registrar cierre técnico',
+        `${error?.message || 'No se pudo guardar el informe técnico en la base de datos.'}\n\nPor favor, intenta nuevamente.`
+      );
+    }
+  };
+
   // T012: Liberar / Abandonar Caso Activo con Spinner Bloqueante hasta conocer respuesta de DB (RNF-10)
+
   const ejecutarLiberacionEnDB = async (casoALiberar: CasoCampo) => {
     if (transaccionEnCurso) return;
 
@@ -622,23 +660,43 @@ export const AgentHomeScreen: React.FC = () => {
                   </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={[
-                    estilos.botonVerificarPrincipal,
-                    transaccionEnCurso && estilos.botonDeshabilitado,
-                  ]}
-                  onPress={() => setModalVerificacionVisible(true)}
-                  disabled={transaccionEnCurso}
-                >
-                  <MaterialCommunityIcons
-                    name="camera-outline"
-                    size={ICON_SIZE.md}
-                    color={COLORS.superficieTarjeta}
-                  />
-                  <Text style={estilos.textoBotonVerificarPrincipal}>
-                    Completar Verificación In Situ (Casos A / B / C)
-                  </Text>
-                </TouchableOpacity>
+                {casoActivo.estado === 'EN_SANEAMIENTO' ? (
+                  <TouchableOpacity
+                    style={[
+                      estilos.botonCierreTecnicoPrincipal,
+                      transaccionEnCurso && estilos.botonDeshabilitado,
+                    ]}
+                    onPress={() => setModalCierreTecnicoVisible(true)}
+                    disabled={transaccionEnCurso}
+                  >
+                    <MaterialCommunityIcons
+                      name="broom"
+                      size={ICON_SIZE.md}
+                      color={COLORS.superficieTarjeta}
+                    />
+                    <Text style={estilos.textoBotonVerificarPrincipal}>
+                      Completar Cierre Técnico de Saneamiento
+                    </Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={[
+                      estilos.botonVerificarPrincipal,
+                      transaccionEnCurso && estilos.botonDeshabilitado,
+                    ]}
+                    onPress={() => setModalVerificacionVisible(true)}
+                    disabled={transaccionEnCurso}
+                  >
+                    <MaterialCommunityIcons
+                      name="camera-outline"
+                      size={ICON_SIZE.md}
+                      color={COLORS.superficieTarjeta}
+                    />
+                    <Text style={estilos.textoBotonVerificarPrincipal}>
+                      Completar Verificación In Situ (Casos A / B / C)
+                    </Text>
+                  </TouchableOpacity>
+                )}
 
                 <TouchableOpacity
                   style={[estilos.botonLiberarCaso, transaccionEnCurso && { opacity: 0.5 }]}
@@ -674,6 +732,22 @@ export const AgentHomeScreen: React.FC = () => {
           onSubmit={manejarEnviarVerificacion}
         />
       ) : null}
+
+      {/* Modal de Cierre Técnico de Saneamiento (US2) */}
+      {casoActivo ? (
+        <TechnicalClosureModal
+          visible={modalCierreTecnicoVisible}
+          codigoCaso={casoActivo.codigo}
+          tituloCaso={casoActivo.titulo}
+          observacionesPrevias={casoActivo.observacionesAdmin}
+          enviando={transaccionEnCurso}
+          onClose={() => {
+            if (!transaccionEnCurso) setModalCierreTecnicoVisible(false);
+          }}
+          onSubmit={manejarEnviarCierreTecnico}
+        />
+      ) : null}
+
     </SafeAreaView>
   );
 };
@@ -1016,6 +1090,16 @@ const estilos = StyleSheet.create({
     fontWeight: '700',
     color: COLORS.iconoPrincipal,
   },
+  botonCierreTecnicoPrincipal: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#059669',
+    paddingVertical: SPACING.sm + 4,
+    borderRadius: BORDER_RADIUS.md,
+    marginBottom: SPACING.sm,
+  },
   botonVerificarPrincipal: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1026,6 +1110,7 @@ const estilos = StyleSheet.create({
     borderRadius: BORDER_RADIUS.md,
     marginBottom: SPACING.sm,
   },
+
   textoBotonVerificarPrincipal: {
     fontSize: 13,
     fontWeight: '700',

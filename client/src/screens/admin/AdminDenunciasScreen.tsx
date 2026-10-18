@@ -23,6 +23,8 @@ import {
   PrioridadCaso,
 } from '../../components/agent/PrioritySemaphoreBadge';
 import { TransactionLoaderModal } from '../../components/common/TransactionLoaderModal';
+import { PointsScaleModal } from '../../components/admin/PointsScaleModal';
+import { BeforeAfterAuditModal } from '../../components/admin/BeforeAfterAuditModal';
 
 type FiltroEstado =
   | 'TODAS'
@@ -31,6 +33,7 @@ type FiltroEstado =
   | 'EN_VERIFICACION'
   | 'VERIFICADO_PENDIENTE'
   | 'EN_SANEAMIENTO'
+  | 'RESUELTO_TECNICO'
   | 'RESUELTO'
   | 'RECHAZADO'
   | 'CERRADO_INACCESIBLE';
@@ -42,10 +45,12 @@ const FILTROS_DISPONIBLES: FiltroEstado[] = [
   'EN_VERIFICACION',
   'VERIFICADO_PENDIENTE',
   'EN_SANEAMIENTO',
+  'RESUELTO_TECNICO',
   'RESUELTO',
   'RECHAZADO',
   'CERRADO_INACCESIBLE',
 ];
+
 
 const PRIORIDADES: PrioridadCaso[] = ['URGENTE', 'ALTA', 'MEDIA', 'BAJA'];
 
@@ -68,9 +73,18 @@ export const AdminDenunciasScreen: React.FC = () => {
   const [prioridadSeleccionada, setPrioridadSeleccionada] = useState<PrioridadCaso>('ALTA');
   const [motivoTriaje, setMotivoTriaje] = useState('');
 
+  // Modal Validación de Veracidad y Baremo de Puntos (US1)
+  const [modalVeracidadVisible, setModalVeracidadVisible] = useState(false);
+  const [denunciaParaVeracidad, setDenunciaParaVeracidad] = useState<Denuncia | null>(null);
+
+  // Modal Certificación Antes vs. Después (US3)
+  const [modalCertificarVisible, setModalCertificarVisible] = useState(false);
+  const [denunciaParaCertificar, setDenunciaParaCertificar] = useState<Denuncia | null>(null);
+
   // RNF-10: Estado de bloqueo transaccional con spinner
   const [procesandoTriaje, setProcesandoTriaje] = useState(false);
   const [mensajeTransaccion, setMensajeTransaccion] = useState('Guardando en base de datos...');
+
 
   const cargarDatos = useCallback(
     async (esRefresco = false) => {
@@ -325,7 +339,77 @@ export const AdminDenunciasScreen: React.FC = () => {
     }
   };
 
+  const abrirModalVeracidad = (item: Denuncia) => {
+    setDenunciaParaVeracidad(item);
+    setModalVeracidadVisible(true);
+  };
+
+  const manejarValidarVeracidad = async (payload: {
+    decision: 'APROBAR_VERACIDAD' | 'RECHAZAR_FALSO';
+    puntos?: number;
+    observacionesAdmin?: string;
+  }) => {
+    if (!denunciaParaVeracidad) return;
+    setProcesandoTriaje(true);
+    setMensajeTransaccion(
+      payload.decision === 'APROBAR_VERACIDAD'
+        ? `Acreditando ${payload.puntos} puntos y avanzando a saneamiento...`
+        : 'Registrando rechazo por falsedad...'
+    );
+    try {
+      await adminService.validarVeracidadYAcreditarPuntos(denunciaParaVeracidad.id, payload);
+      setModalVeracidadVisible(false);
+      setDenunciaParaVeracidad(null);
+      await cargarDatos(false);
+      Alert.alert(
+        'Operación Exitosa',
+        payload.decision === 'APROBAR_VERACIDAD'
+          ? `Se acreditaron ${payload.puntos} puntos al ciudadano y el reporte avanzó a etapa de Saneamiento.`
+          : 'Reporte cerrado como falso en terreno con 0 puntos otorgados.'
+      );
+    } catch (error: any) {
+      Alert.alert('Error', error?.message || 'No se pudo procesar la validación de veracidad.');
+    } finally {
+      setProcesandoTriaje(false);
+    }
+  };
+
+  const abrirModalCertificar = (item: Denuncia) => {
+    setDenunciaParaCertificar(item);
+    setModalCertificarVisible(true);
+  };
+
+  const manejarCertificarResolucion = async (payload: {
+    decision: 'CERTIFICAR' | 'OBSERVAR_REHACER';
+    observacionesAdmin?: string;
+  }) => {
+    if (!denunciaParaCertificar) return;
+    setProcesandoTriaje(true);
+    setMensajeTransaccion(
+      payload.decision === 'CERTIFICAR'
+        ? 'Certificando saneamiento y cerrando caso definitivamente...'
+        : 'Devolviendo caso a saneamiento con notas técnicas...'
+    );
+    try {
+      await adminService.certificarSaneamientoFinal(denunciaParaCertificar.id, payload);
+      setModalCertificarVisible(false);
+      setDenunciaParaCertificar(null);
+      await cargarDatos(false);
+      Alert.alert(
+        'Auditoría Registrada',
+        payload.decision === 'CERTIFICAR'
+          ? 'Caso certificado y cerrado definitivamente (RESUELTO).'
+          : 'El caso ha sido devuelto a EN_SANEAMIENTO con las observaciones técnicas.'
+      );
+    } catch (error: any) {
+      Alert.alert('Error', error?.message || 'No se pudo procesar la certificación.');
+    } finally {
+      setProcesandoTriaje(false);
+    }
+  };
+
   return (
+
     <SafeAreaView style={styles.safeArea}>
       <TransactionLoaderModal
         visible={procesandoTriaje}
@@ -481,6 +565,34 @@ export const AdminDenunciasScreen: React.FC = () => {
                     </>
                   )}
 
+                  {item.estado === 'VERIFICADO_PENDIENTE' && (
+                    <TouchableOpacity
+                      style={styles.botonValidarVeracidad}
+                      onPress={() => abrirModalVeracidad(item)}
+                    >
+                      <MaterialCommunityIcons
+                        name="shield-check"
+                        size={16}
+                        color={COLORS.superficieTarjeta}
+                      />
+                      <Text style={styles.textoBotonAccion}>Validar Veracidad y Puntos</Text>
+                    </TouchableOpacity>
+                  )}
+
+                  {item.estado === 'RESUELTO_TECNICO' && (
+                    <TouchableOpacity
+                      style={styles.botonAuditarCertificar}
+                      onPress={() => abrirModalCertificar(item)}
+                    >
+                      <MaterialCommunityIcons
+                        name="compare"
+                        size={16}
+                        color={COLORS.superficieTarjeta}
+                      />
+                      <Text style={styles.textoBotonAccion}>Auditar Antes vs. Después</Text>
+                    </TouchableOpacity>
+                  )}
+
                   {item.estado !== 'RECHAZADO' &&
                     item.estado !== 'RESUELTO' &&
                     item.estado !== 'CERRADO_INACCESIBLE' && (
@@ -498,6 +610,7 @@ export const AdminDenunciasScreen: React.FC = () => {
                         </Text>
                       </TouchableOpacity>
                     )}
+
                 </View>
               </View>
             )}
@@ -669,9 +782,38 @@ export const AdminDenunciasScreen: React.FC = () => {
             </View>
           </View>
         </Modal>
+
+        {/* Modal Validación de Veracidad y Baremo de Puntos (US1) */}
+        <PointsScaleModal
+          visible={modalVeracidadVisible}
+          denuncia={denunciaParaVeracidad}
+          procesando={procesandoTriaje}
+          onClose={() => {
+            if (!procesandoTriaje) {
+              setModalVeracidadVisible(false);
+              setDenunciaParaVeracidad(null);
+            }
+          }}
+          onSubmit={manejarValidarVeracidad}
+        />
+
+        {/* Modal Certificación Antes vs. Después (US3) */}
+        <BeforeAfterAuditModal
+          visible={modalCertificarVisible}
+          denuncia={denunciaParaCertificar}
+          procesando={procesandoTriaje}
+          onClose={() => {
+            if (!procesandoTriaje) {
+              setModalCertificarVisible(false);
+              setDenunciaParaCertificar(null);
+            }
+          }}
+          onSubmit={manejarCertificarResolucion}
+        />
       </View>
     </SafeAreaView>
   );
+
 };
 
 const styles = StyleSheet.create({
@@ -908,7 +1050,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.sm,
     borderRadius: BORDER_RADIUS.sm,
   },
+  botonValidarVeracidad: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: COLORS.botonPrincipal,
+    paddingVertical: SPACING.xs + 2,
+    paddingHorizontal: SPACING.sm,
+    borderRadius: BORDER_RADIUS.sm,
+  },
+  botonAuditarCertificar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#0284C7',
+    paddingVertical: SPACING.xs + 2,
+    paddingHorizontal: SPACING.sm,
+    borderRadius: BORDER_RADIUS.sm,
+  },
   textoBotonAsignar: {
+
     color: COLORS.superficieTarjeta,
     fontSize: 11,
     fontWeight: 'bold',

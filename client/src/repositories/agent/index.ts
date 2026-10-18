@@ -55,7 +55,19 @@ export const fieldAgentRepository: IFieldAgentRepository = {
     return await remoteRepo.enviarVerificacion(casoId, agenteId, datos);
   },
 
+  async enviarCierreTecnico(
+    casoId: string,
+    agenteId: string,
+    datos: any
+  ): Promise<{ caso: CasoCampo; message: string }> {
+    if (esCasoMockLocal(casoId)) {
+      return await localRepo.enviarCierreTecnico(casoId, agenteId, datos);
+    }
+    return await remoteRepo.enviarCierreTecnico(casoId, agenteId, datos);
+  },
+
   async liberarCaso(casoId: string, motivo?: string): Promise<{ caso: CasoCampo; message: string }> {
+
     if (esCasoMockLocal(casoId)) {
       return await localRepo.liberarCaso(casoId, motivo);
     }
