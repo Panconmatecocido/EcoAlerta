@@ -20,14 +20,34 @@
     "react-native-screens": "~4.26.0"
   },
   "devDependencies": {
+    "@react-native/jest-preset": "^0.88.0",
+    "@types/jest": "^30.0.0",
     "@types/react": "~19.2.2",
+    "jest": "^30.5.2",
+    "jest-expo": "^58.0.11",
+    "ts-jest": "^29.4.15",
     "typescript": "~6.0.3"
   },
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "test": "jest --runInBand"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {
+      "^.+\\.tsx?$": ["ts-jest", {
+        "tsconfig": {
+          "types": ["jest", "node"]
+        }
+      }]
+    },
+    "testMatch": [
+      "**/src/utils/__tests__/**/*.test.ts"
+    ],
+    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json"]
   },
   "private": true
 }

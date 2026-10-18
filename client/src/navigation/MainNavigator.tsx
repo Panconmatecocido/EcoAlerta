@@ -8,14 +8,18 @@ import InicioHome from '../screens/citizen/HomeScreenPrueba/IncioHome';
 import { useSafeAreaInsets } from 'react-native-safe-area-context'; // 👈 Importante
 import { HomeScreen } from '../screens/citizen/HomeScreen';
 import { ProfileScreen } from '../screens/citizen/ProfileScreen';
-import { ReportScreen } from '../screens/citizen/ReportScreen';
+import { ReportCameraScreen } from '../screens/citizen/ReportCameraScreen';
+import { ReportFormScreen } from '../screens/citizen/ReportFormScreen';
+import { ReportConfirmationScreen } from '../screens/citizen/ReportConfirmationScreen';
 import { StoreScreen } from '../screens/citizen/StoreScreen';
 import { CartScreen } from '../screens/citizen/CartScreen';
 import { MasScreen } from '../screens/citizen/MasScreen';
 import { COLORS, SPACING, ICON_SIZE } from '../utils/theme';
+import type { ReportStackParamList } from './types';
 
 const Tab = createBottomTabNavigator();
 const StoreStack = createNativeStackNavigator();
+const ReportStack = createNativeStackNavigator<ReportStackParamList>();
 
 // Sub-navegador para la pestaña Tienda
 const StoreNavigator = () => (
@@ -23,6 +27,15 @@ const StoreNavigator = () => (
     <StoreStack.Screen name="StoreCatalog" component={StoreScreen} />
     <StoreStack.Screen name="Cart" component={CartScreen} />
   </StoreStack.Navigator>
+);
+
+// Sub-navegador para el flujo de reporte ambiental
+const ReportNavigator = () => (
+  <ReportStack.Navigator screenOptions={{ headerShown: false }}>
+    <ReportStack.Screen name="ReportCamera" component={ReportCameraScreen} />
+    <ReportStack.Screen name="ReportForm" component={ReportFormScreen} />
+    <ReportStack.Screen name="ReportConfirmation" component={ReportConfirmationScreen} />
+  </ReportStack.Navigator>
 );
 
 // Botón de Cámara Central Flotante
@@ -95,7 +108,7 @@ export const MainNavigator: React.FC = () => {
 
       <Tab.Screen
         name="Camara"
-        component={ReportScreen}
+        component={ReportNavigator}
         options={{
           tabBarLabel: () => null,
           tabBarButton: (props) => <CustomTabBarCameraButton {...props} />,

@@ -79,7 +79,7 @@ export const AdminDenunciasScreen: React.FC = () => {
     if (!denunciaSeleccionada) return;
 
     try {
-      await adminService.asignarAgenteDenuncia(denunciaSeleccionada.id, agente.id);
+      await adminService.asignarAgenteDenuncia(denunciaSeleccionada.id, agente.id, agente.nombre);
       
       setDenuncias((prev) =>
         prev.map((item) =>
