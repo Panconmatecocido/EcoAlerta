@@ -9,6 +9,9 @@ interface AuthContextType {
   register: (data: RegisterData) => Promise<{ success: boolean; message?: string }>;
   logout: () => Promise<void>;
   loginWithGoogle: () => Promise<{ success: boolean; message?: string }>;
+  authGateVisible: boolean;
+  requireAuth: () => boolean;
+  dismissAuthGate: () => void;
   updateUserPoints?: (nuevosPuntos: number) => void;
 }
 
@@ -17,6 +20,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [authGateVisible, setAuthGateVisible] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -138,6 +142,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const requireAuth = (): boolean => {
+    if (user) return true;
+    setAuthGateVisible(true);
+    return false;
+  };
+
+  const dismissAuthGate = () => setAuthGateVisible(false);
+
   return (
     <AuthContext.Provider
       value={{
@@ -147,6 +159,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         register,
         logout,
         loginWithGoogle,
+        authGateVisible,
+        requireAuth,
+        dismissAuthGate,
         updateUserPoints,
       }}
     >

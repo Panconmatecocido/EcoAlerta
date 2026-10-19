@@ -65,9 +65,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T013 [P] [US2] Crear el componente `AuthGateModal` (y helper en `AuthContext`) estilizado con `StyleSheet.create` y `theme.ts` que explica que se requiere cuenta y ofrece botones `"Registrarme"` e `"Iniciar Sesión"` en `client/src/components/common/AuthGateModal.tsx`
-- [ ] T014 [US2] Interceptar los eventos `tabPress` de las pestañas `Report` (Cámara), `Profile` y rutas de usuario en `MainNavigator` cuando `user === null` para disparar el Auth Gate en `client/src/navigation/MainNavigator.tsx`
-- [ ] T015 [US2] Asegurar que `StoreScreen` permita listar productos cuando `user === null` pero dispare el Auth Gate al pulsar el botón de agregar/canjear producto en `client/src/screens/citizen/StoreScreen.tsx`
+- [x] T013 [P] [US2] Crear el componente `AuthGateModal` (y helper en `AuthContext`) estilizado con `StyleSheet.create` y `theme.ts` que explica que se requiere cuenta y ofrece botones `"Registrarme"` e `"Iniciar Sesión"` en `client/src/components/common/AuthGateModal.tsx`
+- [x] T014 [US2] Interceptar los eventos `tabPress` de las pestañas `Report` (Cámara), `Profile` y rutas de usuario en `MainNavigator` cuando `user === null` para disparar el Auth Gate en `client/src/navigation/MainNavigator.tsx`
+- [x] T015 [US2] Asegurar que `StoreScreen` permita listar productos cuando `user === null` pero dispare el Auth Gate al pulsar el botón de agregar/canjear producto en `client/src/screens/citizen/StoreScreen.tsx`
 
 **Checkpoint**: Modo Invitado y Auth Gate operando de extremo a extremo.
 
