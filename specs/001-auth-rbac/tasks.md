@@ -81,8 +81,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T016 [US3] Actualizar `RegisterScreen` para incluir campo de confirmación de contraseña, validaciones con `validators.ts`, mensajes de error claros bajo cada input (labels fuera de los inputs) y conexión a `AuthContext.register` en `client/src/screens/auth/RegisterScreen.tsx`
-- [ ] T017 [US3] Mostrar errores del servidor (`409 Conflict` por correo duplicado) y redirigir automáticamente al Home Ciudadano autenticado tras el registro exitoso en `client/src/screens/auth/RegisterScreen.tsx`
+- [x] T016 [US3] Actualizar `RegisterScreen` para incluir campo de confirmación de contraseña, validaciones con `validators.ts`, mensajes de error claros bajo cada input (labels fuera de los inputs) y conexión a `AuthContext.register` en `client/src/screens/auth/RegisterScreen.tsx`
+- [x] T017 [US3] Mostrar errores del servidor (`409 Conflict` por correo duplicado) y redirigir automáticamente al Home Ciudadano autenticado tras el registro exitoso en `client/src/screens/auth/RegisterScreen.tsx`
 
 **Checkpoint**: Autoregistro ciudadano completo con saldo inicial en 0 puntos.
 
