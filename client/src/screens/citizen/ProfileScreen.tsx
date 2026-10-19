@@ -41,18 +41,26 @@ export const ProfileScreen: React.FC = () => {
       setCargando(true);
     }
     try {
-      const [misDenuncias] = await Promise.all([
-        denunciaService.obtenerMisDenuncias(),
-        // Nota: Si cuentas con endpoint de historial de canjes en el backend, lo sumas aquí
-      ]);
-      setDenuncias(misDenuncias);
+      const promesas: [Promise<DenunciaCiudadano[]>, Promise<ResultadoCanje[]>] = [
+        denunciaService.obtenerMisDenuncias(usuario?.id).catch((err) => {
+          console.warn('No se pudieron obtener las denuncias:', err.message);
+          return [];
+        }),
+        usuario?.id
+          ? tiendaService.obtenerMisCanjes(usuario.id).catch(() => [])
+          : Promise.resolve([]),
+      ];
+
+      const [misDenuncias, misCanjes] = await Promise.all(promesas);
+      setDenuncias(misDenuncias || []);
+      setCanjes(misCanjes || []);
     } catch (error) {
       console.error('Error al cargar datos del perfil:', error);
     } finally {
       setCargando(false);
       setRefrescando(false);
     }
-  }, []);
+  }, [usuario?.id]);
 
   useEffect(() => {
     cargarDatosPerfil(false);

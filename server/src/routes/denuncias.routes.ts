@@ -3,6 +3,7 @@
 import { Router } from 'express';
 import {
   obtenerDenuncias,
+  obtenerMisDenuncias,
   obtenerMetricasAdmin,
   cambiarEstadoDenuncia,
   asignarAgenteDenuncia,
@@ -21,6 +22,10 @@ const router = Router();
 
 // GET /api/denuncias -> Obtener lista de denuncias
 router.get('/', obtenerDenuncias);
+
+// GET /api/denuncias/mis-denuncias -> Obtener denuncias del ciudadano autenticado
+router.get('/mis-denuncias', obtenerMisDenuncias);
+router.get('/ciudadano/:ciudadanoId', obtenerMisDenuncias);
 
 // GET /api/denuncias/metricas -> Métricas para Dashboard Admin
 router.get('/metricas', obtenerMetricasAdmin);

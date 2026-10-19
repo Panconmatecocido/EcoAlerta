@@ -63,6 +63,61 @@ export const obtenerDenuncias = async (req: Request, res: Response): Promise<voi
   }
 };
 
+// 1.1 Obtener denuncias del ciudadano autenticado (para la vista de Perfil y seguimiento)
+export const obtenerMisDenuncias = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { ciudadanoId } = req.query;
+    const paramUserId = req.params.ciudadanoId;
+    const headerUserId = req.headers['x-user-id'] as string;
+    const targetUserId = ciudadanoId ? String(ciudadanoId) : (paramUserId || headerUserId);
+
+    const whereCondition: any = {
+      ocultarUsuario: false,
+    };
+
+    if (targetUserId) {
+      whereCondition.ciudadanoId = targetUserId;
+    }
+
+    const denuncias = await prisma.denuncia.findMany({
+      where: whereCondition,
+      include: {
+        ciudadano: {
+          select: { id: true, nombre: true, email: true },
+        },
+        agente: {
+          select: { id: true, nombre: true, email: true },
+        },
+      },
+      orderBy: { creadoEn: 'desc' },
+    });
+
+    const datosFormateados = denuncias.map((d) => ({
+      id: d.id,
+      codigo: d.codigo,
+      titulo: d.titulo,
+      categoria: d.categoria,
+      descripcion: d.descripcion,
+      ubicacion: d.direccion,
+      estado: d.estado,
+      fecha: d.creadoEn.toISOString().split('T')[0],
+      fotoUrl: d.imagenUrl,
+      fotoVerificacionUrl: d.fotoVerificacionUrl,
+      fotoSolucionUrl: d.fotoSolucionUrl,
+      informeSolucion: d.informeSolucion,
+      puntosOtorgados: d.puntosOtorgados ?? 0,
+    }));
+
+    res.status(200).json(datosFormateados);
+  } catch (error) {
+    console.error('Error al obtener mis denuncias:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener las denuncias del usuario',
+    });
+  }
+};
+
 // 2. Obtener métricas/resumen para el Dashboard del Administrador
 export const obtenerMetricasAdmin = async (req: Request, res: Response): Promise<void> => {
   try {

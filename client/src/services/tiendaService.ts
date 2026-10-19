@@ -34,4 +34,21 @@ export const tiendaService = {
   procesarCanje: async (items: { productoId: string; cantidad: number }[]): Promise<ResultadoCanje> => {
     return await api.post<ResultadoCanje>('/api/canjes', { items });
   },
+
+  // Obtener historial de canjes del ciudadano
+  obtenerMisCanjes: async (ciudadanoId: string): Promise<ResultadoCanje[]> => {
+    try {
+      const res = await api.get<{ success: boolean; data: any[] }>(`/api/canjes/ciudadano/${ciudadanoId}`);
+      const items = Array.isArray(res) ? res : res.data || [];
+      return items.map((c: any) => ({
+        id: c.id,
+        codigoRetiro: c.codigoRetiro,
+        puntosDescontados: c.totalPuntos,
+        nuevoSaldoPuntos: 0,
+        fecha: c.creadoEn ? new Date(c.creadoEn).toLocaleDateString('es-AR') : '',
+      }));
+    } catch {
+      return [];
+    }
+  },
 };
