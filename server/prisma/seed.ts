@@ -1,6 +1,6 @@
 // server/prisma/seed.ts
 
-import { PrismaClient, Role, EstadoDenuncia, Prioridad } from '@prisma/client';
+import { PrismaClient, Role, EstadoDenuncia, Prioridad, EstadoCanje } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -233,6 +233,108 @@ async function main() {
         ],
       });
     }
+  }
+
+  // 5. Sembrar Canjes de Prueba para Validación de Entrega y Expiración (Módulo 006)
+  const sucursalPilar = await prisma.sucursal.findFirst({
+    where: { municipioId: municipio.id },
+  });
+
+  const botellaProd = await prisma.producto.findFirst({
+    where: { municipioId: municipio.id, titulo: { contains: 'Botella' } },
+  });
+
+  const bolsaProd = await prisma.producto.findFirst({
+    where: { municipioId: municipio.id, titulo: { contains: 'Bolsa' } },
+  });
+
+  const ahora = new Date();
+
+  if (sucursalPilar && botellaProd && bolsaProd) {
+    // 5.1 Canje Vigente para Retiro: ECO-7894-K
+    await prisma.canje.upsert({
+      where: { codigoRetiro: 'ECO-7894-K' },
+      update: {
+        estado: EstadoCanje.PENDIENTE_RETIRO,
+        sucursalId: sucursalPilar.id,
+        fechaExpiracion: new Date(ahora.getTime() + 25 * 24 * 60 * 60 * 1000),
+      },
+      create: {
+        codigoRetiro: 'ECO-7894-K',
+        totalPuntos: 100,
+        estado: EstadoCanje.PENDIENTE_RETIRO,
+        ciudadanoId: ciudadano.id,
+        sucursalId: sucursalPilar.id,
+        fechaExpiracion: new Date(ahora.getTime() + 25 * 24 * 60 * 60 * 1000),
+        creadoEn: new Date(ahora.getTime() - 5 * 24 * 60 * 60 * 1000),
+        items: {
+          create: [
+            {
+              productoId: botellaProd.id,
+              cantidad: 1,
+              puntosUnit: 100,
+            },
+          ],
+        },
+      },
+    });
+
+    // 5.2 Canje Ya Entregado para Prueba de Doble Entrega (409 Conflict): ECO-2026-ENTR
+    await prisma.canje.upsert({
+      where: { codigoRetiro: 'ECO-2026-ENTR' },
+      update: {
+        estado: EstadoCanje.ENTREGADO,
+        sucursalId: sucursalPilar.id,
+        fechaEntrega: new Date(ahora.getTime() - 2 * 24 * 60 * 60 * 1000),
+      },
+      create: {
+        codigoRetiro: 'ECO-2026-ENTR',
+        totalPuntos: 40,
+        estado: EstadoCanje.ENTREGADO,
+        ciudadanoId: ciudadano.id,
+        sucursalId: sucursalPilar.id,
+        fechaExpiracion: new Date(ahora.getTime() + 10 * 24 * 60 * 60 * 1000),
+        fechaEntrega: new Date(ahora.getTime() - 2 * 24 * 60 * 60 * 1000),
+        creadoEn: new Date(ahora.getTime() - 10 * 24 * 60 * 60 * 1000),
+        items: {
+          create: [
+            {
+              productoId: bolsaProd.id,
+              cantidad: 1,
+              puntosUnit: 40,
+            },
+          ],
+        },
+      },
+    });
+
+    // 5.3 Canje Vencido (>30 días) para Prueba de Expiración Automática: ECO-2026-EXPD
+    await prisma.canje.upsert({
+      where: { codigoRetiro: 'ECO-2026-EXPD' },
+      update: {
+        estado: EstadoCanje.PENDIENTE_RETIRO,
+        sucursalId: sucursalPilar.id,
+        fechaExpiracion: new Date(ahora.getTime() - 2 * 24 * 60 * 60 * 1000),
+      },
+      create: {
+        codigoRetiro: 'ECO-2026-EXPD',
+        totalPuntos: 80,
+        estado: EstadoCanje.PENDIENTE_RETIRO,
+        ciudadanoId: ciudadano.id,
+        sucursalId: sucursalPilar.id,
+        fechaExpiracion: new Date(ahora.getTime() - 2 * 24 * 60 * 60 * 1000),
+        creadoEn: new Date(ahora.getTime() - 32 * 24 * 60 * 60 * 1000),
+        items: {
+          create: [
+            {
+              productoId: bolsaProd.id,
+              cantidad: 2,
+              puntosUnit: 40,
+            },
+          ],
+        },
+      },
+    });
   }
 
   console.log('✅ Base de datos verificada y sembrada con éxito.');
