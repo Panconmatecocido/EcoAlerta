@@ -122,7 +122,7 @@
 
 **Purpose**: Pruebas unitarias/integración y validación final contra la Constitución.
 
-- [ ] T024 [P] Crear pruebas unitarias de validaciones de formulario (`validateEmail`, `validatePassword`, `validateRegistrationForm`) y `LocalAuthRepository` en `client/src/utils/__tests__/validators.test.ts`
+- [x] T024 [P] Crear pruebas unitarias de validaciones de formulario (`validateEmail`, `validatePassword`, `validateRegistrationForm`) y `LocalAuthRepository` en `client/src/utils/__tests__/validators.test.ts`
 - [x] T025 [P] Crear pruebas de integración para `POST /api/auth/register` (`puntos = 0`, `409` duplicado) y `POST /api/auth/login` (4 roles) en `server/src/__tests__/auth.test.ts`
 - [ ] T026 Ejecutar checklist de verificación manual en Expo Go (Modo Invitado, botón `"Regístrate para empezar a usar la app"`, Auth Gate en Cámara/Perfil/Tienda, Registro con 0 puntos, Login 4 roles y Logout) documentando resultados en `specs/001-auth-rbac/checklists/requirements.md`
 

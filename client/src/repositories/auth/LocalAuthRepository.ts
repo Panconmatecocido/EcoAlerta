@@ -17,6 +17,26 @@ import {
   RegisterDTO,
 } from './IAuthRepository';
 
+export interface LocalAuthStorage {
+  getCurrentUser: typeof getCurrentUser;
+  getAuthToken: typeof getAuthToken;
+  getStoredUsers: typeof getStoredUsers;
+  removeCurrentUser: typeof removeCurrentUser;
+  saveAuthToken: typeof saveAuthToken;
+  saveCurrentUser: typeof saveCurrentUser;
+  saveNewUser: typeof saveNewUser;
+}
+
+const defaultStorage: LocalAuthStorage = {
+  getCurrentUser,
+  getAuthToken,
+  getStoredUsers,
+  removeCurrentUser,
+  saveAuthToken,
+  saveCurrentUser,
+  saveNewUser,
+};
+
 const localAccounts: Array<{
   id: string;
   name: string;
@@ -87,11 +107,13 @@ const normalize = (value: string) => value.trim().toLowerCase();
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export class LocalAuthRepository implements IAuthRepository {
+  constructor(private readonly storage: LocalAuthStorage = defaultStorage) {}
+
   async login(data: LoginDTO): Promise<AuthResponse> {
     await this.ensureDemoAccounts();
     const identifier = normalize(data.identifier);
     const password = data.password.trim();
-    const accounts = await getStoredUsers();
+    const accounts = await this.storage.getStoredUsers();
     const account = accounts.find(
       ({ user }) => normalize(user.email) === identifier || normalize(user.name) === identifier
     );
@@ -118,7 +140,7 @@ export class LocalAuthRepository implements IAuthRepository {
       throw new AuthRepositoryError('La contraseña debe tener al menos 6 caracteres', 400);
     }
 
-    const accounts = await getStoredUsers();
+    const accounts = await this.storage.getStoredUsers();
     if (accounts.some(({ user }) => normalize(user.email) === email)) {
       throw new AuthRepositoryError('Ya existe una cuenta registrada con ese correo electrónico', 409);
     }
@@ -132,36 +154,36 @@ export class LocalAuthRepository implements IAuthRepository {
       createdAt: new Date().toISOString(),
     };
     const account: StoredUserAccount = { user, passwordHash: password };
-    await saveNewUser(account);
+    await this.storage.saveNewUser(account);
     return this.createSession(user);
   }
 
   async getCurrentSession(): Promise<User | null> {
     await this.ensureDemoAccounts();
-    const user = await getCurrentUser();
+    const user = await this.storage.getCurrentUser();
     if (!user) return null;
 
-    if (!(await getAuthToken())) {
-      await saveAuthToken(`local:${user.id}`);
+    if (!(await this.storage.getAuthToken())) {
+      await this.storage.saveAuthToken(`local:${user.id}`);
     }
     return user;
   }
 
   async saveSession(user: User, token?: string): Promise<void> {
-    await saveCurrentUser(user);
+    await this.storage.saveCurrentUser(user);
     if (token !== undefined) {
-      await saveAuthToken(token);
-    } else if (!(await getAuthToken())) {
-      await saveAuthToken(`local:${user.id}`);
+      await this.storage.saveAuthToken(token);
+    } else if (!(await this.storage.getAuthToken())) {
+      await this.storage.saveAuthToken(`local:${user.id}`);
     }
   }
 
   async clearSession(): Promise<void> {
-    await removeCurrentUser();
+    await this.storage.removeCurrentUser();
   }
 
   private async ensureDemoAccounts(): Promise<void> {
-    const accounts = await getStoredUsers();
+    const accounts = await this.storage.getStoredUsers();
     for (const demo of localAccounts) {
       if (accounts.some(({ user }) => normalize(user.email) === demo.email)) {
         continue;
@@ -175,7 +197,7 @@ export class LocalAuthRepository implements IAuthRepository {
         points: demo.points,
         createdAt: new Date().toISOString(),
       };
-      await saveNewUser({ user, passwordHash: demo.password });
+      await this.storage.saveNewUser({ user, passwordHash: demo.password });
       accounts.push({ user, passwordHash: demo.password });
     }
   }
