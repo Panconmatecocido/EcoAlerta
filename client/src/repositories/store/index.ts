@@ -101,8 +101,11 @@ export const storeRepository: IStoreRepository = {
   async reserveCart(ciudadanoId: string, items: ReservationItem[]): Promise<ReservationResponse> {
     try {
       return await remoteStoreRepo.reserveCart(ciudadanoId, items);
-    } catch (err) {
-      console.warn('Fallo remoteStoreRepo.reserveCart, usando localStoreRepo:', err);
+    } catch (err: any) {
+      if (err?.message && !err.message.includes('Network request failed')) {
+        throw err;
+      }
+      console.warn('Fallo de red en remoteStoreRepo.reserveCart, usando localStoreRepo:', err);
       return await localStoreRepo.reserveCart(ciudadanoId, items);
     }
   },
@@ -113,8 +116,11 @@ export const storeRepository: IStoreRepository = {
     }
     try {
       await remoteStoreRepo.cancelReservation(canjeId);
-    } catch (err) {
-      console.warn('Fallo remoteStoreRepo.cancelReservation, usando localStoreRepo:', err);
+    } catch (err: any) {
+      if (err?.message && !err.message.includes('Network request failed')) {
+        throw err;
+      }
+      console.warn('Fallo de red en remoteStoreRepo.cancelReservation, usando localStoreRepo:', err);
       await localStoreRepo.cancelReservation(canjeId);
     }
   },
@@ -129,8 +135,11 @@ export const storeRepository: IStoreRepository = {
     }
     try {
       return await remoteStoreRepo.confirmRedemption(canjeId, sucursalId, ciudadanoId);
-    } catch (err) {
-      console.warn('Fallo remoteStoreRepo.confirmRedemption, usando localStoreRepo:', err);
+    } catch (err: any) {
+      if (err?.message && !err.message.includes('Network request failed')) {
+        throw err;
+      }
+      console.warn('Fallo de red en remoteStoreRepo.confirmRedemption, usando localStoreRepo:', err);
       return await localStoreRepo.confirmRedemption(canjeId, sucursalId, ciudadanoId);
     }
   },

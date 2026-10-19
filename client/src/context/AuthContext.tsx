@@ -9,6 +9,7 @@ import {
   saveNewUser,
   StoredUserAccount,
 } from '../utils/storage';
+import { api } from '../services/api';
 
 interface AuthContextType {
   user: User | null;
@@ -17,7 +18,8 @@ interface AuthContextType {
   register: (data: RegisterData) => Promise<{ success: boolean; message?: string }>;
   logout: () => Promise<void>;
   loginWithGoogle: () => Promise<{ success: boolean; message?: string }>;
-  updateUserPoints?: (nuevosPuntos: number) => void; // <- Declarado en la interfaz
+  updateUserPoints?: (nuevosPuntos: number) => void;
+  recargarPerfilUsuario?: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,70 +28,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Inicializar sesión y sembrar usuarios por defecto
+  // Inicializar sesión y sincronizar con la Base de Datos PostgreSQL
   useEffect(() => {
     const initializeAuth = async () => {
       try {
         const storedUser = await getCurrentUser();
-        let storedUsersList = await getStoredUsers();
-
-        // 1. Sembrar Ciudadano Demo si la base local está vacía
-        if (storedUsersList.length === 0) {
-          const demoCitizenAccount: StoredUserAccount = {
-            user: {
-              id: 'demo-user-1',
-              name: 'EcoUsuario',
-              email: 'ejemplo@email.com',
-              role: 'citizen',
-              points: 120,
-              createdAt: new Date().toISOString(),
-            },
-            passwordHash: 'password123',
-          };
-          await saveNewUser(demoCitizenAccount);
-        }
-
-        storedUsersList = await getStoredUsers();
-
-        // 2. Sembrar Agente de Campo Demo si no existe
-        const existeAgente = storedUsersList.some(
-          (u) => u.user.email.toLowerCase() === 'agente@municipio.gob.ar'
-        );
-        if (!existeAgente) {
-          const demoAgentAccount: StoredUserAccount = {
-            user: {
-              id: 'agent-user-1',
-              name: 'Inspector Perez',
-              email: 'agente@municipio.gob.ar',
-              role: 'agent',
-              points: 0,
-              createdAt: new Date().toISOString(),
-            },
-            passwordHash: 'agente123',
-          };
-          await saveNewUser(demoAgentAccount);
-        }
-
-        // 3. Sembrar Administrador Demo si no existe
-        const existeAdmin = storedUsersList.some(
-          (u) => u.user.email.toLowerCase() === 'admin@ecoalerta.gob.ar'
-        );
-        if (!existeAdmin) {
-          const demoAdminAccount: StoredUserAccount = {
-            user: {
-              id: 'admin-user-1',
-              name: 'Administrador General',
-              email: 'admin@ecoalerta.gob.ar',
-              role: 'admin',
-              points: 0,
-              createdAt: new Date().toISOString(),
-            },
-            passwordHash: 'admin123',
-          };
-          await saveNewUser(demoAdminAccount);
-        }
 
         if (storedUser) {
+          // 1. Intentar sincronizar datos frescos desde la Base de Datos
+          try {
+            const queryParams = new URLSearchParams();
+            if (storedUser.id) queryParams.append('id', storedUser.id);
+            if (storedUser.email) queryParams.append('email', storedUser.email);
+
+            const res = await api.get<{ success: boolean; user: User }>(
+              `/api/auth/me?${queryParams.toString()}`
+            );
+
+            if (res.success && res.user) {
+              await saveCurrentUser(res.user);
+              setUser(res.user);
+              return;
+            }
+          } catch (syncError) {
+            console.warn(
+              'No se pudo sincronizar usuario con el servidor DB, usando sesión local:',
+              syncError
+            );
+          }
+
           setUser(storedUser);
         }
       } catch (error) {
@@ -101,6 +68,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     initializeAuth();
   }, []);
+
+  // Recargar perfil del usuario directamente desde la BD (fuente de verdad)
+  const recargarPerfilUsuario = async () => {
+    if (!user) return;
+    try {
+      const queryParams = new URLSearchParams();
+      if (user.id) queryParams.append('id', user.id);
+      if (user.email) queryParams.append('email', user.email);
+
+      const res = await api.get<{ success: boolean; user: User }>(
+        `/api/auth/me?${queryParams.toString()}`
+      );
+
+      if (res.success && res.user) {
+        await saveCurrentUser(res.user);
+        setUser(res.user);
+      }
+    } catch (error) {
+      console.warn('Error al recargar perfil desde DB:', error);
+    }
+  };
 
   // Actualizar puntos del usuario autenticado
   const updateUserPoints = async (nuevosPuntos: number) => {
@@ -114,7 +102,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = async (
     credentials: LoginCredentials
   ): Promise<{ success: boolean; message?: string }> => {
-    const trimmedId = credentials.identifier.trim().toLowerCase();
+    const trimmedId = credentials.identifier.trim();
     const trimmedPassword = credentials.password.trim();
 
     if (!trimmedId || !trimmedPassword) {
@@ -122,30 +110,47 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     try {
-      const usersList = await getStoredUsers();
-      const account = usersList.find(
-        (u) =>
-          u.user.email.toLowerCase() === trimmedId ||
-          u.user.name.toLowerCase() === trimmedId
+      // 1. Iniciar sesión contra el Backend DB (fuente de verdad)
+      const res = await api.post<{ success: boolean; user: User; message?: string }>(
+        '/api/auth/login',
+        { identifier: trimmedId, password: trimmedPassword }
       );
 
-      if (!account) {
-        return {
-          success: false,
-          message: 'Usuario o correo no encontrado. ¿Deseas registrarte?',
-        };
+      if (res.success && res.user) {
+        await saveCurrentUser(res.user);
+        setUser(res.user);
+        return { success: true };
       }
 
-      if (account.passwordHash !== trimmedPassword) {
-        return { success: false, message: 'Contraseña incorrecta' };
+      return {
+        success: false,
+        message: res.message || 'Usuario o contraseña incorrectos',
+      };
+    } catch (apiError: any) {
+      console.warn('Fallo login contra API backend:', apiError.message);
+
+      // Fallback a almacenamiento local si el backend está sin conectividad
+      try {
+        const usersList = await getStoredUsers();
+        const account = usersList.find(
+          (u) =>
+            u.user.email.toLowerCase() === trimmedId.toLowerCase() ||
+            u.user.name.toLowerCase() === trimmedId.toLowerCase()
+        );
+
+        if (account && account.passwordHash === trimmedPassword) {
+          await saveCurrentUser(account.user);
+          setUser(account.user);
+          return { success: true };
+        }
+      } catch (localError) {
+        console.error('Fallo fallback local:', localError);
       }
 
-      await saveCurrentUser(account.user);
-      setUser(account.user);
-      return { success: true };
-    } catch (error) {
-      console.error('Error durante el inicio de sesión:', error);
-      return { success: false, message: 'Error interno al iniciar sesión' };
+      return {
+        success: false,
+        message: apiError.message || 'Error al iniciar sesión en el servidor',
+      };
     }
   };
 
@@ -155,6 +160,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const trimmedUsername = data.username.trim();
     const trimmedPassword = data.password.trim();
     const trimmedConfirm = data.confirmPassword ? data.confirmPassword.trim() : '';
+    const trimmedEmail =
+      data.email?.trim() || `${trimmedUsername.toLowerCase().replace(/\s+/g, '')}@ecoalerta.com`;
 
     if (!trimmedUsername || !trimmedPassword) {
       return { success: false, message: 'Completa los campos obligatorios' };
@@ -169,37 +176,67 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     try {
-      const usersList = await getStoredUsers();
-      const alreadyExists = usersList.some(
-        (u) => u.user.name.toLowerCase() === trimmedUsername.toLowerCase()
+      // 1. Registrar directamente en la Base de Datos PostgreSQL
+      const res = await api.post<{ success: boolean; user: User; message?: string }>(
+        '/api/auth/register',
+        {
+          nombre: trimmedUsername,
+          email: trimmedEmail,
+          password: trimmedPassword,
+        }
       );
 
-      if (alreadyExists) {
-        return { success: false, message: 'El nombre de usuario ya está registrado' };
+      if (res.success && res.user) {
+        await saveCurrentUser(res.user);
+        setUser(res.user);
+        return { success: true };
       }
 
-      const newUser: User = {
-        id: `user-${Date.now()}`,
-        name: trimmedUsername,
-        email: data.email?.trim() || `${trimmedUsername.toLowerCase().replace(/\s+/g, '')}@ecoalerta.com`,
-        role: 'citizen',
-        points: 50,
-        createdAt: new Date().toISOString(),
+      return {
+        success: false,
+        message: res.message || 'No se pudo completar el registro en la base de datos',
       };
+    } catch (apiError: any) {
+      console.warn('Fallo registro contra API backend:', apiError.message);
 
-      const newAccount: StoredUserAccount = {
-        user: newUser,
-        passwordHash: trimmedPassword,
+      // Fallback local si el servidor no responde
+      try {
+        const usersList = await getStoredUsers();
+        const alreadyExists = usersList.some(
+          (u) => u.user.name.toLowerCase() === trimmedUsername.toLowerCase()
+        );
+
+        if (alreadyExists) {
+          return { success: false, message: 'El nombre de usuario ya está registrado' };
+        }
+
+        const newUser: User = {
+          id: `user-${Date.now()}`,
+          name: trimmedUsername,
+          email: trimmedEmail,
+          role: 'citizen',
+          points: 120,
+          createdAt: new Date().toISOString(),
+        };
+
+        const newAccount: StoredUserAccount = {
+          user: newUser,
+          passwordHash: trimmedPassword,
+        };
+
+        await saveNewUser(newAccount);
+        await saveCurrentUser(newUser);
+        setUser(newUser);
+
+        return { success: true };
+      } catch (localError) {
+        console.error('Error al registrar usuario local:', localError);
+      }
+
+      return {
+        success: false,
+        message: apiError.message || 'Error al registrar usuario en el servidor',
       };
-
-      await saveNewUser(newAccount);
-      await saveCurrentUser(newUser);
-      setUser(newUser);
-
-      return { success: true };
-    } catch (error) {
-      console.error('Error al registrar usuario:', error);
-      return { success: false, message: 'Error al registrar usuario en el almacenamiento local' };
     }
   };
 
@@ -210,7 +247,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         name: 'Usuario Google',
         email: 'usuario.google@gmail.com',
         role: 'citizen',
-        points: 100,
+        points: 120,
         createdAt: new Date().toISOString(),
       };
 
@@ -240,7 +277,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         register,
         logout,
         loginWithGoogle,
-        updateUserPoints, // <- Expuesto en el Provider
+        updateUserPoints,
+        recargarPerfilUsuario,
       }}
     >
       {children}

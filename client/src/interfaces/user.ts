@@ -1,5 +1,4 @@
-// src/interfaces/user.ts
-export type UserRole = 'citizen' | 'agent' | 'admin';
+export type UserRole = 'citizen' | 'agent' | 'admin' | 'collaborator';
 
 export interface User {
   id: string;
@@ -7,6 +6,8 @@ export interface User {
   name: string;
   role: UserRole;
   points: number; // Puntos verdes acumulados
+  municipio?: string;
+  municipioId?: string;
   createdAt?: string;
 }
 

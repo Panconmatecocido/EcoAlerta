@@ -76,7 +76,21 @@ export const obtenerMisDenuncias = async (req: Request, res: Response): Promise<
     };
 
     if (targetUserId) {
-      whereCondition.ciudadanoId = targetUserId;
+      const usuario = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { id: targetUserId },
+            { email: { equals: targetUserId, mode: 'insensitive' } },
+            ...(targetUserId === 'demo-user-1' ? [{ email: 'ejemplo@email.com' }] : []),
+          ],
+        },
+      });
+
+      if (usuario) {
+        whereCondition.ciudadanoId = usuario.id;
+      } else {
+        whereCondition.ciudadanoId = targetUserId;
+      }
     }
 
     const denuncias = await prisma.denuncia.findMany({
@@ -268,12 +282,34 @@ export const crearDenuncia = async (req: Request, res: Response): Promise<void> 
       municipioId,
     } = req.body;
 
-    if (!titulo || !descripcion || !categoria || !direccion || !ciudadanoId || !municipioId) {
+    if (!titulo || !descripcion || !categoria || !direccion || !ciudadanoId) {
       res.status(400).json({
         success: false,
         message: 'Faltan campos obligatorios para registrar la denuncia',
       });
       return;
+    }
+
+    // Resolver ciudadanoId contra PostgreSQL
+    let finalCiudadanoId = ciudadanoId;
+    const usuario = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { id: ciudadanoId },
+          { email: { equals: ciudadanoId, mode: 'insensitive' } },
+          ...(ciudadanoId === 'demo-user-1' ? [{ email: 'ejemplo@email.com' }] : []),
+        ],
+      },
+    });
+    if (usuario) {
+      finalCiudadanoId = usuario.id;
+    }
+
+    // Resolver municipioId contra PostgreSQL
+    let finalMunicipioId = municipioId;
+    if (!finalMunicipioId || finalMunicipioId === 'municipio-pilar-1') {
+      const muni = await prisma.municipio.findFirst();
+      if (muni) finalMunicipioId = muni.id;
     }
 
     const codigoGenerado = `REP-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
@@ -288,8 +324,8 @@ export const crearDenuncia = async (req: Request, res: Response): Promise<void> 
         latitud: latitud ? parseFloat(latitud) : null,
         longitud: longitud ? parseFloat(longitud) : null,
         imagenUrl,
-        ciudadanoId,
-        municipioId,
+        ciudadanoId: finalCiudadanoId,
+        municipioId: finalMunicipioId,
         puntosOtorgados: 0,
       },
     });

@@ -23,7 +23,7 @@ import { tiendaService, ResultadoCanje } from '../../services/tiendaService';
 import { BarraEstadoDenuncia } from '../../components/BarraEstadoDenuncia';
 
 export const ProfileScreen: React.FC = () => {
-  const { user: usuario } = useAuth();
+  const { user: usuario, recargarPerfilUsuario } = useAuth();
   const [pestanaActiva, setPestanaActiva] = useState<'denuncias' | 'compras'>('denuncias');
 
   // Estados de datos remotos
@@ -41,6 +41,9 @@ export const ProfileScreen: React.FC = () => {
       setCargando(true);
     }
     try {
+      if (recargarPerfilUsuario) {
+        recargarPerfilUsuario().catch(() => {});
+      }
       const promesas: [Promise<DenunciaCiudadano[]>, Promise<ResultadoCanje[]>] = [
         denunciaService.obtenerMisDenuncias(usuario?.id).catch((err) => {
           console.warn('No se pudieron obtener las denuncias:', err.message);
@@ -273,7 +276,10 @@ export const ProfileScreen: React.FC = () => {
                       </Text>
 
                       {/* Componente dinámico de trazabilidad */}
-                      <BarraEstadoDenuncia estado={denuncia.estado} />
+                      <BarraEstadoDenuncia
+                        estado={denuncia.estado}
+                        puntosOtorgados={denuncia.puntosOtorgados}
+                      />
                     </View>
                   ))
                 )}

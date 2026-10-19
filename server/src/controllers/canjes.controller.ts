@@ -120,9 +120,22 @@ export const reservarCanje = async (req: Request, res: Response): Promise<void> 
     // Iniciar transacción de reserva de stock
     const resultado = await prisma.$transaction(async (tx) => {
       // 1. Verificar existencia y saldo del usuario
-      const usuario = await tx.user.findUnique({
+      let usuario = await tx.user.findUnique({
         where: { id: ciudadanoId },
       });
+
+      if (!usuario) {
+        usuario = await tx.user.findFirst({
+          where: {
+            OR: [
+              { email: { equals: ciudadanoId, mode: 'insensitive' } },
+              ...(ciudadanoId === 'demo-user-1' ? [{ email: 'ejemplo@email.com' }] : []),
+              ...(ciudadanoId === 'agent-user-1' ? [{ email: 'agente@municipio.gob.ar' }] : []),
+              ...(ciudadanoId === 'admin-user-1' ? [{ email: 'admin@ecoalerta.gob.ar' }] : []),
+            ],
+          },
+        });
+      }
 
       if (!usuario) {
         throw { statusCode: 404, message: 'Usuario ciudadano no encontrado' };
@@ -379,9 +392,22 @@ export const confirmarCanje = async (req: Request, res: Response): Promise<void>
 
       // 4. Validar saldo del usuario y descontar puntos
       const targetUserId = ciudadanoId || canje.ciudadanoId;
-      const usuario = await tx.user.findUnique({
+      let usuario = await tx.user.findUnique({
         where: { id: targetUserId },
       });
+
+      if (!usuario) {
+        usuario = await tx.user.findFirst({
+          where: {
+            OR: [
+              { email: { equals: targetUserId, mode: 'insensitive' } },
+              ...(targetUserId === 'demo-user-1' ? [{ email: 'ejemplo@email.com' }] : []),
+              ...(targetUserId === 'agent-user-1' ? [{ email: 'agente@municipio.gob.ar' }] : []),
+              ...(targetUserId === 'admin-user-1' ? [{ email: 'admin@ecoalerta.gob.ar' }] : []),
+            ],
+          },
+        });
+      }
 
       if (!usuario) {
         throw { statusCode: 404, message: 'Usuario no encontrado' };
@@ -395,7 +421,7 @@ export const confirmarCanje = async (req: Request, res: Response): Promise<void>
       }
 
       const usuarioActualizado = await tx.user.update({
-        where: { id: targetUserId },
+        where: { id: usuario.id },
         data: {
           puntos: {
             decrement: canje.totalPuntos,
@@ -476,8 +502,23 @@ export const obtenerCanjesCiudadano = async (req: Request, res: Response): Promi
   try {
     const { ciudadanoId } = req.params;
 
+    let targetUserId = ciudadanoId;
+    const usuario = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { id: ciudadanoId },
+          { email: { equals: ciudadanoId, mode: 'insensitive' } },
+          ...(ciudadanoId === 'demo-user-1' ? [{ email: 'ejemplo@email.com' }] : []),
+        ],
+      },
+    });
+
+    if (usuario) {
+      targetUserId = usuario.id;
+    }
+
     const canjes = await prisma.canje.findMany({
-      where: { ciudadanoId },
+      where: { ciudadanoId: targetUserId },
       include: {
         sucursal: true,
         items: {
