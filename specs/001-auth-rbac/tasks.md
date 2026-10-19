@@ -49,9 +49,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Modificar `AppNavigator` para que cuando `user === null` renderice `MainNavigator` como ruta inicial y exponga `Login` y `Register` como pantallas accesibles bajo demanda en `client/src/navigation/AppNavigator.tsx`
-- [ ] T011 [P] [US1] Actualizar `Bienvenidapuntos` para que cuando `user === null` reemplace el nombre/ícono/puntos del usuario por el botón `"Regístrate para empezar a usar la app"` usando `StyleSheet.create` y `theme.ts` en `client/src/screens/citizen/HomeScreenPrueba/Bienvenidapuntos.tsx`
-- [ ] T012 [P] [US1] Añadir la sección explicativa de bienvenida ("¿Cómo funciona Eco Alerta?" en 3 pasos: Reporta, Verifica, Canjea) visible para invitados en `client/src/screens/citizen/HomeScreenPrueba/IncioHome.tsx`
+- [x] T010 [US1] Modificar `AppNavigator` para que cuando `user === null` renderice `MainNavigator` como ruta inicial y exponga `Login` y `Register` como pantallas accesibles bajo demanda en `client/src/navigation/AppNavigator.tsx`
+- [x] T011 [P] [US1] Actualizar `Bienvenidapuntos` para que cuando `user === null` reemplace el nombre/ícono/puntos del usuario por el botón `"Regístrate para empezar a usar la app"` usando `StyleSheet.create` y `theme.ts` en `client/src/screens/citizen/HomeScreenPrueba/Bienvenidapuntos.tsx`
+- [x] T012 [P] [US1] Añadir la sección explicativa de bienvenida ("¿Cómo funciona Eco Alerta?" en 3 pasos: Reporta, Verifica, Canjea) visible para invitados en `client/src/screens/citizen/HomeScreenPrueba/IncioHome.tsx`
 
 **Checkpoint**: La app inicia en Modo Invitado con su guía explicativa y botón de llamada a la acción en la cabecera.
 

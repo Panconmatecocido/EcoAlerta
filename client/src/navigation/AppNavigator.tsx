@@ -32,10 +32,14 @@ export const AppNavigator: React.FC = () => {
   }
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade' }}>
+    <Stack.Navigator
+      initialRouteName={user === null ? 'MainApp' : undefined}
+      screenOptions={{ headerShown: false, animation: 'fade' }}
+    >
       {user === null ? (
-        // Flujo de Autenticación (No autenticado)
+        // Inicio público como invitado; las pantallas de autenticación se abren bajo demanda.
         <>
+          <Stack.Screen name="MainApp" component={MainNavigator} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={RegisterScreen} />
         </>
