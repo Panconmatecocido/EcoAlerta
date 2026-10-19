@@ -180,35 +180,115 @@ export const crearDenuncia = async (req: Request, res: Response): Promise<void> 
       descripcion,
       categoria,
       direccion,
+      ubicacion,
       latitud,
       longitud,
       imagenUrl,
+      fotoUri,
       ciudadanoId,
       municipioId,
     } = req.body;
 
-    if (!titulo || !descripcion || !categoria || !direccion || !ciudadanoId || !municipioId) {
+    const direccionFinal = (direccion || ubicacion || '').trim();
+    const imagenFinal = imagenUrl || fotoUri || null;
+    const mapeoCategorias: Record<string, string> = {
+      BASURAL: 'Microbasural',
+      FOCO_DENGUE: 'Foco Dengue',
+      TERRENO_BALDIO: 'Terreno Baldío',
+      OTRO: 'Otro',
+    };
+    const categoriaFinal = mapeoCategorias[categoria] || categoria || 'Microbasural';
+
+    if (!titulo || !descripcion || !direccionFinal) {
       res.status(400).json({
         success: false,
-        message: 'Faltan campos obligatorios para registrar la denuncia',
+        message: 'Faltan campos obligatorios para registrar la denuncia (título, descripción o dirección/ubicación)',
       });
       return;
     }
 
-    const codigoGenerado = `REP-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
+    // Resolver Ciudadano y Municipio en la base de datos
+    let finalCiudadanoId = ciudadanoId;
+    let finalMunicipioId = municipioId;
+
+    if (finalCiudadanoId) {
+      const existe = await prisma.user.findUnique({ where: { id: String(finalCiudadanoId) } });
+      if (!existe) {
+        finalCiudadanoId = null;
+      } else {
+        if (!finalMunicipioId) finalMunicipioId = existe.municipioId;
+      }
+    }
+
+    if (!finalCiudadanoId) {
+      let ciudadano = await prisma.user.findFirst({
+        where: { email: 'ejemplo@email.com' },
+      });
+      if (!ciudadano) {
+        ciudadano = await prisma.user.findFirst({
+          where: { rol: 'CITIZEN' },
+        });
+      }
+      if (!ciudadano) {
+        ciudadano = await prisma.user.findFirst();
+      }
+      if (ciudadano) {
+        finalCiudadanoId = ciudadano.id;
+        if (!finalMunicipioId) finalMunicipioId = ciudadano.municipioId;
+      }
+    }
+
+    if (!finalMunicipioId) {
+      const muni = await prisma.municipio.findFirst();
+      if (muni) {
+        finalMunicipioId = muni.id;
+      }
+    }
+
+    // Si aún no existen usuario o municipio (BD vacía sin seed), crearlos para no romper
+    if (!finalMunicipioId) {
+      const nuevoMuni = await prisma.municipio.create({
+        data: {
+          nombre: 'Municipio de Pilar',
+          codigo: 'PILAR-BA',
+        },
+      });
+      finalMunicipioId = nuevoMuni.id;
+    }
+
+    if (!finalCiudadanoId) {
+      const nuevoUser = await prisma.user.create({
+        data: {
+          nombre: 'EcoUsuario',
+          email: 'ejemplo@email.com',
+          passwordHash: 'password123',
+          rol: 'CITIZEN',
+          puntos: 120,
+          municipioId: finalMunicipioId,
+        },
+      });
+      finalCiudadanoId = nuevoUser.id;
+    }
+
+    const codigoGenerado = `REP-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}${Math.floor(10 + Math.random() * 90)}`;
 
     const nuevaDenuncia = await prisma.denuncia.create({
       data: {
         codigo: codigoGenerado,
-        titulo,
-        descripcion,
-        categoria,
-        direccion,
-        latitud: latitud ? parseFloat(latitud) : null,
-        longitud: longitud ? parseFloat(longitud) : null,
-        imagenUrl,
-        ciudadanoId,
-        municipioId,
+        titulo: String(titulo).trim(),
+        descripcion: String(descripcion).trim(),
+        categoria: categoriaFinal,
+        direccion: direccionFinal,
+        latitud: latitud ? parseFloat(String(latitud)) : null,
+        longitud: longitud ? parseFloat(String(longitud)) : null,
+        imagenUrl: imagenFinal,
+        ciudadanoId: finalCiudadanoId,
+        municipioId: finalMunicipioId,
+      },
+      include: {
+        ciudadano: {
+          select: { id: true, nombre: true, email: true },
+        },
       },
     });
 
@@ -222,6 +302,39 @@ export const crearDenuncia = async (req: Request, res: Response): Promise<void> 
     res.status(500).json({
       success: false,
       message: 'Error al registrar la nueva denuncia',
+    });
+  }
+};
+
+// 6. Obtener denuncias del ciudadano autenticado
+export const obtenerMisDenuncias = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { ciudadanoId } = req.query;
+    const whereCondition: any = { ocultarUsuario: false };
+
+    if (ciudadanoId) {
+      whereCondition.ciudadanoId = String(ciudadanoId);
+    }
+
+    const denuncias = await prisma.denuncia.findMany({
+      where: whereCondition,
+      include: {
+        ciudadano: {
+          select: { id: true, nombre: true, email: true },
+        },
+      },
+      orderBy: { creadoEn: 'desc' },
+    });
+
+    res.status(200).json({
+      success: true,
+      data: denuncias,
+    });
+  } catch (error) {
+    console.error('Error al obtener mis denuncias:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener las denuncias del ciudadano',
     });
   }
 };

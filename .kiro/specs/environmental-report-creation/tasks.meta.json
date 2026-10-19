@@ -1,0 +1,275 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Crear `src/navigation/types.ts` con `ReportStackParamList` y tipos de props": [
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792327836621
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792328811516
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792329097153
+      }
+    ],
+    "1.2 Crear `src/constants/localidades.ts` con el array `LOCALIDADES` y el tipo `Localidad`": [
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792327836771
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792328811965
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792329097557
+      }
+    ],
+    "2.1 Crear `src/utils/normalizeText.ts` con `normalizeText()` y `filtrarLocalidades()`": [
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792327836911
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792329101179
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792329706747
+      }
+    ],
+    "3.1 Crear `src/utils/validateCalleAltura.ts` con `validateCalleAltura(text: string): boolean`": [
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792327837094
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792329101538
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792329707642
+      }
+    ],
+    "4.1 Crear `src/hooks/useReportForm.ts` con estado, validación, envío y control de reintentos": [
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792327837266
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792329711817
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792329945909
+      }
+    ],
+    "5. Punto de control intermedio": [
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792327837423
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792329984636
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792329987924
+      }
+    ],
+    "6.1 Crear `src/components/GravedadSelector.tsx`": [
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792327837540
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792329999540
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792330079965
+      }
+    ],
+    "6.3 Crear `src/components/LocalidadAutocomplete.tsx`": [
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792327837657
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792330000056
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792330080289
+      }
+    ],
+    "7.1 Crear `src/screens/citizen/ReportCameraScreen.tsx` (refactor de `ReportScreen.tsx`)": [
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792327837778
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792330084746
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792330574424
+      }
+    ],
+    "7.2 Crear `src/screens/citizen/ReportFormScreen.tsx`": [
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792327837914
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792330085269
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792330574758
+      }
+    ],
+    "7.3 Crear `src/screens/citizen/ReportConfirmationScreen.tsx`": [
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792327838036
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792330085680
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792330575230
+      }
+    ],
+    "8.1 Agregar `ReportNavigator` en `MainNavigator.tsx` y cambiar el tab `Camara`": [
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792327838154
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792330579028
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792330759516
+      }
+    ],
+    "9. Punto de control final": [
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792327838274
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792330763321
+      },
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792330895905
+      }
+    ],
+    "1. Crear infraestructura de tipos y constantes base": [
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792329097689
+      }
+    ],
+    "2. Implementar utilidades de texto y filtrado": [
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792329707237
+      }
+    ],
+    "3. Implementar función de validación de `calleAltura`": [
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792329708124
+      }
+    ],
+    "4. Implementar el hook `useReportForm`": [
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792329946229
+      }
+    ],
+    "6. Implementar componentes UI reutilizables": [
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792330080454
+      }
+    ],
+    "7. Implementar las pantallas nuevas": [
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792330575415
+      }
+    ],
+    "8. Integrar navegación en `MainNavigator.tsx`": [
+      {
+        "executionId": "d4a0c956-c08d-49dd-80d5-b3cd77687441",
+        "chatSessionId": "sess_14c0f056-08b7-4750-b06c-ed44663b3d6b",
+        "timestamp": 1792330759705
+      }
+    ]
+  }
+}

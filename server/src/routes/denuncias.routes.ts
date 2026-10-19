@@ -7,9 +7,13 @@ import {
   cambiarEstadoDenuncia,
   asignarAgenteDenuncia,
   crearDenuncia,
+  obtenerMisDenuncias,
 } from '../controllers/denuncias.controller';
 
 const router = Router();
+
+// GET /api/denuncias/mis-denuncias -> Denuncias del ciudadano autenticado
+router.get('/mis-denuncias', obtenerMisDenuncias);
 
 // GET /api/denuncias -> Obtener lista de denuncias
 router.get('/', obtenerDenuncias);
