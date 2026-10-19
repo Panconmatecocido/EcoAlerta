@@ -136,6 +136,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       await authRepository.clearSession();
       setUser(null);
+      setAuthGateVisible(false);
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
       throw error;

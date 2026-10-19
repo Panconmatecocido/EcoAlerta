@@ -57,7 +57,17 @@ export const AgentHomeScreen: React.FC = () => {
               <Text style={estilos.etiquetaRol}>AGENTE DE CAMPO</Text>
               <Text style={estilos.nombreAgente}>{usuario?.name || 'Inspector Municipal'}</Text>
             </View>
-            <TouchableOpacity onPress={cerrarSesion} style={estilos.botonSalir}>
+            <TouchableOpacity
+              onPress={() => {
+                void cerrarSesion().catch((error: unknown) => {
+                  Alert.alert(
+                    'No se pudo cerrar sesión',
+                    error instanceof Error ? error.message : 'Inténtalo nuevamente.'
+                  );
+                });
+              }}
+              style={estilos.botonSalir}
+            >
               <Ionicons name="log-out-outline" size={ICON_SIZE.md} color={COLORS.textoPeligro} />
             </TouchableOpacity>
           </View>

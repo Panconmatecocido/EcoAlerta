@@ -113,8 +113,8 @@
 
 ### Implementation for User Story 5 & 6
 
-- [ ] T022 [US5] Garantizar la hidratación de sesión (`@ecoalerta_user`, `@ecoalerta_token`) al iniciar `AuthProvider` y la limpieza total en `logout()` retornando al estado `user === null` en `client/src/context/AuthContext.tsx`
-- [ ] T023 [P] [US5] Verificar que el botón de cerrar sesión en `ProfileScreen`, `MasScreen`, `AgentHomeScreen`, `AdminHomeScreen` y `CollaboratorHomeScreen` invoque `logout()` y retorne al Home de Invitado en `client/src/screens/citizen/ProfileScreen.tsx` y `client/src/screens/citizen/MasScreen.tsx`
+- [x] T022 [US5] Garantizar la hidratación de sesión (`@ecoalerta_user`, `@ecoalerta_token`) al iniciar `AuthProvider` y la limpieza total en `logout()` retornando al estado `user === null` en `client/src/context/AuthContext.tsx`
+- [x] T023 [P] [US5] Verificar que el botón de cerrar sesión en `ProfileScreen`, `MasScreen`, `AgentHomeScreen`, `AdminHomeScreen` y `CollaboratorHomeScreen` invoque `logout()` y retorne al Home de Invitado en `client/src/screens/citizen/ProfileScreen.tsx` y `client/src/screens/citizen/MasScreen.tsx`
 
 ---
 

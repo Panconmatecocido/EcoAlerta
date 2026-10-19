@@ -25,8 +25,13 @@ export const MasScreen: React.FC = () => {
         {
           text: 'Cerrar Sesión',
           style: 'destructive',
-          onPress: async () => {
-            await cerrarSesion();
+          onPress: () => {
+            void cerrarSesion().catch((error: unknown) => {
+              Alert.alert(
+                'No se pudo cerrar sesión',
+                error instanceof Error ? error.message : 'Inténtalo nuevamente.'
+              );
+            });
           },
         },
       ],

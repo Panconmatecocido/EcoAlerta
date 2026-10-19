@@ -138,7 +138,13 @@ export class LocalAuthRepository implements IAuthRepository {
 
   async getCurrentSession(): Promise<User | null> {
     await this.ensureDemoAccounts();
-    return getCurrentUser();
+    const user = await getCurrentUser();
+    if (!user) return null;
+
+    if (!(await getAuthToken())) {
+      await saveAuthToken(`local:${user.id}`);
+    }
+    return user;
   }
 
   async saveSession(user: User, token?: string): Promise<void> {

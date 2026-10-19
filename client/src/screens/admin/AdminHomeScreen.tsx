@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import {
+  Alert,
   View,
   Text,
   StyleSheet,
@@ -52,7 +53,17 @@ export const AdminHomeScreen: React.FC = () => {
               Bienvenido, {user?.name || 'Administrador'}
             </Text>
           </View>
-          <TouchableOpacity style={styles.botonSalir} onPress={logout}>
+          <TouchableOpacity
+            style={styles.botonSalir}
+            onPress={() => {
+              void logout().catch((error: unknown) => {
+                Alert.alert(
+                  'No se pudo cerrar sesión',
+                  error instanceof Error ? error.message : 'Inténtalo nuevamente.'
+                );
+              });
+            }}
+          >
             <MaterialCommunityIcons name="logout" size={ICON_SIZE.sm} color={COLORS.textoPeligro} />
             <Text style={styles.textoBotonSalir}>Salir</Text>
           </TouchableOpacity>
