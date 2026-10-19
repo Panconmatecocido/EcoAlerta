@@ -44,6 +44,39 @@ export interface ConfirmRedemptionResponse {
   sucursal: StoreBranch;
 }
 
+export interface RedemptionDetail {
+  id: string;
+  codigoRetiro: string;
+  totalPuntos: number;
+  estado: 'PENDIENTE_RETIRO' | 'ENTREGADO' | 'CANCELADO' | 'RESERVADO_PENDIENTE' | string;
+  fechaExpiracion?: string | null;
+  fechaEntrega?: string | null;
+  creadoEn?: string | null;
+  ciudadano?: {
+    id?: string;
+    nombre?: string;
+    email?: string;
+  };
+  sucursal?: {
+    id?: string;
+    nombre?: string;
+    direccion?: string;
+    horario?: string | null;
+  };
+  items: Array<{
+    id?: string;
+    cantidad: number;
+    puntosUnit?: number;
+    producto?: {
+      id?: string;
+      titulo?: string;
+      descripcion?: string;
+      costoPuntos?: number;
+      imagenUrl?: string | null;
+    };
+  }>;
+}
+
 export interface IStoreRepository {
   getProducts(params?: { busqueda?: string; municipioId?: string }): Promise<StoreProduct[]>;
   getProductsAdmin(params?: { busqueda?: string; municipioId?: string }): Promise<StoreProduct[]>;
@@ -57,4 +90,8 @@ export interface IStoreRepository {
   cancelReservation(canjeId: string): Promise<void>;
   confirmRedemption(canjeId: string, sucursalId: string, ciudadanoId?: string): Promise<ConfirmRedemptionResponse>;
   getUserRedemptions(ciudadanoId: string): Promise<any[]>;
+  // Métodos Módulo 006:
+  getRedemptionByCode(codigoRetiro: string): Promise<RedemptionDetail>;
+  confirmDelivery(codigoRetiro: string): Promise<RedemptionDetail>;
+  getCitizenRedemptions(ciudadanoId: string): Promise<RedemptionDetail[]>;
 }

@@ -3,6 +3,7 @@
 import {
   ConfirmRedemptionResponse,
   IStoreRepository,
+  RedemptionDetail,
   ReservationItem,
   ReservationResponse,
   StoreBranch,
@@ -145,13 +146,57 @@ export const storeRepository: IStoreRepository = {
   },
 
   async getUserRedemptions(ciudadanoId: string): Promise<any[]> {
+    return await this.getCitizenRedemptions(ciudadanoId);
+  },
+
+  // --- Módulo 006: Métodos de Entrega, Búsqueda y Expiración 30 días ---
+
+  async getRedemptionByCode(codigoRetiro: string): Promise<RedemptionDetail> {
     try {
-      return await remoteStoreRepo.getUserRedemptions(ciudadanoId);
+      return await remoteStoreRepo.getRedemptionByCode(codigoRetiro);
+    } catch (err: any) {
+      if (err?.message && !err.message.includes('Network request failed')) {
+        // Si el servidor respondió con 404/409, intentar local solo si es red o demo
+        if (!err.message.includes('Failed to fetch') && !err.message.includes('Network')) {
+          try {
+            return await localStoreRepo.getRedemptionByCode(codigoRetiro);
+          } catch {
+            throw err;
+          }
+        }
+      }
+      console.warn('Fallo remoteStoreRepo.getRedemptionByCode, usando localStoreRepo:', err);
+      return await localStoreRepo.getRedemptionByCode(codigoRetiro);
+    }
+  },
+
+  async confirmDelivery(codigoRetiro: string): Promise<RedemptionDetail> {
+    try {
+      return await remoteStoreRepo.confirmDelivery(codigoRetiro);
+    } catch (err: any) {
+      if (err?.message && !err.message.includes('Network request failed')) {
+        if (!err.message.includes('Failed to fetch') && !err.message.includes('Network')) {
+          try {
+            return await localStoreRepo.confirmDelivery(codigoRetiro);
+          } catch {
+            throw err;
+          }
+        }
+      }
+      console.warn('Fallo remoteStoreRepo.confirmDelivery, usando localStoreRepo:', err);
+      return await localStoreRepo.confirmDelivery(codigoRetiro);
+    }
+  },
+
+  async getCitizenRedemptions(ciudadanoId: string): Promise<RedemptionDetail[]> {
+    try {
+      return await remoteStoreRepo.getCitizenRedemptions(ciudadanoId);
     } catch (err) {
-      console.warn('Fallo remoteStoreRepo.getUserRedemptions, usando localStoreRepo:', err);
-      return await localStoreRepo.getUserRedemptions(ciudadanoId);
+      console.warn('Fallo remoteStoreRepo.getCitizenRedemptions, usando localStoreRepo:', err);
+      return await localStoreRepo.getCitizenRedemptions(ciudadanoId);
     }
   },
 };
 
 export * from './IStoreRepository';
+

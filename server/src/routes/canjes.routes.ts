@@ -6,6 +6,10 @@ import {
   cancelarReserva,
   confirmarCanje,
   liberarReservasVencidasEndpoint,
+  procesarCanjesExpiradosEndpoint,
+  getCanjeByCodigo,
+  confirmarEntregaCanje,
+  getCanjesByCiudadano,
   obtenerCanjesCiudadano,
   obtenerCanjePorId,
 } from '../controllers/canjes.controller';
@@ -23,11 +27,17 @@ router.patch('/:id/cancelar-reserva', cancelarReserva);
 router.post('/:id/confirmar', confirmarCanje);
 router.patch('/:id/confirmar', confirmarCanje);
 
-// Liberación manual o por worker de vencidas
+// Procesos automáticos / workers
 router.post('/liberar-vencidas', liberarReservasVencidasEndpoint);
+router.post('/procesar-expirados', procesarCanjesExpiradosEndpoint);
+
+// Módulo 006: Panel Colaborador y Vouchers de Ciudadano
+router.get('/codigo/:codigoRetiro', getCanjeByCodigo);
+router.patch('/:codigoRetiro/entregar', confirmarEntregaCanje);
+router.post('/:codigoRetiro/entregar', confirmarEntregaCanje);
 
 // Consultas
-router.get('/ciudadano/:ciudadanoId', obtenerCanjesCiudadano);
+router.get('/ciudadano/:ciudadanoId', getCanjesByCiudadano || obtenerCanjesCiudadano);
 router.get('/:id', obtenerCanjePorId);
 
 export default router;

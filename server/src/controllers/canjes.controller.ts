@@ -498,9 +498,267 @@ export const confirmarCanje = async (req: Request, res: Response): Promise<void>
  * GET /api/canjes/ciudadano/:ciudadanoId
  * Obtener todos los canjes y vouchers de un ciudadano
  */
-export const obtenerCanjesCiudadano = async (req: Request, res: Response): Promise<void> => {
+/**
+ * Función auxiliar para procesar y cancelar canjes en PENDIENTE_RETIRO que superaron los 30 días corridos.
+ * Restituye las unidades al stock de Producto pero NO devuelve puntos a User (Principio VI y RF-COL-03).
+ */
+export const procesarCanjesExpirados30Dias = async (tx?: Prisma.TransactionClient): Promise<number> => {
+  const db = tx || prisma;
+  const ahora = new Date();
+
+  // Buscar canjes en PENDIENTE_RETIRO cuya fechaExpiracion ya fue superada
+  const canjesVencidos = await db.canje.findMany({
+    where: {
+      estado: 'PENDIENTE_RETIRO',
+      fechaExpiracion: {
+        lt: ahora,
+      },
+    },
+    include: {
+      items: true,
+    },
+  });
+
+  if (canjesVencidos.length === 0) {
+    return 0;
+  }
+
+  for (const canje of canjesVencidos) {
+    // 1. Restituir el stock de cada producto físico al inventario municipal
+    for (const item of canje.items) {
+      await db.producto.update({
+        where: { id: item.productoId },
+        data: {
+          stock: {
+            increment: item.cantidad,
+          },
+        },
+      });
+    }
+
+    // 2. Pasar el canje a CANCELADO
+    // RF-COL-03: NO SE DEVUELVEN PUNTOS (User.puntos permanece inalterado)
+    await db.canje.update({
+      where: { id: canje.id },
+      data: {
+        estado: 'CANCELADO',
+      },
+    });
+  }
+
+  return canjesVencidos.length;
+};
+
+/**
+ * POST /api/canjes/procesar-expirados
+ * Procesa expiraciones de canjes que hayan superado los 30 días
+ */
+export const procesarCanjesExpiradosEndpoint = async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const expirados = await prisma.$transaction(async (tx) => {
+      return await procesarCanjesExpirados30Dias(tx);
+    });
+
+    res.status(200).json({
+      success: true,
+      expirados,
+      message: `Se procesaron y cancelaron ${expirados} canjes vencidos a los 30 días (stock restituido, 0 puntos reembolsados)`,
+    });
+  } catch (error) {
+    console.error('Error al procesar canjes expirados:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al procesar canjes expirados a los 30 días',
+    });
+  }
+};
+
+/**
+ * GET /api/canjes/codigo/:codigoRetiro
+ * Búsqueda de voucher por código de retiro para el Colaborador Municipal
+ */
+export const getCanjeByCodigo = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const codigoParam = req.params.codigoRetiro;
+    if (!codigoParam || !codigoParam.trim()) {
+      res.status(400).json({
+        success: false,
+        message: 'codigoRetiro es requerido',
+      });
+      return;
+    }
+
+    const codigo = codigoParam.trim().toUpperCase();
+
+    // Ejecutar procesamiento preventivo de expirados
+    await prisma.$transaction(async (tx) => {
+      await procesarCanjesExpirados30Dias(tx);
+    });
+
+    const canje = await prisma.canje.findFirst({
+      where: {
+        OR: [
+          { codigoRetiro: codigo },
+          { codigoRetiro: { equals: codigo, mode: 'insensitive' } },
+        ],
+      },
+      include: {
+        sucursal: true,
+        ciudadano: {
+          select: { id: true, nombre: true, email: true },
+        },
+        items: {
+          include: {
+            producto: true,
+          },
+        },
+      },
+    });
+
+    if (!canje) {
+      res.status(404).json({
+        success: false,
+        message: `No se encontró ningún canje con el código ${codigo}`,
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: canje,
+    });
+  } catch (error) {
+    console.error('Error al buscar canje por código:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al buscar canje por código de retiro',
+    });
+  }
+};
+
+/**
+ * PATCH /api/canjes/:codigoRetiro/entregar
+ * Confirmación de entrega presencial por parte del Colaborador
+ */
+export const confirmarEntregaCanje = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { codigoRetiro } = req.params;
+    if (!codigoRetiro || !codigoRetiro.trim()) {
+      res.status(400).json({
+        success: false,
+        message: 'Código de retiro o ID es requerido',
+      });
+      return;
+    }
+
+    const codigoNormalizado = codigoRetiro.trim().toUpperCase();
+
+    const resultado = await prisma.$transaction(async (tx) => {
+      // 1. Procesar expirados
+      await procesarCanjesExpirados30Dias(tx);
+
+      // 2. Buscar canje
+      const canje = await tx.canje.findFirst({
+        where: {
+          OR: [
+            { codigoRetiro: codigoNormalizado },
+            { id: codigoRetiro },
+          ],
+        },
+        include: {
+          sucursal: true,
+          ciudadano: {
+            select: { id: true, nombre: true, email: true },
+          },
+          items: {
+            include: {
+              producto: true,
+            },
+          },
+        },
+      });
+
+      if (!canje) {
+        throw { statusCode: 404, message: 'Canje no encontrado' };
+      }
+
+      // 3. Validar estado y expiración
+      if (canje.estado === 'ENTREGADO') {
+        throw {
+          statusCode: 409,
+          message: 'Este premio ya fue entregado anteriormente',
+        };
+      }
+
+      const ahora = new Date();
+      if (
+        canje.estado === 'CANCELADO' ||
+        (canje.fechaExpiracion && ahora > canje.fechaExpiracion)
+      ) {
+        throw {
+          statusCode: 409,
+          message: 'El código de retiro ha expirado (plazo de 30 días vencido)',
+        };
+      }
+
+      if (canje.estado !== 'PENDIENTE_RETIRO') {
+        throw {
+          statusCode: 400,
+          message: `El canje no puede entregarse en estado ${canje.estado}`,
+        };
+      }
+
+      // 4. Actualizar estado a ENTREGADO con fechaEntrega
+      const fechaEntrega = new Date();
+      const canjeEntregado = await tx.canje.update({
+        where: { id: canje.id },
+        data: {
+          estado: 'ENTREGADO',
+          fechaEntrega,
+        },
+        include: {
+          sucursal: true,
+          ciudadano: {
+            select: { id: true, nombre: true, email: true },
+          },
+          items: {
+            include: {
+              producto: true,
+            },
+          },
+        },
+      });
+
+      return canjeEntregado;
+    });
+
+    res.status(200).json({
+      success: true,
+      data: resultado,
+      message: 'Entrega de premio confirmada exitosamente',
+    });
+  } catch (error: any) {
+    console.error('Error al confirmar entrega de canje:', error);
+    const statusCode = error?.statusCode || 500;
+    res.status(statusCode).json({
+      success: false,
+      message: error?.message || 'Error al confirmar entrega de canje',
+    });
+  }
+};
+
+/**
+ * GET /api/canjes/ciudadano/:ciudadanoId
+ * Obtener todos los canjes y vouchers de un ciudadano
+ */
+export const getCanjesByCiudadano = async (req: Request, res: Response): Promise<void> => {
   try {
     const { ciudadanoId } = req.params;
+
+    // Procesar expiraciones antes de listar
+    await prisma.$transaction(async (tx) => {
+      await procesarCanjesExpirados30Dias(tx);
+    });
 
     let targetUserId = ciudadanoId;
     const usuario = await prisma.user.findFirst({
@@ -542,6 +800,8 @@ export const obtenerCanjesCiudadano = async (req: Request, res: Response): Promi
     });
   }
 };
+
+export const obtenerCanjesCiudadano = getCanjesByCiudadano;
 
 /**
  * GET /api/canjes/:id
@@ -586,3 +846,4 @@ export const obtenerCanjePorId = async (req: Request, res: Response): Promise<vo
     });
   }
 };
+

@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   ConfirmRedemptionResponse,
   IStoreRepository,
+  RedemptionDetail,
   ReservationItem,
   ReservationResponse,
   StoreBranch,
@@ -72,16 +73,58 @@ const DEFAULT_BRANCHES: StoreBranch[] = [
   },
 ];
 
+const DEFAULT_RESERVATIONS: LocalReservation[] = [
+  {
+    id: 'canje-demo-1',
+    codigoRetiro: 'ECO-7894-K',
+    totalPuntos: 100,
+    bloqueadoHasta: new Date().toISOString(),
+    ciudadanoId: 'user-1',
+    estado: 'PENDIENTE_RETIRO',
+    items: [{ productoId: 'prod-2', cantidad: 1, puntosUnit: 100 }],
+    sucursalId: 'suc-1',
+    fechaExpiracion: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString(),
+    creadoEn: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'canje-demo-2',
+    codigoRetiro: 'ECO-2026-ENTR',
+    totalPuntos: 40,
+    bloqueadoHasta: new Date().toISOString(),
+    ciudadanoId: 'user-1',
+    estado: 'ENTREGADO',
+    items: [{ productoId: 'prod-1', cantidad: 1, puntosUnit: 40 }],
+    sucursalId: 'suc-1',
+    fechaExpiracion: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+    fechaEntrega: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    creadoEn: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'canje-demo-3',
+    codigoRetiro: 'ECO-2026-EXPD',
+    totalPuntos: 80,
+    bloqueadoHasta: new Date().toISOString(),
+    ciudadanoId: 'user-1',
+    estado: 'CANCELADO',
+    items: [{ productoId: 'prod-3', cantidad: 1, puntosUnit: 80 }],
+    sucursalId: 'suc-2',
+    fechaExpiracion: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    creadoEn: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+];
+
 interface LocalReservation {
   id: string;
   codigoRetiro: string;
   totalPuntos: number;
   bloqueadoHasta: string;
   ciudadanoId: string;
-  estado: 'RESERVADO_PENDIENTE' | 'PENDIENTE_RETIRO' | 'CANCELADO';
+  estado: 'RESERVADO_PENDIENTE' | 'PENDIENTE_RETIRO' | 'ENTREGADO' | 'CANCELADO';
   items: Array<{ productoId: string; cantidad: number; puntosUnit: number }>;
   sucursalId?: string;
   fechaExpiracion?: string;
+  fechaEntrega?: string;
+  creadoEn?: string;
 }
 
 export class LocalStoreRepository implements IStoreRepository {
@@ -113,7 +156,11 @@ export class LocalStoreRepository implements IStoreRepository {
 
   private async getStoredReservations(): Promise<LocalReservation[]> {
     const data = await AsyncStorage.getItem(STORAGE_KEYS.RESERVATIONS);
-    return data ? JSON.parse(data) : [];
+    if (!data) {
+      await AsyncStorage.setItem(STORAGE_KEYS.RESERVATIONS, JSON.stringify(DEFAULT_RESERVATIONS));
+      return DEFAULT_RESERVATIONS;
+    }
+    return JSON.parse(data);
   }
 
   private async saveStoredReservations(reservations: LocalReservation[]): Promise<void> {
@@ -343,6 +390,7 @@ export class LocalStoreRepository implements IStoreRepository {
     res.codigoRetiro = codigoRetiroOficial;
     res.sucursalId = branch.id;
     res.fechaExpiracion = fechaExpiracion;
+    res.creadoEn = new Date().toISOString();
 
     await this.saveStoredReservations(reservations);
 
@@ -357,7 +405,167 @@ export class LocalStoreRepository implements IStoreRepository {
   }
 
   async getUserRedemptions(ciudadanoId: string): Promise<any[]> {
+    return await this.getCitizenRedemptions(ciudadanoId);
+  }
+
+  // --- Módulo 006: Métodos de Entrega, Búsqueda y Expiración 30 días ---
+
+  private async cleanupExpired30DaysRedemptions(): Promise<void> {
     const reservations = await this.getStoredReservations();
-    return reservations.filter((r) => r.ciudadanoId === ciudadanoId);
+    const products = await this.getStoredProducts();
+    const now = Date.now();
+    let changed = false;
+
+    for (const res of reservations) {
+      if (
+        res.estado === 'PENDIENTE_RETIRO' &&
+        res.fechaExpiracion &&
+        new Date(res.fechaExpiracion).getTime() < now
+      ) {
+        res.estado = 'CANCELADO';
+        changed = true;
+        // Restituir stock físico (Principio VI y RF-COL-03: sin devolución de puntos)
+        for (const item of res.items) {
+          const prod = products.find((p) => p.id === item.productoId);
+          if (prod) {
+            prod.stock += item.cantidad;
+          }
+        }
+      }
+    }
+
+    if (changed) {
+      await this.saveStoredReservations(reservations);
+      await this.saveStoredProducts(products);
+    }
+  }
+
+  private async mapToRedemptionDetail(
+    res: LocalReservation,
+    branches?: StoreBranch[],
+    products?: StoreProduct[]
+  ): Promise<RedemptionDetail> {
+    const allBranches = branches || (await this.getStoredBranches());
+    const allProducts = products || (await this.getStoredProducts());
+    const branch = allBranches.find((b) => b.id === res.sucursalId) || allBranches[0];
+
+    return {
+      id: res.id,
+      codigoRetiro: res.codigoRetiro,
+      totalPuntos: res.totalPuntos,
+      estado: res.estado,
+      fechaExpiracion: res.fechaExpiracion || null,
+      fechaEntrega: res.fechaEntrega || null,
+      creadoEn: res.creadoEn || new Date().toISOString(),
+      ciudadano: {
+        id: res.ciudadanoId,
+        nombre: 'Vecino EcoAlerta',
+        email: 'vecino@ecoalerta.gob.ar',
+      },
+      sucursal: branch
+        ? {
+            id: branch.id,
+            nombre: branch.nombre,
+            direccion: branch.direccion,
+            horario: branch.horario,
+          }
+        : undefined,
+      items: res.items.map((it) => {
+        const prod = allProducts.find((p) => p.id === it.productoId);
+        return {
+          id: `item-${it.productoId}`,
+          cantidad: it.cantidad,
+          puntosUnit: it.puntosUnit,
+          producto: prod
+            ? {
+                id: prod.id,
+                titulo: prod.titulo,
+                descripcion: prod.descripcion,
+                costoPuntos: prod.costoPuntos,
+                imagenUrl: prod.imagenUrl,
+              }
+            : undefined,
+        };
+      }),
+    };
+  }
+
+  async getRedemptionByCode(codigoRetiro: string): Promise<RedemptionDetail> {
+    await this.cleanupExpired30DaysRedemptions();
+    const reservations = await this.getStoredReservations();
+    const codigoNormalizado = codigoRetiro.trim().toUpperCase();
+
+    const res = reservations.find(
+      (r) =>
+        r.codigoRetiro.trim().toUpperCase() === codigoNormalizado ||
+        r.id === codigoRetiro
+    );
+
+    if (!res) {
+      throw new Error(`No se encontró ningún canje con el código ${codigoNormalizado}`);
+    }
+
+    return await this.mapToRedemptionDetail(res);
+  }
+
+  async confirmDelivery(codigoRetiro: string): Promise<RedemptionDetail> {
+    await this.cleanupExpired30DaysRedemptions();
+    const reservations = await this.getStoredReservations();
+    const codigoNormalizado = codigoRetiro.trim().toUpperCase();
+
+    const res = reservations.find(
+      (r) =>
+        r.codigoRetiro.trim().toUpperCase() === codigoNormalizado ||
+        r.id === codigoRetiro
+    );
+
+    if (!res) {
+      throw new Error('Canje no encontrado');
+    }
+
+    if (res.estado === 'ENTREGADO') {
+      throw new Error('Este premio ya fue entregado anteriormente');
+    }
+
+    const ahora = Date.now();
+    if (
+      res.estado === 'CANCELADO' ||
+      (res.fechaExpiracion && new Date(res.fechaExpiracion).getTime() < ahora)
+    ) {
+      throw new Error('El código de retiro ha expirado (plazo de 30 días vencido)');
+    }
+
+    if (res.estado !== 'PENDIENTE_RETIRO') {
+      throw new Error(`El canje no puede entregarse en estado ${res.estado}`);
+    }
+
+    res.estado = 'ENTREGADO';
+    res.fechaEntrega = new Date().toISOString();
+
+    await this.saveStoredReservations(reservations);
+    return await this.mapToRedemptionDetail(res);
+  }
+
+  async getCitizenRedemptions(ciudadanoId: string): Promise<RedemptionDetail[]> {
+    await this.cleanupExpired30DaysRedemptions();
+    const reservations = await this.getStoredReservations();
+    const branches = await this.getStoredBranches();
+    const products = await this.getStoredProducts();
+
+    const citizenRes = reservations.filter(
+      (r) => r.ciudadanoId === ciudadanoId || ciudadanoId === 'demo-user-1'
+    );
+
+    const result: RedemptionDetail[] = [];
+    for (const r of citizenRes) {
+      result.push(await this.mapToRedemptionDetail(r, branches, products));
+    }
+
+    // Ordenar descendente por creadoEn
+    return result.sort((a, b) => {
+      const timeA = a.creadoEn ? new Date(a.creadoEn).getTime() : 0;
+      const timeB = b.creadoEn ? new Date(b.creadoEn).getTime() : 0;
+      return timeB - timeA;
+    });
   }
 }

@@ -4,6 +4,7 @@ import { api } from '../../services/api';
 import {
   ConfirmRedemptionResponse,
   IStoreRepository,
+  RedemptionDetail,
   ReservationItem,
   ReservationResponse,
   StoreBranch,
@@ -29,6 +30,32 @@ const mapearSucursalServidor = (raw: any): StoreBranch => ({
   horario: raw.horario || null,
   activa: raw.activa !== undefined ? Boolean(raw.activa) : true,
   municipioId: raw.municipioId,
+});
+
+const mapearCanjeServidor = (raw: any): RedemptionDetail => ({
+  id: String(raw.id),
+  codigoRetiro: raw.codigoRetiro || '',
+  totalPuntos: raw.totalPuntos || 0,
+  estado: raw.estado || 'PENDIENTE_RETIRO',
+  fechaExpiracion: raw.fechaExpiracion || null,
+  fechaEntrega: raw.fechaEntrega || null,
+  creadoEn: raw.creadoEn || null,
+  ciudadano: raw.ciudadano
+    ? {
+        id: raw.ciudadano.id,
+        nombre: raw.ciudadano.nombre,
+        email: raw.ciudadano.email,
+      }
+    : undefined,
+  sucursal: raw.sucursal ? mapearSucursalServidor(raw.sucursal) : undefined,
+  items: Array.isArray(raw.items)
+    ? raw.items.map((it: any) => ({
+        id: String(it.id),
+        cantidad: it.cantidad || 1,
+        puntosUnit: it.puntosUnit,
+        producto: it.producto ? mapearProductoServidor(it.producto) : undefined,
+      }))
+    : [],
 });
 
 export class RemoteStoreRepository implements IStoreRepository {
@@ -140,5 +167,29 @@ export class RemoteStoreRepository implements IStoreRepository {
   async getUserRedemptions(ciudadanoId: string): Promise<any[]> {
     const res = await api.get<{ success: boolean; data: any[] }>(`/api/canjes/ciudadano/${ciudadanoId}`);
     return Array.isArray(res) ? res : res.data || [];
+  }
+
+  // Métodos Módulo 006:
+  async getRedemptionByCode(codigoRetiro: string): Promise<RedemptionDetail> {
+    const res = await api.get<{ success: boolean; data: any }>(
+      `/api/canjes/codigo/${encodeURIComponent(codigoRetiro.trim().toUpperCase())}`
+    );
+    const data = (res as any).data || res;
+    return mapearCanjeServidor(data);
+  }
+
+  async confirmDelivery(codigoRetiro: string): Promise<RedemptionDetail> {
+    const res = await api.patch<{ success: boolean; data: any; message?: string }>(
+      `/api/canjes/${encodeURIComponent(codigoRetiro.trim().toUpperCase())}/entregar`,
+      {}
+    );
+    const data = (res as any).data || res;
+    return mapearCanjeServidor(data);
+  }
+
+  async getCitizenRedemptions(ciudadanoId: string): Promise<RedemptionDetail[]> {
+    const res = await api.get<{ success: boolean; data: any[] }>(`/api/canjes/ciudadano/${ciudadanoId}`);
+    const items = Array.isArray(res) ? res : res.data || [];
+    return items.map(mapearCanjeServidor);
   }
 }
