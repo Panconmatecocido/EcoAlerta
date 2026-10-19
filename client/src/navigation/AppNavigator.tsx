@@ -9,6 +9,7 @@ import { RegisterScreen } from '../screens/auth/RegisterScreen';
 import { MainNavigator } from './MainNavigator';
 import { AdminNavigator } from './AdminNavigator';
 import { AgentNavigator } from './AgentNavigator';
+import { CollaboratorNavigator } from './CollaboratorNavigator';
 import { COLORS } from '../utils/theme';
 
 export type AuthStackParamList = {
@@ -49,6 +50,8 @@ export const AppNavigator: React.FC = () => {
       ) : user.role === 'admin' ? (
         // Flujo de Administrador
         <Stack.Screen name="AdminApp" component={AdminNavigator} />
+      ) : user.role === 'collaborator' ? (
+        <Stack.Screen name="CollaboratorApp" component={CollaboratorNavigator} />
       ) : (
         // Flujo de Ciudadano Principal (Home con Tabs)
         <Stack.Screen name="MainApp" component={MainNavigator} />

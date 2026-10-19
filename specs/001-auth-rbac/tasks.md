@@ -96,10 +96,10 @@
 
 ### Implementation for User Story 4
 
-- [ ] T018 [P] [US4] Crear la pantalla base `CollaboratorHomeScreen` (con header institucional y cierre de sesión, lista para extender en `006`) en `client/src/screens/collaborator/CollaboratorHomeScreen.tsx`
-- [ ] T019 [P] [US4] Crear el navegador `CollaboratorNavigator` para el rol `COLLABORATOR` en `client/src/navigation/CollaboratorNavigator.tsx`
-- [ ] T020 [US4] Conectar el enrutamiento condicional de los 4 roles (`CITIZEN` -> `MainNavigator`, `AGENT` -> `AgentNavigator`, `ADMIN` -> `AdminNavigator`, `COLLABORATOR` -> `CollaboratorNavigator`) en `client/src/navigation/AppNavigator.tsx`
-- [ ] T021 [US4] Actualizar `LoginScreen` con validaciones de formato, botón de acceso a Google OAuth / Demo de los 4 roles y botón para volver al Home de Invitado en `client/src/screens/auth/LoginScreen.tsx`
+- [x] T018 [P] [US4] Crear la pantalla base `CollaboratorHomeScreen` (con header institucional y cierre de sesión, lista para extender en `006`) en `client/src/screens/collaborator/CollaboratorHomeScreen.tsx`
+- [x] T019 [P] [US4] Crear el navegador `CollaboratorNavigator` para el rol `COLLABORATOR` en `client/src/navigation/CollaboratorNavigator.tsx`
+- [x] T020 [US4] Conectar el enrutamiento condicional de los 4 roles (`CITIZEN` -> `MainNavigator`, `AGENT` -> `AgentNavigator`, `ADMIN` -> `AdminNavigator`, `COLLABORATOR` -> `CollaboratorNavigator`) en `client/src/navigation/AppNavigator.tsx`
+- [x] T021 [US4] Actualizar `LoginScreen` con validaciones de formato, botón de acceso a Google OAuth / Demo de los 4 roles y botón para volver al Home de Invitado en `client/src/screens/auth/LoginScreen.tsx`
 
 **Checkpoint**: Enrutamiento RBAC de los 4 roles operativo.
 
