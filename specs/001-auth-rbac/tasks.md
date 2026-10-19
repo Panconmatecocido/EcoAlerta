@@ -32,10 +32,10 @@
 
 - [x] T004 Extender el controlador de autenticación con `register` (`puntos: 0`, validación de email único `409 Conflict`, asociación a `PILAR-BA`) y soporte de 4 roles en `server/src/controllers/auth.controller.ts`
 - [x] T005 Registrar el endpoint `POST /api/auth/register` junto a `POST /api/auth/login` en `server/src/routes/auth.routes.ts`
-- [ ] T006 [P] Definir la interfaz `IAuthRepository` y tipos `AuthUser`, `LoginDTO`, `RegisterDTO`, `AuthResponse` (incluyendo rol `COLLABORATOR`) en `client/src/repositories/auth/IAuthRepository.ts`
-- [ ] T007 [P] Implementar `RemoteAuthRepository` conectado a `/api/auth/login` y `/api/auth/register` en `client/src/repositories/auth/RemoteAuthRepository.ts`
-- [ ] T008 [P] Implementar `LocalAuthRepository` con `AsyncStorage` y cuentas fallback de los 4 roles para tolerancia offline en `client/src/repositories/auth/LocalAuthRepository.ts`
-- [ ] T009 Crear el selector de repositorio con fallback controlado y conectarlo a `AuthContext` en `client/src/repositories/auth/index.ts` y `client/src/context/AuthContext.tsx`
+- [x] T006 [P] Definir la interfaz `IAuthRepository` y tipos `AuthUser`, `LoginDTO`, `RegisterDTO`, `AuthResponse` (incluyendo rol `COLLABORATOR`) en `client/src/repositories/auth/IAuthRepository.ts`
+- [x] T007 [P] Implementar `RemoteAuthRepository` conectado a `/api/auth/login` y `/api/auth/register` en `client/src/repositories/auth/RemoteAuthRepository.ts`
+- [x] T008 [P] Implementar `LocalAuthRepository` con `AsyncStorage` y cuentas fallback de los 4 roles para tolerancia offline en `client/src/repositories/auth/LocalAuthRepository.ts`
+- [x] T009 Crear el selector de repositorio con fallback controlado y conectarlo a `AuthContext` en `client/src/repositories/auth/index.ts` y `client/src/context/AuthContext.tsx`
 
 **Checkpoint**: API `/api/auth/*` y `AuthContext` con `IAuthRepository` listos y soportando estado `user === null` (Invitado) y los 4 roles.
 
