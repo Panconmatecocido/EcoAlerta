@@ -18,9 +18,9 @@
 
 **Purpose**: Sincronizar esquema Prisma, datos semilla de los 4 roles y utilidades de validación compartidas.
 
-- [ ] T001 Sincronizar el cliente Prisma y verificar `enum Role` (`CITIZEN`, `AGENT`, `ADMIN`, `COLLABORATOR`) y `puntos @default(0)` en `server/prisma/schema.prisma`
-- [ ] T002 Actualizar las cuentas semilla para incluir los 4 roles (`CITIZEN`, `AGENT`, `ADMIN`, `COLLABORATOR`) vinculados al municipio `MUN-001` en `server/prisma/seed.ts`
-- [ ] T003 [P] Crear funciones puras de validación (`validateEmail`, `validatePassword`, `validateRegistrationForm`) en `client/src/utils/validators.ts`
+- [x] T001 Sincronizar el cliente Prisma y verificar `enum Role` (`CITIZEN`, `AGENT`, `ADMIN`, `COLLABORATOR`) y `puntos @default(0)` en `server/prisma/schema.prisma`
+- [x] T002 Actualizar las cuentas semilla para incluir los 4 roles (`CITIZEN`, `AGENT`, `ADMIN`, `COLLABORATOR`) vinculados al municipio `PILAR-BA` en `server/prisma/seed.ts`
+- [x] T003 [P] Crear funciones puras de validación (`validateEmail`, `validatePassword`, `validateRegistrationForm`) en `client/src/utils/validators.ts`
 
 ---
 
@@ -30,8 +30,8 @@
 
 **⚠️ CRITICAL**: Ninguna historia de usuario puede completarse antes de cerrar esta fase.
 
-- [ ] T004 Extender el controlador de autenticación con `register` (`puntos: 0`, validación de email único `409 Conflict`, asociación a `MUN-001`) y soporte de 4 roles en `server/src/controllers/auth.controller.ts`
-- [ ] T005 Registrar el endpoint `POST /api/auth/register` junto a `POST /api/auth/login` en `server/src/routes/auth.routes.ts`
+- [x] T004 Extender el controlador de autenticación con `register` (`puntos: 0`, validación de email único `409 Conflict`, asociación a `PILAR-BA`) y soporte de 4 roles en `server/src/controllers/auth.controller.ts`
+- [x] T005 Registrar el endpoint `POST /api/auth/register` junto a `POST /api/auth/login` en `server/src/routes/auth.routes.ts`
 - [ ] T006 [P] Definir la interfaz `IAuthRepository` y tipos `AuthUser`, `LoginDTO`, `RegisterDTO`, `AuthResponse` (incluyendo rol `COLLABORATOR`) en `client/src/repositories/auth/IAuthRepository.ts`
 - [ ] T007 [P] Implementar `RemoteAuthRepository` conectado a `/api/auth/login` y `/api/auth/register` en `client/src/repositories/auth/RemoteAuthRepository.ts`
 - [ ] T008 [P] Implementar `LocalAuthRepository` con `AsyncStorage` y cuentas fallback de los 4 roles para tolerancia offline en `client/src/repositories/auth/LocalAuthRepository.ts`
@@ -123,7 +123,7 @@
 **Purpose**: Pruebas unitarias/integración y validación final contra la Constitución.
 
 - [ ] T024 [P] Crear pruebas unitarias de validaciones de formulario (`validateEmail`, `validatePassword`, `validateRegistrationForm`) y `LocalAuthRepository` en `client/src/utils/__tests__/validators.test.ts`
-- [ ] T025 [P] Crear pruebas de integración para `POST /api/auth/register` (`puntos = 0`, `409` duplicado) y `POST /api/auth/login` (4 roles) en `server/src/__tests__/auth.test.ts`
+- [x] T025 [P] Crear pruebas de integración para `POST /api/auth/register` (`puntos = 0`, `409` duplicado) y `POST /api/auth/login` (4 roles) en `server/src/__tests__/auth.test.ts`
 - [ ] T026 Ejecutar checklist de verificación manual en Expo Go (Modo Invitado, botón `"Regístrate para empezar a usar la app"`, Auth Gate en Cámara/Perfil/Tienda, Registro con 0 puntos, Login 4 roles y Logout) documentando resultados en `specs/001-auth-rbac/checklists/requirements.md`
 
 ---
