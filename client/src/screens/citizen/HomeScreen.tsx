@@ -1,15 +1,15 @@
 // src/screens/citizen/HomeScreen.tsx
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { View, Text, StyleSheet, ScrollView, Alert, useWindowDimensions } from 'react-native';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { Header } from '../../components/Header';
 import { CustomButton } from '../../components/CustomButton';
 import { COLORS } from '../../utils/theme';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const HomeScreen: React.FC = () => {
   const { user, logout } = useAuth();
+  const { width: screenWidth } = useWindowDimensions();
 
   const handleLogout = () => {
     Alert.alert(
@@ -40,7 +40,10 @@ export const HomeScreen: React.FC = () => {
         onPressSettings={() => Alert.alert('Ajustes', 'Panel de configuración')}
       />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[styles.scrollContent, { width: Math.min(screenWidth, 720) }]}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Tarjeta de Bienvenida */}
         <View style={styles.welcomeCard}>
           <View style={styles.userHeaderRow}>
@@ -48,18 +51,19 @@ export const HomeScreen: React.FC = () => {
               <Feather name="user" size={32} color={COLORS.botonPrincipal} />
             </View>
             <View style={styles.userInfo}>
-              <Text style={styles.welcomeLabel}>¡Hola de nuevo!</Text>
-              <Text style={styles.userName}>{user?.name || 'Ciudadano Eco'}</Text>
-              <Text style={styles.userEmail}>{user?.email || 'ecoalerta@ciudad.com'}</Text>
+              <Text style={styles.welcomeLabel}>¡Bienvenido!</Text>
+              <Text style={styles.userName} numberOfLines={1} ellipsizeMode="tail">
+                {user?.name || 'Ciudadano Eco'}
+              </Text>
             </View>
           </View>
 
-          {/* Puntos Verdes */}
-          <View style={styles.pointsBadge}>
-            <MaterialCommunityIcons name="leaf-circle" size={24} color={COLORS.botonPrincipal} />
-            <Text style={styles.pointsText}>
-              <Text style={styles.pointsNumber}>{user?.points || 0}</Text> Puntos Verdes acumulados
-            </Text>
+          <View style={styles.pointsSection}>
+            <Text style={styles.pointsTitle}>Mis puntos</Text>
+            <View style={styles.pointsValue}>
+              <MaterialCommunityIcons name="leaf-circle" size={28} color={COLORS.botonPrincipal} />
+              <Text style={styles.pointsNumber}>{user?.points ?? 0}</Text>
+            </View>
           </View>
         </View>
 
@@ -69,17 +73,23 @@ export const HomeScreen: React.FC = () => {
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
               <MaterialCommunityIcons name="recycle" size={28} color={COLORS.botonPrincipal} />
-              <Text style={styles.statValue}>12</Text>
+              <Text style={styles.statValue} numberOfLines={1}>
+                12
+              </Text>
               <Text style={styles.statLabel}>Reportes hechos</Text>
             </View>
             <View style={styles.statItem}>
               <MaterialCommunityIcons name="tree" size={28} color={COLORS.iconoActivoInferior} />
-              <Text style={styles.statValue}>5</Text>
+              <Text style={styles.statValue} numberOfLines={1}>
+                5
+              </Text>
               <Text style={styles.statLabel}>Áreas limpiadas</Text>
             </View>
             <View style={styles.statItem}>
               <MaterialCommunityIcons name="trophy-award" size={28} color="#f59e0b" />
-              <Text style={styles.statValue}>Nivel 2</Text>
+              <Text style={styles.statValue} numberOfLines={1}>
+                Nivel 2
+              </Text>
               <Text style={styles.statLabel}>Defensor Eco</Text>
             </View>
           </View>
@@ -105,14 +115,17 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.fondoAplicacion,
   },
   scrollContent: {
-    paddingHorizontal: 20,
+    alignSelf: 'center',
+    paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 32,
   },
   welcomeCard: {
+    alignSelf: 'stretch',
+    minWidth: 0,
     backgroundColor: COLORS.superficieTarjeta,
     borderRadius: 24,
-    padding: 20,
+    padding: 16,
     marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -122,11 +135,12 @@ const styles = StyleSheet.create({
   },
   userHeaderRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 16,
   },
   avatarCircle: {
     width: 60,
+    flexShrink: 0,
     height: 60,
     borderRadius: 30,
     backgroundColor: COLORS.fondoTarjeta,
@@ -138,6 +152,9 @@ const styles = StyleSheet.create({
   },
   userInfo: {
     flex: 1,
+    flexBasis: 0,
+    minWidth: 0,
+    flexShrink: 1,
   },
   welcomeLabel: {
     fontSize: 13,
@@ -149,32 +166,34 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '800',
     color: COLORS.textoVerdeOscuro,
+    flexShrink: 1,
   },
-  userEmail: {
-    fontSize: 13,
+  pointsSection: {
+    alignSelf: 'stretch',
+    minWidth: 0,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.borde,
+  },
+  pointsTitle: {
+    fontSize: 14,
     color: COLORS.textoSecundario,
+    fontWeight: '600',
+    marginBottom: 6,
   },
-  pointsBadge: {
+  pointsValue: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.fondoTarjeta,
-    borderRadius: 14,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderWidth: 1,
-    borderColor: COLORS.borde,
-  },
-  pointsText: {
-    fontSize: 14,
-    color: COLORS.textoVerdeOscuro,
-    marginLeft: 8,
-    fontWeight: '500',
+    columnGap: 8,
   },
   pointsNumber: {
+    fontSize: 20,
     fontWeight: '800',
     color: COLORS.botonPrincipal,
   },
   card: {
+    alignSelf: 'stretch',
+    minWidth: 0,
     backgroundColor: COLORS.fondoTarjeta,
     borderRadius: 24,
     padding: 20,
@@ -190,21 +209,31 @@ const styles = StyleSheet.create({
   },
   statsRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-around',
   },
   statItem: {
+    flex: 1,
+    minWidth: 80,
+    maxWidth: '50%',
     alignItems: 'center',
+    paddingHorizontal: 4,
   },
   statValue: {
     fontSize: 18,
     fontWeight: '800',
     color: COLORS.textoVerdeOscuro,
     marginTop: 6,
+    maxWidth: '100%',
+    flexShrink: 1,
   },
   statLabel: {
     fontSize: 12,
     color: COLORS.textoSecundario,
     marginTop: 2,
+    maxWidth: '100%',
+    textAlign: 'center',
+    flexShrink: 1,
   },
   logoutContainer: {
     marginTop: 10,

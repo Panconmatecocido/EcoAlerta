@@ -2,13 +2,13 @@
 import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
-  Dimensions,
   Image,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -17,9 +17,6 @@ import { useAuth } from '../../../context/AuthContext';
 import { reportRepository } from '../../../repositories/reports';
 import { CitizenReport } from '../../../repositories/reports/IReportRepository';
 import { ReportStatusBadge } from '../../../components/citizen/ReportStatusBadge';
-
-const { width } = Dimensions.get('window');
-const ANCHO_TARJETA = width * 0.72;
 
 interface FotoDesafio {
   id: string;
@@ -59,6 +56,8 @@ const DESAFIOS_FOTOS: FotoDesafio[] = [
 export const FotosPuntos: React.FC = () => {
   const navigation = useNavigation<any>();
   const { user, requireAuth } = useAuth();
+  const { width } = useWindowDimensions();
+  const cardWidth = width * 0.72;
   const [reports, setReports] = useState<CitizenReport[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -118,7 +117,7 @@ export const FotosPuntos: React.FC = () => {
             size={ICON_SIZE.lg}
             color={COLORS.iconoPrincipal}
           />
-          <Text style={styles.titulo}>
+          <Text style={styles.titulo} numberOfLines={1} ellipsizeMode="tail">
             {isCitizen ? 'Mis reportes recientes' : 'Sumá puntos reportando'}
           </Text>
         </View>
@@ -163,7 +162,7 @@ export const FotosPuntos: React.FC = () => {
             {reports.map((report) => (
               <TouchableOpacity
                 key={report.id}
-                style={styles.reportCard}
+                style={[styles.reportCard, { width: cardWidth }]}
                 activeOpacity={0.85}
                 onPress={irAPerfil}
                 accessibilityRole="button"
@@ -203,7 +202,7 @@ export const FotosPuntos: React.FC = () => {
           {DESAFIOS_FOTOS.map((challenge) => (
             <TouchableOpacity
               key={challenge.id}
-              style={styles.challengeCard}
+              style={[styles.challengeCard, { width: cardWidth }]}
               activeOpacity={0.85}
               onPress={irACamara}
               accessibilityRole="button"
@@ -246,22 +245,28 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.lg,
   },
   header: {
+    minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.md,
   },
   tituloContainer: {
+    flex: 1,
+    minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.sm,
   },
   titulo: {
+    flexShrink: 1,
+    minWidth: 0,
     fontSize: 17,
     fontWeight: '700',
     color: COLORS.textoVerdeOscuro,
   },
   verTodo: {
+    flexShrink: 0,
     fontSize: 13,
     fontWeight: '600',
     color: COLORS.botonPrincipal,
@@ -279,7 +284,6 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.xs,
   },
   reportCard: {
-    width: ANCHO_TARJETA,
     backgroundColor: COLORS.superficieTarjeta,
     borderRadius: BORDER_RADIUS.md,
     overflow: 'hidden',
@@ -340,7 +344,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
   },
   challengeCard: {
-    width: ANCHO_TARJETA,
     backgroundColor: COLORS.superficieTarjeta,
     borderRadius: BORDER_RADIUS.md,
     overflow: 'hidden',
