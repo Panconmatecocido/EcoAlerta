@@ -1,13 +1,13 @@
 import React from 'react';
 import {
   Alert,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { BORDER_RADIUS, COLORS, ICON_SIZE, SPACING } from '../../utils/theme';
@@ -22,7 +22,7 @@ export const CollaboratorHomeScreen: React.FC = () => {
         text: 'Cerrar sesión',
         style: 'destructive',
         onPress: () => {
-          void logout().catch((error: unknown) => {
+          void logout('login').catch((error: unknown) => {
             Alert.alert(
               'No se pudo cerrar sesión',
               error instanceof Error ? error.message : 'Inténtalo nuevamente.'

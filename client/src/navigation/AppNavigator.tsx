@@ -1,5 +1,5 @@
 // src/navigation/AppNavigator.tsx
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, ActivityIndicator, StyleSheet, Text } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -10,6 +10,7 @@ import { MainNavigator } from './MainNavigator';
 import { AdminNavigator } from './AdminNavigator';
 import { AgentNavigator } from './AgentNavigator';
 import { CollaboratorNavigator } from './CollaboratorNavigator';
+import { navigationRef } from './navigationRef';
 import { COLORS } from '../utils/theme';
 
 export type AuthStackParamList = {
@@ -20,7 +21,20 @@ export type AuthStackParamList = {
 const Stack = createNativeStackNavigator();
 
 export const AppNavigator: React.FC = () => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, logoutDestination } = useAuth();
+  const previousUser = useRef(user);
+
+  useEffect(() => {
+    const wasAuthenticated = previousUser.current !== null;
+    previousUser.current = user;
+
+    if (wasAuthenticated && user === null && navigationRef.isReady()) {
+      navigationRef.resetRoot({
+        index: 0,
+        routes: [{ name: logoutDestination }],
+      });
+    }
+  }, [logoutDestination, user]);
 
   if (isLoading) {
     return (
@@ -34,6 +48,7 @@ export const AppNavigator: React.FC = () => {
 
   return (
     <Stack.Navigator
+      key={user ? `${user.role}:${user.id}` : 'guest'}
       initialRouteName={user === null ? 'MainApp' : undefined}
       screenOptions={{ headerShown: false, animation: 'fade' }}
     >

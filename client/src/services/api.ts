@@ -74,6 +74,9 @@ export const obtenerProductos = async (
 
   try {
     const params: Record<string, string> = {};
+    if (categoria && categoria !== 'Todos') {
+      params.categoria = categoria;
+    }
     if (busqueda && busqueda.trim() !== '') {
       params.busqueda = busqueda.trim();
     }
@@ -88,7 +91,7 @@ export const obtenerProductos = async (
         nombre: item.nombre ?? item.titulo ?? '',
         descripcion: item.descripcion ?? '',
         precio: item.precio ?? item.costoPuntos ?? 0,
-        categoria: item.categoria ?? 'Todos',
+        categoria: item.categoria ?? 'Otros',
         urlImagen: item.urlImagen ?? item.imagenUrl ?? 'https://via.placeholder.com/150',
         stock: item.stock ?? 0,
         creadoEn: item.creadoEn,
@@ -102,7 +105,7 @@ export const obtenerProductos = async (
 
   if (categoria && categoria !== 'Todos') {
     resultados = resultados.filter(
-      (prod) => !prod.categoria || prod.categoria === 'Todos' || prod.categoria.toLowerCase() === categoria.toLowerCase()
+      (prod) => prod.categoria?.toLowerCase() === categoria.toLowerCase()
     );
   }
 

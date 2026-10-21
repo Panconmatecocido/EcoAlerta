@@ -56,7 +56,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     try {
       const result = await login({ identifier, password });
       if (!result.success) {
-        setErrorMessage(result.message || 'Error al iniciar sesión');
+        const message = result.message || 'Error al iniciar sesión';
+        setErrorMessage(message);
+        Alert.alert('No se pudo iniciar sesión', message);
       }
     } finally {
       setIsLoading(false);

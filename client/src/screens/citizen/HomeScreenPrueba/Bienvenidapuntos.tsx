@@ -12,18 +12,28 @@ export default function Bienvenidapuntos () {
 
   if (!user) {
     return (
-      <TouchableOpacity
-        accessibilityRole="button"
-        onPress={() => navigation.getParent()?.navigate('Register')}
-        activeOpacity={0.85}
-        style={guestStyles.registerButton}
-      >
-        <Feather name="user-plus" size={22} color={COLORS.blanco} />
-        <Text style={guestStyles.registerButtonText}>
-          Regístrate para empezar a usar la app
-        </Text>
-        <Feather name="arrow-right" size={20} color={COLORS.blanco} />
-      </TouchableOpacity>
+      <View style={guestStyles.container}>
+        <TouchableOpacity
+          accessibilityRole="button"
+          onPress={() => navigation.getParent()?.navigate('Register')}
+          activeOpacity={0.85}
+          style={guestStyles.registerButton}
+        >
+          <Feather name="user-plus" size={22} color={COLORS.blanco} />
+          <Text style={guestStyles.registerButtonText}>
+            Regístrate para empezar a usar la app
+          </Text>
+          <Feather name="arrow-right" size={20} color={COLORS.blanco} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          accessibilityRole="button"
+          onPress={() => navigation.getParent()?.navigate('Login')}
+          activeOpacity={0.75}
+          style={guestStyles.loginButton}
+        >
+          <Text style={guestStyles.loginButtonText}>¿Ya tienes cuenta? Inicia sesión</Text>
+        </TouchableOpacity>
+      </View>
     );
   }
 
@@ -52,10 +62,12 @@ export default function Bienvenidapuntos () {
 }
 
 const guestStyles = StyleSheet.create({
-  registerButton: {
-    minHeight: 76,
+  container: {
     marginHorizontal: SPACING.md,
     marginTop: SPACING.md,
+  },
+  registerButton: {
+    minHeight: 76,
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
     borderRadius: BORDER_RADIUS.lg,
@@ -69,6 +81,16 @@ const guestStyles = StyleSheet.create({
     flex: 1,
     color: COLORS.blanco,
     fontSize: 16,
+    fontWeight: '700',
+  },
+  loginButton: {
+    alignSelf: 'center',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+  },
+  loginButtonText: {
+    color: COLORS.botonPrincipal,
+    fontSize: 14,
     fontWeight: '700',
   },
 });

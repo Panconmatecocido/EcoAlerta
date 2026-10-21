@@ -28,6 +28,7 @@ const CATEGORIAS = [
   { id: '2', nombre: 'Limpieza', icono: 'sparkles-outline' },
   { id: '3', nombre: 'Cuidado Personal', icono: 'person-outline' },
   { id: '4', nombre: 'Papelería', icono: 'folder-outline' },
+  { id: '5', nombre: 'Otros', icono: 'ellipsis-horizontal-outline' },
 ];
 
 export const StoreScreen = () => {

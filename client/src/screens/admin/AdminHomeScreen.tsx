@@ -8,9 +8,9 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
 import { useAuth } from '../../context/AuthContext';
@@ -56,7 +56,7 @@ export const AdminHomeScreen: React.FC = () => {
           <TouchableOpacity
             style={styles.botonSalir}
             onPress={() => {
-              void logout().catch((error: unknown) => {
+              void logout('login').catch((error: unknown) => {
                 Alert.alert(
                   'No se pudo cerrar sesión',
                   error instanceof Error ? error.message : 'Inténtalo nuevamente.'

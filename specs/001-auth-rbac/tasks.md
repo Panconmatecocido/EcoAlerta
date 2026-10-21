@@ -67,7 +67,7 @@
 
 - [x] T013 [P] [US2] Crear el componente `AuthGateModal` (y helper en `AuthContext`) estilizado con `StyleSheet.create` y `theme.ts` que explica que se requiere cuenta y ofrece botones `"Registrarme"` e `"Iniciar Sesión"` en `client/src/components/common/AuthGateModal.tsx`
 - [x] T014 [US2] Interceptar los eventos `tabPress` de las pestañas `Report` (Cámara), `Profile` y rutas de usuario en `MainNavigator` cuando `user === null` para disparar el Auth Gate en `client/src/navigation/MainNavigator.tsx`
-- [x] T015 [US2] Asegurar que `StoreScreen` permita listar productos cuando `user === null` pero dispare el Auth Gate al pulsar el botón de agregar/canjear producto en `client/src/screens/citizen/StoreScreen.tsx`
+- [x] T015 [US2] Asegurar que `StoreScreen` permita listar y filtrar productos por categoría cuando `user === null`, pero dispare el Auth Gate al pulsar el botón de agregar/canjear producto en `client/src/screens/citizen/StoreScreen.tsx`
 
 **Checkpoint**: Modo Invitado y Auth Gate operando de extremo a extremo.
 
@@ -114,7 +114,7 @@
 ### Implementation for User Story 5 & 6
 
 - [x] T022 [US5] Garantizar la hidratación de sesión (`@ecoalerta_user`, `@ecoalerta_token`) al iniciar `AuthProvider` y la limpieza total en `logout()` retornando al estado `user === null` en `client/src/context/AuthContext.tsx`
-- [x] T023 [P] [US5] Verificar que el botón de cerrar sesión en `ProfileScreen`, `MasScreen`, `AgentHomeScreen`, `AdminHomeScreen` y `CollaboratorHomeScreen` invoque `logout()` y retorne al Home de Invitado en `client/src/screens/citizen/ProfileScreen.tsx` y `client/src/screens/citizen/MasScreen.tsx`
+- [x] T023 [P] [US5] Verificar en Expo Go que el logout ciudadano vuelva al Home invitado y que los roles agente, administrador y colaborador vuelvan a Login; probar los `SafeAreaView` de los paneles en `client/src/screens/agente/AgentHomeScreen.tsx`, `client/src/screens/admin/AdminHomeScreen.tsx` y `client/src/screens/collaborator/CollaboratorHomeScreen.tsx`
 
 ---
 
@@ -124,7 +124,7 @@
 
 - [x] T024 [P] Crear pruebas unitarias de validaciones de formulario (`validateEmail`, `validatePassword`, `validateRegistrationForm`) y `LocalAuthRepository` en `client/src/utils/__tests__/validators.test.ts`
 - [x] T025 [P] Crear pruebas de integración para `POST /api/auth/register` (`puntos = 0`, `409` duplicado) y `POST /api/auth/login` (4 roles) en `server/src/__tests__/auth.test.ts`
-- [ ] T026 Ejecutar checklist de verificación manual en Expo Go (Modo Invitado, botón `"Regístrate para empezar a usar la app"`, Auth Gate en Cámara/Perfil/Tienda, Registro con 0 puntos, Login 4 roles y Logout) documentando resultados en `specs/001-auth-rbac/checklists/requirements.md`
+- [x] T026 Ejecutar checklist de verificación manual en Expo Go (Modo Invitado, registro e inicio de sesión directos, filtros de categoría, Auth Gate en Cámara/Perfil/Tienda, Registro con 0 puntos, Login 4 roles y Logout) documentando resultados en `specs/001-auth-rbac/checklists/requirements.md`
 
 ---
 

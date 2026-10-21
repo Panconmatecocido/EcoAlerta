@@ -1,5 +1,5 @@
 // src/navigation/MainNavigator.tsx
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -46,15 +46,6 @@ export const MainNavigator: React.FC = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
   const { user, authGateVisible, requireAuth, dismissAuthGate } = useAuth();
-  const previousUser = useRef(user);
-
-  useEffect(() => {
-    if (previousUser.current !== null && user === null) {
-      dismissAuthGate();
-      navigation.navigate('Inicio');
-    }
-    previousUser.current = user;
-  }, [dismissAuthGate, navigation, user]);
 
   const navigateToAuth = (screen: 'Login' | 'Register') => {
     dismissAuthGate();

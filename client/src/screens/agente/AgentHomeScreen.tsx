@@ -5,12 +5,12 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
   StatusBar,
   Switch,
   Alert,
   Modal,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
@@ -59,7 +59,7 @@ export const AgentHomeScreen: React.FC = () => {
             </View>
             <TouchableOpacity
               onPress={() => {
-                void cerrarSesion().catch((error: unknown) => {
+                void cerrarSesion('login').catch((error: unknown) => {
                   Alert.alert(
                     'No se pudo cerrar sesión',
                     error instanceof Error ? error.message : 'Inténtalo nuevamente.'

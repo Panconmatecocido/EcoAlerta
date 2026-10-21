@@ -62,7 +62,9 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
         confirmPassword,
       });
       if (!result.success) {
-        setErrorMessage(result.message || 'Error al registrar la cuenta');
+        const message = result.message || 'Error al registrar la cuenta';
+        setErrorMessage(message);
+        Alert.alert('No se pudo registrar la cuenta', message);
       }
     } finally {
       setIsLoading(false);

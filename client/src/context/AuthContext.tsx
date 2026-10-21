@@ -1,13 +1,14 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, LoginCredentials, RegisterData } from '../interfaces/user';
-import { authRepository } from '../repositories/auth';
+import { AuthNetworkError, AuthRepositoryError, authRepository } from '../repositories/auth';
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
+  logoutDestination: 'MainApp' | 'Login';
   login: (credentials: LoginCredentials) => Promise<{ success: boolean; message?: string }>;
   register: (data: RegisterData) => Promise<{ success: boolean; message?: string }>;
-  logout: () => Promise<void>;
+  logout: (destination?: 'guest' | 'login') => Promise<void>;
   loginWithGoogle: () => Promise<{ success: boolean; message?: string }>;
   authGateVisible: boolean;
   requireAuth: () => boolean;
@@ -21,6 +22,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [authGateVisible, setAuthGateVisible] = useState(false);
+  const [logoutDestination, setLogoutDestination] = useState<'MainApp' | 'Login'>('MainApp');
 
   useEffect(() => {
     let active = true;
@@ -71,10 +73,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUser(response.user);
       return { success: true };
     } catch (error) {
-      console.error('Error durante el inicio de sesión:', error);
+      if (!(error instanceof AuthRepositoryError) && !(error instanceof AuthNetworkError)) {
+        console.error('Error durante el inicio de sesión:', error);
+      }
       return {
         success: false,
-        message: error instanceof Error ? error.message : 'Error interno al iniciar sesión',
+        message:
+          error instanceof AuthRepositoryError || error instanceof AuthNetworkError
+            ? error.message
+            : 'Error interno al iniciar sesión',
       };
     }
   };
@@ -101,10 +108,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUser(response.user);
       return { success: true };
     } catch (error) {
-      console.error('Error al registrar usuario:', error);
+      if (!(error instanceof AuthRepositoryError) && !(error instanceof AuthNetworkError)) {
+        console.error('Error al registrar usuario:', error);
+      }
       return {
         success: false,
-        message: error instanceof Error ? error.message : 'Error al registrar usuario',
+        message:
+          error instanceof AuthRepositoryError || error instanceof AuthNetworkError
+            ? error.message
+            : 'Error al registrar usuario',
       };
     }
   };
@@ -132,9 +144,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const logout = async (): Promise<void> => {
+  const logout = async (destination: 'guest' | 'login' = 'guest'): Promise<void> => {
     try {
       await authRepository.clearSession();
+      setLogoutDestination(destination === 'login' ? 'Login' : 'MainApp');
       setUser(null);
       setAuthGateVisible(false);
     } catch (error) {
@@ -156,6 +169,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       value={{
         user,
         isLoading,
+        logoutDestination,
         login,
         register,
         logout,
