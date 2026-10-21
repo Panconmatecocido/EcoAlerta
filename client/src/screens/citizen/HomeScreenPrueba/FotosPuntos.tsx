@@ -58,7 +58,7 @@ const DESAFIOS_FOTOS: FotoDesafio[] = [
 
 export const FotosPuntos: React.FC = () => {
   const navigation = useNavigation<any>();
-  const { user } = useAuth();
+  const { user, requireAuth } = useAuth();
   const [reports, setReports] = useState<CitizenReport[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -102,7 +102,11 @@ export const FotosPuntos: React.FC = () => {
     }, [isCitizen, user])
   );
 
-  const irACamara = () => navigation.navigate('Camara');
+  const irACamara = () => {
+    if (requireAuth()) {
+      navigation.navigate('Camara');
+    }
+  };
   const irAPerfil = () => navigation.navigate('Perfil');
 
   return (

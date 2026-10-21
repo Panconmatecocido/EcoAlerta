@@ -17,6 +17,13 @@ import { Header } from '../../components/Header';
 import { CustomButton } from '../../components/CustomButton';
 import { COLORS } from '../../utils/theme';
 
+const DEMO_ACCOUNTS = [
+  { label: 'Ciudadano', email: 'ciudadano@ecoalerta.com', password: 'ciudadano123' },
+  { label: 'Agente', email: 'agente1@ecoalerta.com', password: 'agente123' },
+  { label: 'Administrador', email: 'admin@ecoalerta.com', password: 'admin123' },
+  { label: 'Colaborador', email: 'colaborador@ecoalerta.com', password: 'colaborador123' },
+];
+
 interface LoginScreenProps {
   navigation: any;
 }
@@ -37,14 +44,31 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       setErrorMessage('Por favor ingresa tu correo y contraseña');
       return;
     }
+    if (
+      identifier.includes('@') &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier.trim())
+    ) {
+      setErrorMessage('Ingresa un correo electrónico válido');
+      return;
+    }
 
     setIsLoading(true);
-    const result = await login({ identifier, password });
-    setIsLoading(false);
-
-    if (!result.success) {
-      setErrorMessage(result.message || 'Error al iniciar sesión');
+    try {
+      const result = await login({ identifier, password });
+      if (!result.success) {
+        const message = result.message || 'Error al iniciar sesión';
+        setErrorMessage(message);
+        Alert.alert('No se pudo iniciar sesión', message);
+      }
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const selectDemoAccount = (account: (typeof DEMO_ACCOUNTS)[number]) => {
+    setIdentifier(account.email);
+    setPassword(account.password);
+    setErrorMessage('');
   };
 
   const handleGoogleLogin = async () => {
@@ -178,6 +202,26 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               isLoading={isGoogleLoading}
             />
 
+            <View style={styles.demoSection}>
+              <Text style={styles.demoTitle}>Acceso rápido de demostración</Text>
+              <View style={styles.demoAccounts}>
+                {DEMO_ACCOUNTS.map((account) => (
+                  <TouchableOpacity
+                    key={account.email}
+                    accessibilityRole="button"
+                    style={styles.demoAccountButton}
+                    onPress={() => selectDemoAccount(account)}
+                    activeOpacity={0.75}
+                  >
+                    <Text style={styles.demoAccountText}>{account.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <Text style={styles.demoHint}>
+                Selecciona un rol y luego pulsa “Iniciar sesión”.
+              </Text>
+            </View>
+
             {/* Enlace para ir al Registro */}
             <TouchableOpacity
               style={styles.switchAuthContainer}
@@ -187,6 +231,16 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               <Text style={styles.switchAuthText}>
                 ¿No tienes cuenta? <Text style={styles.switchAuthHighlight}>Regístrate</Text>
               </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.guestButton}
+              accessibilityRole="button"
+              onPress={() => navigation.navigate('MainApp')}
+              activeOpacity={0.75}
+            >
+              <Feather name="arrow-left" size={16} color={COLORS.botonPrincipal} />
+              <Text style={styles.guestButtonText}>Volver al inicio como invitado</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -287,6 +341,48 @@ const styles = StyleSheet.create({
     marginTop: 8,
     gap: 12,
   },
+  demoSection: {
+    marginTop: 4,
+    padding: 14,
+    borderRadius: 14,
+    backgroundColor: COLORS.fondoTarjeta,
+  },
+  demoTitle: {
+    marginBottom: 10,
+    color: COLORS.textoVerdeOscuro,
+    fontSize: 14,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  demoAccounts: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  demoAccountButton: {
+    minWidth: '45%',
+    minHeight: 40,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.bordeSuave,
+    borderRadius: 10,
+    backgroundColor: COLORS.superficieTarjeta,
+  },
+  demoAccountText: {
+    color: COLORS.textoVerde,
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  demoHint: {
+    marginTop: 8,
+    color: COLORS.textoSecundario,
+    fontSize: 12,
+    textAlign: 'center',
+  },
   switchAuthContainer: {
     alignItems: 'center',
     marginTop: 14,
@@ -300,6 +396,18 @@ const styles = StyleSheet.create({
     color: COLORS.botonPrincipal,
     fontWeight: '700',
     textDecorationLine: 'underline',
+  },
+  guestButton: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 10,
+  },
+  guestButtonText: {
+    color: COLORS.botonPrincipal,
+    fontSize: 14,
+    fontWeight: '700',
   },
 });
 

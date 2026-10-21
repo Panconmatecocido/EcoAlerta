@@ -1,5 +1,5 @@
 // src/interfaces/user.ts
-export type UserRole = 'citizen' | 'agent' | 'admin';
+export type UserRole = 'citizen' | 'agent' | 'admin' | 'collaborator';
 
 export interface User {
   id: string;

@@ -1,5 +1,5 @@
 // src/navigation/AppNavigator.tsx
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, ActivityIndicator, StyleSheet, Text } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -9,6 +9,8 @@ import { RegisterScreen } from '../screens/auth/RegisterScreen';
 import { MainNavigator } from './MainNavigator';
 import { AdminNavigator } from './AdminNavigator';
 import { AgentNavigator } from './AgentNavigator';
+import { CollaboratorNavigator } from './CollaboratorNavigator';
+import { navigationRef } from './navigationRef';
 import { COLORS } from '../utils/theme';
 
 export type AuthStackParamList = {
@@ -19,7 +21,20 @@ export type AuthStackParamList = {
 const Stack = createNativeStackNavigator();
 
 export const AppNavigator: React.FC = () => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, logoutDestination } = useAuth();
+  const previousUser = useRef(user);
+
+  useEffect(() => {
+    const wasAuthenticated = previousUser.current !== null;
+    previousUser.current = user;
+
+    if (wasAuthenticated && user === null && navigationRef.isReady()) {
+      navigationRef.resetRoot({
+        index: 0,
+        routes: [{ name: logoutDestination }],
+      });
+    }
+  }, [logoutDestination, user]);
 
   if (isLoading) {
     return (
@@ -32,10 +47,15 @@ export const AppNavigator: React.FC = () => {
   }
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade' }}>
+    <Stack.Navigator
+      key={user ? `${user.role}:${user.id}` : 'guest'}
+      initialRouteName={user === null ? 'MainApp' : undefined}
+      screenOptions={{ headerShown: false, animation: 'fade' }}
+    >
       {user === null ? (
-        // Flujo de Autenticación (No autenticado)
+        // Inicio público como invitado; las pantallas de autenticación se abren bajo demanda.
         <>
+          <Stack.Screen name="MainApp" component={MainNavigator} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={RegisterScreen} />
         </>
@@ -45,6 +65,8 @@ export const AppNavigator: React.FC = () => {
       ) : user.role === 'admin' ? (
         // Flujo de Administrador
         <Stack.Screen name="AdminApp" component={AdminNavigator} />
+      ) : user.role === 'collaborator' ? (
+        <Stack.Screen name="CollaboratorApp" component={CollaboratorNavigator} />
       ) : (
         // Flujo de Ciudadano Principal (Home con Tabs)
         <Stack.Screen name="MainApp" component={MainNavigator} />

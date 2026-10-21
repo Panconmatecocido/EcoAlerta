@@ -1,20 +1,27 @@
 // server/src/controllers/productos.controller.ts
 
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 export const obtenerProductos = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { busqueda, municipioId } = req.query;
+    const { busqueda, categoria, municipioId } = req.query;
 
-    const whereCondition: any = {
+    const whereCondition: Prisma.ProductoWhereInput = {
       activo: true,
     };
 
     if (municipioId) {
       whereCondition.municipioId = String(municipioId);
+    }
+
+    if (categoria && String(categoria).trim() !== '' && String(categoria) !== 'Todos') {
+      whereCondition.categoria = {
+        equals: String(categoria).trim(),
+        mode: 'insensitive',
+      };
     }
 
     if (busqueda && String(busqueda).trim() !== '') {

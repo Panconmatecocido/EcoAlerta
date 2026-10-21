@@ -16,6 +16,10 @@ import { useAuth } from '../../context/AuthContext';
 import { Header } from '../../components/Header';
 import { CustomButton } from '../../components/CustomButton';
 import { COLORS } from '../../utils/theme';
+import {
+  RegistrationFormErrors,
+  validateRegistrationForm,
+} from '../../utils/validators';
 
 interface RegisterScreenProps {
   navigation: any;
@@ -25,6 +29,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
   const { register, loginWithGoogle } = useAuth();
 
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -32,35 +37,37 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<RegistrationFormErrors>({});
 
   const handleRegister = async () => {
     setErrorMessage('');
 
-    if (!username.trim() || !password.trim() || !confirmPassword.trim()) {
-      setErrorMessage('Por favor completa todos los campos requeridos');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setErrorMessage('Las contraseñas ingresadas no coinciden');
-      return;
-    }
-
-    if (password.length < 4) {
-      setErrorMessage('La contraseña debe tener al menos 4 caracteres');
+    const errors = validateRegistrationForm({
+      nombre: username,
+      email,
+      password,
+      confirmPassword,
+    });
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) {
       return;
     }
 
     setIsLoading(true);
-    const result = await register({
-      username: username.trim(),
-      password: password.trim(),
-      confirmPassword: confirmPassword.trim(),
-    });
-    setIsLoading(false);
-
-    if (!result.success) {
-      setErrorMessage(result.message || 'Error al registrar la cuenta');
+    try {
+      const result = await register({
+        username: username.trim(),
+        email: email.trim().toLowerCase(),
+        password,
+        confirmPassword,
+      });
+      if (!result.success) {
+        const message = result.message || 'Error al registrar la cuenta';
+        setErrorMessage(message);
+        Alert.alert('No se pudo registrar la cuenta', message);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -102,29 +109,59 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
             </View>
           ) : null}
 
-          {/* Campo: Usuario */}
+          {/* Campo: Nombre */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Usuario</Text>
+            <Text style={styles.label}>Nombre</Text>
             <View style={styles.inputWrapper}>
               <Feather name="user" size={20} color={COLORS.iconoPrincipal} style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Nombre de usuario"
+                placeholder="Tu nombre"
                 placeholderTextColor="#9cb586"
                 value={username}
                 onChangeText={(text) => {
                   setUsername(text);
-                  if (errorMessage) setErrorMessage('');
+                  setFieldErrors((current) => ({ ...current, nombre: undefined }));
                 }}
-                autoCapitalize="none"
+                autoCapitalize="words"
                 autoCorrect={false}
+                accessibilityLabel="Nombre"
               />
             </View>
+            {fieldErrors.nombre ? (
+              <Text style={styles.fieldError}>{fieldErrors.nombre}</Text>
+            ) : null}
           </View>
 
-          {/* Campo: Password */}
+          {/* Campo: Correo Electrónico */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>Correo Electrónico</Text>
+            <View style={styles.inputWrapper}>
+              <Feather name="mail" size={20} color={COLORS.iconoPrincipal} style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="ejemplo@correo.com"
+                placeholderTextColor="#9cb586"
+                value={email}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  setFieldErrors((current) => ({ ...current, email: undefined }));
+                  setErrorMessage('');
+                }}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                accessibilityLabel="Correo electrónico"
+              />
+            </View>
+            {fieldErrors.email ? (
+              <Text style={styles.fieldError}>{fieldErrors.email}</Text>
+            ) : null}
+          </View>
+
+          {/* Campo: Contraseña */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Contraseña</Text>
             <View style={styles.inputWrapper}>
               <Feather name="lock" size={20} color={COLORS.iconoPrincipal} style={styles.inputIcon} />
               <TextInput
@@ -134,10 +171,13 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
                 value={password}
                 onChangeText={(text) => {
                   setPassword(text);
-                  if (errorMessage) setErrorMessage('');
+                  setFieldErrors((current) => ({ ...current, password: undefined }));
+                  setErrorMessage('');
                 }}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
+                autoCorrect={false}
+                accessibilityLabel="Contraseña"
               />
               <TouchableOpacity
                 onPress={() => setShowPassword(!showPassword)}
@@ -151,11 +191,14 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
                 />
               </TouchableOpacity>
             </View>
+            {fieldErrors.password ? (
+              <Text style={styles.fieldError}>{fieldErrors.password}</Text>
+            ) : null}
           </View>
 
-          {/* Campo: Rep. Password */}
+          {/* Campo: Confirmación de contraseña */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Rep. Password</Text>
+            <Text style={styles.label}>Confirmar contraseña</Text>
             <View style={styles.inputWrapper}>
               <Feather name="lock" size={20} color={COLORS.iconoPrincipal} style={styles.inputIcon} />
               <TextInput
@@ -165,10 +208,13 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
                 value={confirmPassword}
                 onChangeText={(text) => {
                   setConfirmPassword(text);
-                  if (errorMessage) setErrorMessage('');
+                  setFieldErrors((current) => ({ ...current, confirmPassword: undefined }));
+                  setErrorMessage('');
                 }}
                 secureTextEntry={!showConfirmPassword}
                 autoCapitalize="none"
+                autoCorrect={false}
+                accessibilityLabel="Confirmar contraseña"
               />
               <TouchableOpacity
                 onPress={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -182,6 +228,9 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
                 />
               </TouchableOpacity>
             </View>
+            {fieldErrors.confirmPassword ? (
+              <Text style={styles.fieldError}>{fieldErrors.confirmPassword}</Text>
+            ) : null}
           </View>
 
           {/* Botones de Acción */}
@@ -259,6 +308,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginLeft: 8,
     flex: 1,
+  },
+  fieldError: {
+    marginTop: 6,
+    marginLeft: 8,
+    color: COLORS.error,
+    fontSize: 12,
   },
   inputGroup: {
     marginBottom: 16,

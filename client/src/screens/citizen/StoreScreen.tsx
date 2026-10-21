@@ -19,6 +19,7 @@ import { Producto } from "../../interfaces/product";
 import { obtenerProductos } from "../../services/api";
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from "../../utils/theme";
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
 import Header from "../../components/Header";
 
 const CATEGORIAS = [
@@ -27,10 +28,12 @@ const CATEGORIAS = [
   { id: '2', nombre: 'Limpieza', icono: 'sparkles-outline' },
   { id: '3', nombre: 'Cuidado Personal', icono: 'person-outline' },
   { id: '4', nombre: 'Papelería', icono: 'folder-outline' },
+  { id: '5', nombre: 'Otros', icono: 'ellipsis-horizontal-outline' },
 ];
 
 export const StoreScreen = () => {
   const navigation = useNavigation<any>();
+  const { user, requireAuth } = useAuth();
 
   const [productos, setProductos] = useState<Producto[]>([]);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<string>('Todos');
@@ -38,7 +41,7 @@ export const StoreScreen = () => {
   const [cargando, setCargando] = useState<boolean>(true);
 
   // Consumo del Contexto del Carrito
-  const { agregarAlCarrito, carrito, obtenerSubtotalPuntos, userPoints } = useCart();
+  const { agregarAlCarrito, carrito, obtenerSubtotalPuntos } = useCart();
 
   useEffect(() => {
     cargarProductos();
@@ -68,18 +71,22 @@ export const StoreScreen = () => {
           <Text style={estilos.tituloPuntos}>Tus Puntos Canjeables</Text>
           <View style={estilos.contenedorValorPuntos}>
             <Ionicons name="star" size={ICON_SIZE.lg} color={COLORS.iconoPrincipal} />
-            <Text style={estilos.valorPuntos}>{userPoints ?? 1250}</Text>
+            <Text style={estilos.valorPuntos}>{user?.points ?? '—'}</Text>
           </View>
         </View>
 
         <TouchableOpacity 
           style={estilos.puntosDerecha} 
           activeOpacity={0.7}
-          onPress={() => navigation.navigate('Cart')}
+          onPress={() => {
+            if (requireAuth()) navigation.navigate('Cart');
+          }}
         >
           <View style={estilos.contenedorValorPuntos}>
             <Ionicons name="cart" size={ICON_SIZE.md} color={COLORS.iconoPrincipal} />
-            <Text style={estilos.subValorPuntos}> Mis puntos: {userPoints ?? 1250}</Text>
+            <Text style={estilos.subValorPuntos}>
+              {user ? `Mis puntos: ${user.points}` : 'Inicia sesión para ver tus puntos'}
+            </Text>
           </View>
           <Text style={estilos.enlaceHistorial}>Ver Historial &gt;</Text>
         </TouchableOpacity>
@@ -163,7 +170,9 @@ export const StoreScreen = () => {
 
                 <TouchableOpacity
                   style={estilos.botonAgregar}
-                  onPress={() => agregarAlCarrito(item)}
+                  onPress={() => {
+                    if (requireAuth()) agregarAlCarrito(item);
+                  }}
                   activeOpacity={0.8}
                 >
                   <Text style={estilos.textoBotonAgregar}>AGREGAR AL CARRITO</Text>
@@ -184,7 +193,9 @@ export const StoreScreen = () => {
           <TouchableOpacity 
             style={estilos.botonPagar} 
             activeOpacity={0.8}
-            onPress={() => navigation.navigate('Cart')}
+            onPress={() => {
+              if (requireAuth()) navigation.navigate('Cart');
+            }}
           >
             <Text style={estilos.textoPagar}>VER CARRITO Y PAGAR</Text>
           </TouchableOpacity>

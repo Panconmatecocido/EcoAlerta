@@ -76,18 +76,19 @@ Un vecino invitado decide crear su cuenta pulsando *"Regístrate para empezar a 
 
 ---
 
-### User Story 5 - Persistencia de Sesión Activa y Cierre de Sesión con Retorno a Modo Invitado (Priority: P2)
+### User Story 5 - Persistencia de Sesión Activa y Cierre de Sesión por Rol (Priority: P2)
 
-Un usuario que ya inició sesión cierra la aplicación móvil y vuelve a abrirla más tarde; el sistema restaura automáticamente su sesión y lo lleva directo a su panel de rol correspondiente. Cuando el usuario decide salir, pulsa "Cerrar Sesión", confirmando la acción para limpiar sus datos locales y regresar al Home de Bienvenida en Modo Invitado.
+Un usuario que ya inició sesión cierra la aplicación móvil y vuelve a abrirla más tarde; el sistema restaura automáticamente su sesión y lo lleva directo a su panel de rol correspondiente. Cuando decide salir, pulsa "Cerrar Sesión" y confirma la acción para limpiar sus datos locales. El ciudadano regresa al Home de Bienvenida en Modo Invitado, mientras que agentes, administradores y colaboradores regresan a la pantalla de inicio de sesión.
 
-**Why this priority**: Esencial para la experiencia cotidiana en dispositivos móviles y para mantener coherencia con el arranque en Modo Invitado al cerrar sesión.
+**Why this priority**: Esencial para la experiencia cotidiana en dispositivos móviles y para mantener un destino de salida adecuado a cada tipo de cuenta.
 
-**Independent Test**: Se puede probar iniciando sesión, cerrando y reabriendo la aplicación para comprobar que mantiene la sesión, y luego ejecutando el cierre de sesión para verificar que regresa al Home de Bienvenida en Modo Invitado.
+**Independent Test**: Se puede probar iniciando sesión, cerrando y reabriendo la aplicación para comprobar que mantiene la sesión, y luego cerrando sesión para verificar que cada rol vuelve a su pantalla de acceso correspondiente.
 
 **Acceptance Scenarios**:
 
 1. **Given** un usuario con sesión iniciada en cualquier rol, **When** cierra y vuelve a abrir la aplicación móvil, **Then** el sistema recupera su sesión activa en menos de 300 ms y muestra directamente la pantalla principal de su rol.
-2. **Given** un usuario con sesión activa, **When** selecciona la opción "Cerrar Sesión" y confirma el diálogo de seguridad, **Then** el sistema elimina la sesión almacenada en el dispositivo y redirige al Home de Bienvenida en Modo Invitado.
+2. **Given** un ciudadano con sesión activa, **When** selecciona la opción "Cerrar Sesión" y confirma el diálogo de seguridad, **Then** el sistema elimina la sesión almacenada en el dispositivo y redirige al Home de Bienvenida en Modo Invitado.
+3. **Given** un agente, administrador o colaborador con sesión activa, **When** selecciona la opción "Cerrar Sesión" y confirma el diálogo de seguridad, **Then** el sistema elimina la sesión almacenada en el dispositivo y redirige a la pantalla de inicio de sesión.
 
 ---
 

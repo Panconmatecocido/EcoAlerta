@@ -20,8 +20,13 @@ export const HomeScreen: React.FC = () => {
         {
           text: 'Cerrar Sesión',
           style: 'destructive',
-          onPress: async () => {
-            await logout();
+          onPress: () => {
+            void logout().catch((error: unknown) => {
+              Alert.alert(
+                'No se pudo cerrar sesión',
+                error instanceof Error ? error.message : 'Inténtalo nuevamente.'
+              );
+            });
           },
         },
       ]

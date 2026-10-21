@@ -5,12 +5,12 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
   StatusBar,
   Switch,
   Alert,
   Modal,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
@@ -57,7 +57,17 @@ export const AgentHomeScreen: React.FC = () => {
               <Text style={estilos.etiquetaRol}>AGENTE DE CAMPO</Text>
               <Text style={estilos.nombreAgente}>{usuario?.name || 'Inspector Municipal'}</Text>
             </View>
-            <TouchableOpacity onPress={cerrarSesion} style={estilos.botonSalir}>
+            <TouchableOpacity
+              onPress={() => {
+                void cerrarSesion('login').catch((error: unknown) => {
+                  Alert.alert(
+                    'No se pudo cerrar sesión',
+                    error instanceof Error ? error.message : 'Inténtalo nuevamente.'
+                  );
+                });
+              }}
+              style={estilos.botonSalir}
+            >
               <Ionicons name="log-out-outline" size={ICON_SIZE.md} color={COLORS.textoPeligro} />
             </TouchableOpacity>
           </View>

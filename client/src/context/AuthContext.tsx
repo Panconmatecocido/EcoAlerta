@@ -1,23 +1,19 @@
-// src/context/AuthContext.tsx
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, LoginCredentials, RegisterData } from '../interfaces/user';
-import {
-  getCurrentUser,
-  saveCurrentUser,
-  removeCurrentUser,
-  getStoredUsers,
-  saveNewUser,
-  StoredUserAccount,
-} from '../utils/storage';
+import { AuthNetworkError, AuthRepositoryError, authRepository } from '../repositories/auth';
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
+  logoutDestination: 'MainApp' | 'Login';
   login: (credentials: LoginCredentials) => Promise<{ success: boolean; message?: string }>;
   register: (data: RegisterData) => Promise<{ success: boolean; message?: string }>;
-  logout: () => Promise<void>;
+  logout: (destination?: 'guest' | 'login') => Promise<void>;
   loginWithGoogle: () => Promise<{ success: boolean; message?: string }>;
-  updateUserPoints?: (nuevosPuntos: number) => void; // <- Declarado en la interfaz
+  authGateVisible: boolean;
+  requireAuth: () => boolean;
+  dismissAuthGate: () => void;
+  updateUserPoints?: (nuevosPuntos: number) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,181 +21,103 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [authGateVisible, setAuthGateVisible] = useState(false);
+  const [logoutDestination, setLogoutDestination] = useState<'MainApp' | 'Login'>('MainApp');
 
-  // Inicializar sesión y sembrar usuarios por defecto
   useEffect(() => {
+    let active = true;
     const initializeAuth = async () => {
       try {
-        const storedUser = await getCurrentUser();
-        let storedUsersList = await getStoredUsers();
-
-        // 1. Sembrar Ciudadano Demo si la base local está vacía
-        if (storedUsersList.length === 0) {
-          const demoCitizenAccount: StoredUserAccount = {
-            user: {
-              id: 'demo-user-1',
-              name: 'EcoUsuario',
-              email: 'ejemplo@email.com',
-              role: 'citizen',
-              points: 120,
-              createdAt: new Date().toISOString(),
-            },
-            passwordHash: 'password123',
-          };
-          await saveNewUser(demoCitizenAccount);
-        }
-
-        storedUsersList = await getStoredUsers();
-
-        // 2. Sembrar Agente de Campo Demo si no existe
-        const existeAgente = storedUsersList.some(
-          (u) => u.user.email.toLowerCase() === 'agente@municipio.gob.ar'
-        );
-        if (!existeAgente) {
-          const demoAgentAccount: StoredUserAccount = {
-            user: {
-              id: 'agent-user-1',
-              name: 'Inspector Perez',
-              email: 'agente@municipio.gob.ar',
-              role: 'agent',
-              points: 0,
-              createdAt: new Date().toISOString(),
-            },
-            passwordHash: 'agente123',
-          };
-          await saveNewUser(demoAgentAccount);
-        }
-
-        // 3. Sembrar Administrador Demo si no existe
-        const existeAdmin = storedUsersList.some(
-          (u) => u.user.email.toLowerCase() === 'admin@ecoalerta.gob.ar'
-        );
-        if (!existeAdmin) {
-          const demoAdminAccount: StoredUserAccount = {
-            user: {
-              id: 'admin-user-1',
-              name: 'Administrador General',
-              email: 'admin@ecoalerta.gob.ar',
-              role: 'admin',
-              points: 0,
-              createdAt: new Date().toISOString(),
-            },
-            passwordHash: 'admin123',
-          };
-          await saveNewUser(demoAdminAccount);
-        }
-
-        if (storedUser) {
-          setUser(storedUser);
+        const currentUser = await authRepository.getCurrentSession();
+        if (active) {
+          setUser(currentUser);
         }
       } catch (error) {
         console.error('Error al inicializar autenticación:', error);
+        if (active) {
+          setUser(null);
+        }
       } finally {
-        setIsLoading(false);
+        if (active) {
+          setIsLoading(false);
+        }
       }
     };
 
-    initializeAuth();
+    void initializeAuth();
+    return () => {
+      active = false;
+    };
   }, []);
 
-  // Actualizar puntos del usuario autenticado
   const updateUserPoints = async (nuevosPuntos: number) => {
-    if (user) {
-      const usuarioActualizado = { ...user, points: nuevosPuntos };
-      setUser(usuarioActualizado);
-      await saveCurrentUser(usuarioActualizado);
-    }
+    if (!user) return;
+
+    const updatedUser = { ...user, points: nuevosPuntos };
+    await authRepository.saveSession(updatedUser);
+    setUser(updatedUser);
   };
 
   const login = async (
     credentials: LoginCredentials
   ): Promise<{ success: boolean; message?: string }> => {
-    const trimmedId = credentials.identifier.trim().toLowerCase();
-    const trimmedPassword = credentials.password.trim();
-
-    if (!trimmedId || !trimmedPassword) {
+    if (!credentials.identifier.trim() || !credentials.password.trim()) {
       return { success: false, message: 'Por favor completa todos los campos' };
     }
 
     try {
-      const usersList = await getStoredUsers();
-      const account = usersList.find(
-        (u) =>
-          u.user.email.toLowerCase() === trimmedId ||
-          u.user.name.toLowerCase() === trimmedId
-      );
-
-      if (!account) {
-        return {
-          success: false,
-          message: 'Usuario o correo no encontrado. ¿Deseas registrarte?',
-        };
-      }
-
-      if (account.passwordHash !== trimmedPassword) {
-        return { success: false, message: 'Contraseña incorrecta' };
-      }
-
-      await saveCurrentUser(account.user);
-      setUser(account.user);
+      const response = await authRepository.login({
+        identifier: credentials.identifier.trim(),
+        password: credentials.password,
+      });
+      setUser(response.user);
       return { success: true };
     } catch (error) {
-      console.error('Error durante el inicio de sesión:', error);
-      return { success: false, message: 'Error interno al iniciar sesión' };
+      if (!(error instanceof AuthRepositoryError) && !(error instanceof AuthNetworkError)) {
+        console.error('Error durante el inicio de sesión:', error);
+      }
+      return {
+        success: false,
+        message:
+          error instanceof AuthRepositoryError || error instanceof AuthNetworkError
+            ? error.message
+            : 'Error interno al iniciar sesión',
+      };
     }
   };
 
   const register = async (
     data: RegisterData
   ): Promise<{ success: boolean; message?: string }> => {
-    const trimmedUsername = data.username.trim();
-    const trimmedPassword = data.password.trim();
-    const trimmedConfirm = data.confirmPassword ? data.confirmPassword.trim() : '';
+    const name = data.username.trim();
+    const email =
+      data.email?.trim() ||
+      `${name.toLowerCase().replace(/\s+/g, '')}@ecoalerta.com`;
+    const password = data.password.trim();
 
-    if (!trimmedUsername || !trimmedPassword) {
+    if (!name || !email || !password) {
       return { success: false, message: 'Completa los campos obligatorios' };
     }
 
-    if (trimmedConfirm && trimmedPassword !== trimmedConfirm) {
+    if (data.confirmPassword && password !== data.confirmPassword.trim()) {
       return { success: false, message: 'Las contraseñas no coinciden' };
     }
 
-    if (trimmedPassword.length < 4) {
-      return { success: false, message: 'La contraseña debe tener al menos 4 caracteres' };
-    }
-
     try {
-      const usersList = await getStoredUsers();
-      const alreadyExists = usersList.some(
-        (u) => u.user.name.toLowerCase() === trimmedUsername.toLowerCase()
-      );
-
-      if (alreadyExists) {
-        return { success: false, message: 'El nombre de usuario ya está registrado' };
-      }
-
-      const newUser: User = {
-        id: `user-${Date.now()}`,
-        name: trimmedUsername,
-        email: data.email?.trim() || `${trimmedUsername.toLowerCase().replace(/\s+/g, '')}@ecoalerta.com`,
-        role: 'citizen',
-        points: 50,
-        createdAt: new Date().toISOString(),
-      };
-
-      const newAccount: StoredUserAccount = {
-        user: newUser,
-        passwordHash: trimmedPassword,
-      };
-
-      await saveNewUser(newAccount);
-      await saveCurrentUser(newUser);
-      setUser(newUser);
-
+      const response = await authRepository.register({ name, email, password });
+      setUser(response.user);
       return { success: true };
     } catch (error) {
-      console.error('Error al registrar usuario:', error);
-      return { success: false, message: 'Error al registrar usuario en el almacenamiento local' };
+      if (!(error instanceof AuthRepositoryError) && !(error instanceof AuthNetworkError)) {
+        console.error('Error al registrar usuario:', error);
+      }
+      return {
+        success: false,
+        message:
+          error instanceof AuthRepositoryError || error instanceof AuthNetworkError
+            ? error.message
+            : 'Error al registrar usuario',
+      };
     }
   };
 
@@ -214,33 +132,52 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         createdAt: new Date().toISOString(),
       };
 
-      await saveCurrentUser(googleUser);
+      await authRepository.saveSession(googleUser, `demo-google:${googleUser.id}`);
       setUser(googleUser);
       return { success: true };
     } catch (error) {
-      return { success: false, message: 'No se pudo iniciar sesión con Google' };
+      console.error('Error al iniciar sesión con Google:', error);
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'No se pudo iniciar sesión con Google',
+      };
     }
   };
 
-  const logout = async (): Promise<void> => {
+  const logout = async (destination: 'guest' | 'login' = 'guest'): Promise<void> => {
     try {
-      await removeCurrentUser();
+      await authRepository.clearSession();
+      setLogoutDestination(destination === 'login' ? 'Login' : 'MainApp');
       setUser(null);
+      setAuthGateVisible(false);
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
+      throw error;
     }
   };
+
+  const requireAuth = (): boolean => {
+    if (user) return true;
+    setAuthGateVisible(true);
+    return false;
+  };
+
+  const dismissAuthGate = () => setAuthGateVisible(false);
 
   return (
     <AuthContext.Provider
       value={{
         user,
         isLoading,
+        logoutDestination,
         login,
         register,
         logout,
         loginWithGoogle,
-        updateUserPoints, // <- Expuesto en el Provider
+        authGateVisible,
+        requireAuth,
+        dismissAuthGate,
+        updateUserPoints,
       }}
     >
       {children}

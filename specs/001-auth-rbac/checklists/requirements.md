@@ -33,3 +33,10 @@
 
 - Updated on 2026-10-15 with Guest Mode (`HU-INV-01` to `HU-INV-03`, `RF-AUT-06` to `RF-AUT-08`, `RNF-09`).
 - All 16 quality criteria passed. Ready for `/speckit.plan`.
+
+## Feature verification
+
+- Automated client tests: passed (6 tests, including validators and `LocalAuthRepository`).
+- Client TypeScript check (`npx tsc --noEmit`): passed.
+- Server authentication integration tests: passed (4 tests).
+- Manual Expo Go checklist: passed. The user manually verified guest Home and auth CTAs, category filters (including "Otros"), Auth Gate, zero-point registration, duplicate/invalid credential feedback, login for all four roles, agent/admin safe-area layouts, session persistence, and role-specific logout destinations.

@@ -27,7 +27,7 @@ Implementar el flujo de **Modo Invitado (Guest Welcome Home)** y el sistema de *
 
 - **Principio I (Preservación de Código)**: CUMPLE. Reutiliza `AuthContext.tsx`, `AppNavigator.tsx`, `MainNavigator.tsx`, `Bienvenidapuntos.tsx`, `IncioHome.tsx`, `LoginScreen.tsx`, `RegisterScreen.tsx` y `server/src/controllers/auth.controller.ts`.
 - **Principio II (`StyleSheet` + `theme.ts`)**: CUMPLE. Todos los nuevos componentes (sección explicativa de bienvenida, botón `"Regístrate para empezar a usar la app"`, modal Auth Gate y `CollaboratorHomeScreen`) usarán `StyleSheet.create` y `COLORS`, `SPACING`, `TYPOGRAPHY`, `RADIUS`, `SHADOWS` de `client/src/utils/theme.ts`.
-- **Principio III (Patrón Repositorio y Multi-Tenancy)**: CUMPLE. Se crea `IAuthRepository` con `RemoteAuthRepository` (`/api/auth/login`, `/api/auth/register`) y `LocalAuthRepository` (fallback en `AsyncStorage`), vinculando usuarios al `Municipio` (`MUN-001` por defecto).
+- **Principio III (Patrón Repositorio y Multi-Tenancy)**: CUMPLE. Se crea `IAuthRepository` con `RemoteAuthRepository` (`/api/auth/login`, `/api/auth/register`) y `LocalAuthRepository` (fallback en `AsyncStorage`), vinculando usuarios al municipio configurado (`PILAR-BA` en el seed actual).
 - **Principio IV (RBAC 4 Roles + Modo Invitado)**: CUMPLE. Soporta estado `user === null` (Invitado) y los 4 roles (`CITIZEN`, `AGENT`, `ADMIN`, `COLLABORATOR`).
 - **Principio V (Regla de Puntos Cero Inicial)**: CUMPLE. `POST /api/auth/register` y `schema.prisma` inicializan `puntos = 0`.
 - **Principio VII (Testing)**: CUMPLE. Incluye pruebas automatizadas de validación de formularios, Auth Gate y endpoints `/api/auth/*` + checklist manual Expo Go.
@@ -96,10 +96,10 @@ server/
 ### 1. Backend (`/server`) y Base de Datos
 - **Migración y Seed (`server/prisma/`)**:
   - Verificar sincronización de `schema.prisma` (`Role.COLLABORATOR` y `puntos @default(0)`).
-  - Actualizar `server/prisma/seed.ts` para incluir al menos 1 cuenta por cada uno de los 4 roles (`ciudadano@ecoalerta.com`, `agente1@ecoalerta.com`, `admin@ecoalerta.com`, `colaborador@ecoalerta.com`) asociadas al municipio `MUN-001`.
+  - Actualizar `server/prisma/seed.ts` para incluir al menos 1 cuenta por cada uno de los 4 roles (`ciudadano@ecoalerta.com`, `agente1@ecoalerta.com`, `admin@ecoalerta.com`, `colaborador@ecoalerta.com`) asociadas al municipio `PILAR-BA`.
 - **Controlador `server/src/controllers/auth.controller.ts`**:
-  - `register`: Validar presencia de `nombre`, `email`, `password` (`>= 6` caracteres) y formato de email. Verificar en Prisma si `email` existe (retornar `409 Conflict` con mensaje claro). Obtener el municipio por defecto (`MUN-001`) y crear el usuario con `rol: 'CITIZEN'` y `puntos: 0`.
-  - `login`: Buscar usuario por `email` (case-insensitive `trim().toLowerCase()`), validar contraseña y retornar `{ token, user: { id, nombre, email, rol, puntos, municipioId } }`.
+  - `register`: Validar presencia de `nombre`, `email`, `password` (`>= 6` caracteres) y formato de email. Verificar en Prisma si `email` existe (retornar `409 Conflict` con mensaje claro). Obtener el municipio por defecto (`PILAR-BA`) y crear el usuario con `rol: 'CITIZEN'`, `puntos: 0` y contraseña derivada con scrypt.
+  - `login`: Buscar usuario por `email` o nombre (case-insensitive `trim().toLowerCase()`), validar contraseña y retornar `{ token, user: { id, nombre, email, rol, puntos, municipioId } }`. Emitir token firmado HS256 por una hora con `AUTH_TOKEN_SECRET`; migrar al formato scrypt las contraseñas semilla heredadas al iniciar sesión.
 
 ### 2. Capa de Repositorio (`client/src/repositories/auth/`)
 - **`IAuthRepository`**:
