@@ -59,7 +59,13 @@ async function main() {
   // 3. Cuentas de autenticación demo para los cuatro roles
   await prisma.user.upsert({
     where: { email: 'ciudadano@ecoalerta.com' },
-    update: {},
+    update: {
+      nombre: 'Ciudadano Demo',
+      passwordHash: 'ciudadano123',
+      rol: Role.CITIZEN,
+      puntos: 0,
+      municipioId: municipio.id,
+    },
     create: {
       nombre: 'Ciudadano Demo',
       email: 'ciudadano@ecoalerta.com',
@@ -72,7 +78,13 @@ async function main() {
 
   await prisma.user.upsert({
     where: { email: 'agente1@ecoalerta.com' },
-    update: {},
+    update: {
+      nombre: 'Agente Demo',
+      passwordHash: 'agente123',
+      rol: Role.AGENT,
+      disponible: true,
+      municipioId: municipio.id,
+    },
     create: {
       nombre: 'Agente Demo',
       email: 'agente1@ecoalerta.com',
@@ -85,7 +97,12 @@ async function main() {
 
   await prisma.user.upsert({
     where: { email: 'admin@ecoalerta.com' },
-    update: {},
+    update: {
+      nombre: 'Administrador Demo',
+      passwordHash: 'admin123',
+      rol: Role.ADMIN,
+      municipioId: municipio.id,
+    },
     create: {
       nombre: 'Administrador Demo',
       email: 'admin@ecoalerta.com',
@@ -97,7 +114,12 @@ async function main() {
 
   await prisma.user.upsert({
     where: { email: 'colaborador@ecoalerta.com' },
-    update: {},
+    update: {
+      nombre: 'Colaborador Demo',
+      passwordHash: 'colaborador123',
+      rol: Role.COLLABORATOR,
+      municipioId: municipio.id,
+    },
     create: {
       nombre: 'Colaborador Demo',
       email: 'colaborador@ecoalerta.com',
@@ -148,6 +170,7 @@ async function main() {
       {
         titulo: 'Bolsa de Tela Reutilizable',
         descripcion: 'Bolsa ecológica de algodón orgánico.',
+        categoria: 'Hogar',
         costoPuntos: 40,
         stock: 50,
         municipioId: municipio.id,
@@ -155,6 +178,7 @@ async function main() {
       {
         titulo: 'Botella Térmica EcoAlerta',
         descripcion: 'Botella de acero inoxidable 500ml.',
+        categoria: 'Hogar',
         costoPuntos: 100,
         stock: 20,
         municipioId: municipio.id,
@@ -162,6 +186,7 @@ async function main() {
       {
         titulo: 'Gorra Oficial EcoAlerta',
         descripcion: 'Gorra de material reciclado.',
+        categoria: 'Cuidado Personal',
         costoPuntos: 80,
         stock: 15,
         municipioId: municipio.id,
