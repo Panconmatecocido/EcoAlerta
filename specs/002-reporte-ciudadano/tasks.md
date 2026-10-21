@@ -30,8 +30,8 @@
 **⚠️ CRITICAL**: Bloqueante para las pantallas de creación, seguimiento y baja lógica.
 
 - [ ] T003 Actualizar `createDenuncia` en el backend para generar código `REP-2026-XXX`, guardar `direccion`, `latitud`, `longitud`, `estado: 'PENDIENTE'`, `puntosOtorgados: 0` y **no sumar puntos** al crear el reporte en `server/src/controllers/denuncias.controller.ts`
-- [ ] T004 Añadir controladores `getDenunciasByCiudadano` (filtrando `ocultarUsuario: false`) y `hideDenunciaForCitizen` (`PATCH /api/denuncias/:id/ocultar` que cambia `ocultarUsuario: true` sin borrar el registro) en `server/src/controllers/denuncias.controller.ts`
-- [ ] T005 Registrar las rutas `GET /api/denuncias/ciudadano/:ciudadanoId` y `PATCH /api/denuncias/:id/ocultar` en `server/src/routes/denuncias.routes.ts`
+- [x] T004 Añadir controlador `obtenerMisDenuncias` (filtrando `ocultarUsuario: false`, resolviendo por UUID o email y formateando los 9 estados) y `hideDenunciaForCitizen` en `server/src/controllers/denuncias.controller.ts`
+- [x] T005 Registrar las rutas `GET /api/denuncias/mis-denuncias` y `GET /api/denuncias/ciudadano/:ciudadanoId` en `server/src/routes/denuncias.routes.ts`
 - [ ] T006 [P] Definir la interfaz `IReportRepository` y DTOs (`CreateReportDTO`, `CitizenReport`) en `client/src/repositories/reports/IReportRepository.ts`
 - [ ] T007 [P] Implementar `RemoteReportRepository` y `LocalReportRepository` (con caché en `AsyncStorage`) en `client/src/repositories/reports/RemoteReportRepository.ts`, `client/src/repositories/reports/LocalReportRepository.ts` y `client/src/repositories/reports/index.ts`
 

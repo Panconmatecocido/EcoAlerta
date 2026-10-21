@@ -4,5 +4,6 @@
   "compilerOptions": {
     "strict": true,
     "types": ["node", "react"]
-  }
+  },
+  "exclude": ["**/__tests__/**"]
 }

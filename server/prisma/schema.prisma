@@ -195,7 +195,7 @@ model Canje {
   items           ItemCanje[]
 
   creadoEn        DateTime    @default(now())
-  actualizadoEn   DateTime    @updatedAt
+  actualizadoEn   DateTime    @default(now()) @updatedAt
 
   @@map("canjes")
 }

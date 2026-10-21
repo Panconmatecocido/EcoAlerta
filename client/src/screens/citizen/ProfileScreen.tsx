@@ -19,16 +19,17 @@ import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../context/AuthContext';
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
 import { denunciaService, DenunciaCiudadano } from '../../services/denunciasService';
-import { tiendaService, ResultadoCanje } from '../../services/tiendaService';
+import { storeRepository, RedemptionDetail } from '../../repositories/store';
 import { BarraEstadoDenuncia } from '../../components/BarraEstadoDenuncia';
+import { CitizenVouchersList } from '../../components/citizen/CitizenVouchersList';
 
 export const ProfileScreen: React.FC = () => {
-  const { user: usuario, logout } = useAuth();
-  const [pestanaActiva, setPestanaActiva] = useState<'denuncias' | 'compras'>('denuncias');
+  const { user: usuario, logout, recargarPerfilUsuario } = useAuth();
+  const [pestanaActiva, setPestanaActiva] = useState<'denuncias' | 'canjes'>('denuncias');
 
   // Estados de datos remotos
   const [denuncias, setDenuncias] = useState<DenunciaCiudadano[]>([]);
-  const [canjes, setCanjes] = useState<ResultadoCanje[]>([]);
+  const [vouchers, setVouchers] = useState<RedemptionDetail[]>([]);
   const [cargando, setCargando] = useState<boolean>(true);
   const [refrescando, setRefrescando] = useState<boolean>(false);
 
@@ -36,33 +37,54 @@ export const ProfileScreen: React.FC = () => {
   const [fotoPerfilUri, setFotoPerfilUri] = useState<string | null>(null);
 
   // Carga de datos desde la API
-  const cargarDatosPerfil = useCallback(async () => {
+  const cargarDatosPerfil = useCallback(async (esRefresco = false) => {
+    if (!esRefresco) {
+      setCargando(true);
+    }
     try {
-      const [misDenuncias] = await Promise.all([
-        denunciaService.obtenerMisDenuncias(),
-        // Nota: Si cuentas con endpoint de historial de canjes en el backend, lo sumas aquí
-      ]);
-      setDenuncias(misDenuncias);
+      if (recargarPerfilUsuario) {
+        recargarPerfilUsuario().catch(() => {});
+      }
+      const promesas: [Promise<DenunciaCiudadano[]>, Promise<RedemptionDetail[]>] = [
+        denunciaService.obtenerMisDenuncias(usuario?.id).catch((err) => {
+          console.warn('No se pudieron obtener las denuncias:', err.message);
+          return [];
+        }),
+        storeRepository.getCitizenRedemptions(usuario?.id || 'demo-user-1').catch((err) => {
+          console.warn('No se pudieron obtener los vouchers de canje:', err.message);
+          return [];
+        }),
+      ];
+
+      const [misDenuncias, misVouchers] = await Promise.all(promesas);
+      setDenuncias(misDenuncias || []);
+      setVouchers(misVouchers || []);
     } catch (error) {
       console.error('Error al cargar datos del perfil:', error);
     } finally {
       setCargando(false);
       setRefrescando(false);
     }
-  }, []);
+  }, [usuario?.id]);
 
   useEffect(() => {
-    cargarDatosPerfil();
+    cargarDatosPerfil(false);
   }, [cargarDatosPerfil]);
+
+  const cambiarPestana = (nuevaPestana: 'denuncias' | 'canjes') => {
+    if (cargando) return;
+    setPestanaActiva(nuevaPestana);
+    cargarDatosPerfil(false);
+  };
 
   const alRefrescar = () => {
     setRefrescando(true);
-    cargarDatosPerfil();
+    cargarDatosPerfil(true);
   };
 
-  // Puntos consumidos calculados sobre denuncias/canjes
-  const totalPuntosGastados = canjes.reduce(
-    (acumulado, canje) => acumulado + canje.puntosDescontados,
+  // Puntos consumidos calculados sobre vouchers reales
+  const totalPuntosGastados = vouchers.reduce(
+    (acumulado, v) => acumulado + (v.totalPuntos || 0),
     0
   );
 
@@ -204,7 +226,8 @@ export const ProfileScreen: React.FC = () => {
               estilos.botonPestana,
               pestanaActiva === 'denuncias' && estilos.botonPestanaActiva,
             ]}
-            onPress={() => setPestanaActiva('denuncias')}
+            onPress={() => cambiarPestana('denuncias')}
+            disabled={cargando}
           >
             <Text
               style={[
@@ -212,34 +235,40 @@ export const ProfileScreen: React.FC = () => {
                 pestanaActiva === 'denuncias' && estilos.textoPestanaActiva,
               ]}
             >
-              Mis Denuncias ({denuncias.length})
+              Mis Reportes ({denuncias.length})
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[
               estilos.botonPestana,
-              pestanaActiva === 'compras' && estilos.botonPestanaActiva,
+              pestanaActiva === 'canjes' && estilos.botonPestanaActiva,
             ]}
-            onPress={() => setPestanaActiva('compras')}
+            onPress={() => cambiarPestana('canjes')}
+            disabled={cargando}
           >
             <Text
               style={[
                 estilos.textoPestana,
-                pestanaActiva === 'compras' && estilos.textoPestanaActiva,
+                pestanaActiva === 'canjes' && estilos.textoPestanaActiva,
               ]}
             >
-              Canjes ({canjes.length})
+              Mis Canjes ({vouchers.length})
             </Text>
           </TouchableOpacity>
         </View>
 
         {/* Contenido de Pestañas */}
         {cargando ? (
-          <ActivityIndicator size="large" color={COLORS.botonPrincipal} style={{ marginTop: SPACING.lg }} />
+          <View style={{ alignItems: 'center', marginTop: SPACING.lg, gap: SPACING.xs }}>
+            <ActivityIndicator size="large" color={COLORS.botonPrincipal} />
+            <Text style={{ fontSize: 13, color: COLORS.textoVerdeOscuro, fontWeight: '600' }}>
+              Cargando {pestanaActiva === 'denuncias' ? 'mis reportes' : 'mis canjes'}...
+            </Text>
+          </View>
         ) : (
           <>
-            {/* Lista de Denuncias */}
+            {/* Lista de Denuncias / Reportes */}
             {pestanaActiva === 'denuncias' && (
               <View style={estilos.contenedorLista}>
                 {denuncias.length === 0 ? (
@@ -267,32 +296,20 @@ export const ProfileScreen: React.FC = () => {
                       </Text>
 
                       {/* Componente dinámico de trazabilidad */}
-                      <BarraEstadoDenuncia estado={denuncia.estado} />
+                      <BarraEstadoDenuncia
+                        estado={denuncia.estado}
+                        puntosOtorgados={denuncia.puntosOtorgados}
+                      />
                     </View>
                   ))
                 )}
               </View>
             )}
 
-            {/* Lista de Compras / Canjes */}
-            {pestanaActiva === 'compras' && (
+            {/* Lista de Vouchers de Canje (Módulo 006 - US3) */}
+            {pestanaActiva === 'canjes' && (
               <View style={estilos.contenedorLista}>
-                {canjes.length === 0 ? (
-                  <View style={estilos.contenedorVacio}>
-                    <MaterialCommunityIcons name="cart-off" size={48} color={COLORS.textoSecundario} />
-                    <Text style={estilos.textoVacio}>Aún no realizaste canjes de productos ecológicos.</Text>
-                  </View>
-                ) : (
-                  canjes.map((canje) => (
-                    <View key={canje.id} style={estilos.tarjetaElemento}>
-                      <View style={estilos.encabezadoTarjeta}>
-                        <Text style={estilos.tituloTarjeta}>Código: {canje.codigoRetiro}</Text>
-                        <Text style={estilos.textoPuntosGastados}>-{canje.puntosDescontados} PTS</Text>
-                      </View>
-                      <Text style={estilos.subtextoTarjeta}>Fecha: {canje.fecha}</Text>
-                    </View>
-                  ))
-                )}
+                <CitizenVouchersList vouchers={vouchers} isLoading={false} />
               </View>
             )}
           </>

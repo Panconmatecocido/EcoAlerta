@@ -52,6 +52,8 @@ specs/003-triaje-y-agente-campo/
 client/
 ├── src/
 │   ├── components/
+│   │   ├── common/
+│   │   │   └── TransactionLoaderModal.tsx    # [NUEVO] Modal bloqueante con spinner (RNF-10) para todas las mutaciones en BD
 │   │   └── agent/
 │   │       ├── PrioritySemaphoreBadge.tsx    # [NUEVO] Badge semáforo (Rojo=URGENTE, Naranja=ALTA, Verde=MEDIA/BAJA)
 │   │       └── VerificationFormModal.tsx     # [NUEVO] Modal de verificación in situ (Caso A Real, Caso B Falso, Caso C Inaccesible 1..3)

@@ -14,8 +14,8 @@ Implementar el cierre del ciclo de recompensas ecológicas:
 
 **Language/Version**: TypeScript 5.x (Frontend Expo SDK 57 / React 19 / React Native 0.86.2, Backend Node.js + Express 4.19)  
 **Primary Dependencies**: `@prisma/client` 5.22 (`prisma.$transaction`), `@react-native-async-storage/async-storage`  
-**Storage**: PostgreSQL (Supabase) vía Prisma (`Canje`, `ItemCanje`, `Producto`, `Sucursal`, `User`) + fallback en `IStoreRepository` / `ICollaboratorRepository`  
-**Testing**: Jest + Supertest (búsqueda por `codigoRetiro`, bloqueo de doble entrega y expiración a los 30 días con restitución de stock y 0 puntos reembolsados) + Checklist manual en Expo Go  
+**Storage**: PostgreSQL (Supabase) vía Prisma (`Canje`, `ItemCanje`, `Producto`, `Sucursal`, `User`) consumido exclusivamente vía API REST (`RemoteStoreRepository`), sin fallback local en memoria.
+**Testing**: Jest / node:test + Supertest + Seed de BD (`server/prisma/seed.ts`) + Checklist manual en Expo Go  
 **Target Platform**: Android / iOS vía Expo Go y Web  
 **Project Type**: Mobile App + REST API Monorepo (`client/` + `server/`)  
 **Performance Goals**: Búsqueda por código `< 250ms`; confirmación de entrega `< 300ms`  
@@ -23,6 +23,7 @@ Implementar el cierre del ciclo de recompensas ecológicas:
 - Prohibido usar Tailwind/NativeWind; estilos exclusivamente con `StyleSheet.create` y `client/src/utils/theme.ts`.
 - En la expiración por superar los 30 días (`fechaExpiracion`), está estrictamente prohibido reembolsar puntos al ciudadano (`User.puntos` permanece sin cambios), mientras que el `Producto.stock` sí debe incrementarse con las unidades no retiradas.
 - El rol `COLLABORATOR` solo tiene acceso a su panel de búsqueda y entrega de premios.
+- En Fase 2, todas las lecturas y mutaciones operan 100% sobre la base de datos PostgreSQL, sin fallback a `LocalStoreRepository`.
 
 ## Constitution Check
 
@@ -30,10 +31,10 @@ Implementar el cierre del ciclo de recompensas ecológicas:
 
 - **Principio I (Preservación de Código)**: CUMPLE. Extiende `CollaboratorHomeScreen.tsx` (creada en `001`), `ProfileScreen.tsx`, `canjes.controller.ts` y `canjes.routes.ts` (creados en `005`).
 - **Principio II (`StyleSheet` + `theme.ts`)**: CUMPLE. Interfaz del Colaborador y tarjetas de vouchers del ciudadano construidas con `StyleSheet.create` y `theme.ts`.
-- **Principio III (Patrón Repositorio y Multi-Tenancy)**: CUMPLE. Extiende `IStoreRepository` (o `ICollaboratorRepository`) con soporte online/offline y validación de municipio.
+- **Principio III (Patrón Repositorio y Multi-Tenancy)**: CUMPLE. En Fase 2 `storeRepository` delega directamente a `RemoteStoreRepository` contra Supabase PostgreSQL respetando `municipioId`.
 - **Principio IV (RBAC)**: CUMPLE. Exclusivo para `COLLABORATOR` (y consulta propia para `CITIZEN`).
 - **Principio VI (Transacciones Atómicas y Expiración 30 Días)**: CUMPLE. La expiración a los 30 días usa `prisma.$transaction` para pasar a `CANCELADO` y restaurar `Producto.stock` sin tocar `User.puntos`.
-- **Principio VII (Testing)**: CUMPLE. Pruebas automatizadas de entrega única y expiración a los 30 días + checklist manual en Expo Go.
+- **Principio VII (Testing y Seeds)**: CUMPLE. El seed de base de datos (`server/prisma/seed.ts`) incluye los canjes de prueba (`ECO-7894-K`, `ECO-2026-ENTR`, `ECO-2026-EXPD`). Pruebas automatizadas de entrega única y expiración a los 30 días + verificación manual en Expo Go.
 
 ## Project Structure
 

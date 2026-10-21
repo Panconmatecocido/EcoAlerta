@@ -18,8 +18,8 @@
 
 **Purpose**: Componentes visuales de semáforo de prioridad y modal de verificación en terreno con `StyleSheet.create` y `theme.ts`.
 
-- [ ] T001 [P] Crear el componente `PrioritySemaphoreBadge` (Rojo = `URGENTE`, Naranja = `ALTA`, Verde = `MEDIA`/`BAJA`) en `client/src/components/agent/PrioritySemaphoreBadge.tsx`
-- [ ] T002 [P] Crear el componente `VerificationFormModal` para capturar la foto obligatoria (`< 1.2 MB`) y seleccionar entre Caso A (`REAL`), Caso B (`FALSO`) o Caso C (`INACCESIBLE` mostrando intento `X/3`) en `client/src/components/agent/VerificationFormModal.tsx`
+- [X] T001 [P] Crear el componente `PrioritySemaphoreBadge` (Rojo = `URGENTE`, Naranja = `ALTA`, Verde = `MEDIA`/`BAJA`) en `client/src/components/agent/PrioritySemaphoreBadge.tsx` y el modal bloqueante reutilizable `TransactionLoaderModal` (`RNF-10`) en `client/src/components/common/TransactionLoaderModal.tsx`
+- [X] T002 [P] Crear el componente `VerificationFormModal` para capturar la foto obligatoria (`< 1.2 MB`) y seleccionar entre Caso A (`REAL`), Caso B (`FALSO`) o Caso C (`INACCESIBLE` mostrando intento `X/3`) con bloqueo transaccional en `client/src/components/agent/VerificationFormModal.tsx`
 
 ---
 
@@ -29,11 +29,11 @@
 
 **⚠️ CRITICAL**: Bloqueante para las pantallas de Admin y Agente.
 
-- [ ] T003 Implementar los controladores `triajeDenuncia` (`APROBADO` con prioridad o `RECHAZADO` con `observacionesAdmin` obligatorio), `getBolsaCasos` (ordenado por prioridad), `tomarCasoAtomico` (transacción 1 a 1 en `prisma.$transaction`), `verificarInSitu` (Casos A/B/C y regla de 3 intentos `intentosInaccesible` -> `CERRADO_INACCESIBLE`) y `liberarCaso` en `server/src/controllers/denuncias.controller.ts`
-- [ ] T004 Registrar las rutas `PATCH /api/denuncias/:id/triaje`, `GET /api/denuncias/bolsa`, `PATCH /api/denuncias/:id/tomar`, `PATCH /api/denuncias/:id/verificar` y `PATCH /api/denuncias/:id/liberar` en `server/src/routes/denuncias.routes.ts`
-- [ ] T005 [P] Definir la interfaz `IFieldAgentRepository` y métodos (`getBolsaCasos`, `getMiCasoActivo`, `tomarCaso`, `enviarVerificacion`, `liberarCaso`) en `client/src/repositories/agent/IFieldAgentRepository.ts`
-- [ ] T006 [P] Implementar `RemoteFieldAgentRepository` y `LocalFieldAgentRepository` en `client/src/repositories/agent/RemoteFieldAgentRepository.ts`, `client/src/repositories/agent/LocalFieldAgentRepository.ts` y `client/src/repositories/agent/index.ts`
-- [ ] T007 Extender `adminService.ts` con las funciones `triajeDenuncia` y `liberarCasoAgente` en `client/src/services/adminService.ts`
+- [X] T003 Implementar los controladores `triajeDenuncia` (`APROBADO` con prioridad o `RECHAZADO` con `observacionesAdmin` obligatorio), `getBolsaCasos` (ordenado por prioridad), `tomarCasoAtomico` (transacción 1 a 1 en `prisma.$transaction`), `verificarInSitu` (Casos A/B/C y regla de 3 intentos `intentosInaccesible` -> `CERRADO_INACCESIBLE`) y `liberarCaso` en `server/src/controllers/denuncias.controller.ts`
+- [X] T004 Registrar las rutas `PATCH /api/denuncias/:id/triaje`, `GET /api/denuncias/bolsa`, `PATCH /api/denuncias/:id/tomar`, `PATCH /api/denuncias/:id/verificar` y `PATCH /api/denuncias/:id/liberar` en `server/src/routes/denuncias.routes.ts`
+- [X] T005 [P] Definir la interfaz `IFieldAgentRepository` y métodos (`getBolsaCasos`, `getMiCasoActivo`, `tomarCaso`, `enviarVerificacion`, `liberarCaso`) en `client/src/repositories/agent/IFieldAgentRepository.ts`
+- [X] T006 [P] Implementar `RemoteFieldAgentRepository` y `LocalFieldAgentRepository` en `client/src/repositories/agent/RemoteFieldAgentRepository.ts`, `client/src/repositories/agent/LocalFieldAgentRepository.ts` y `client/src/repositories/agent/index.ts`
+- [X] T007 Extender `adminService.ts` con las funciones `triajeDenuncia` y `liberarCasoAgente` en `client/src/services/adminService.ts`
 
 **Checkpoint**: Backend transaccional y repositorios de Admin/Agente listos.
 
@@ -47,7 +47,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] Actualizar `AdminDenunciasScreen` para filtrar reportes en `PENDIENTE` y añadir modal de Triaje con selector de `Prioridad` (al aprobar) y campo obligatorio de `observacionesAdmin` (al rechazar) en `client/src/screens/admin/AdminDenunciasScreen.tsx`
+- [X] T008 [US1] Actualizar `AdminDenunciasScreen` para filtrar reportes en `PENDIENTE` y añadir modal de Triaje con selector de `Prioridad` (al aprobar) y campo obligatorio de `observacionesAdmin` (al rechazar) en `client/src/screens/admin/AdminDenunciasScreen.tsx`
 
 **Checkpoint**: Triaje administrativo operativo.
 
@@ -61,8 +61,8 @@
 
 ### Implementation for User Story 2
 
-- [ ] T009 [US2] Actualizar `AgentHomeScreen` para mostrar la "Bolsa de Casos" ordenada por `PrioritySemaphoreBadge`, botón `"Cómo llegar (Mapa)"` (usando `Linking.openURL` con `latitud,longitud`) y botón `"Tomar Caso"` con estado de carga transaccional en `client/src/screens/agente/AgentHomeScreen.tsx`
-- [ ] T010 [US2] Implementar la vista/pestaña `"Mi Caso Activo"` en `AgentHomeScreen` y deshabilitar la toma de nuevos casos mientras el agente tenga un caso en `EN_VERIFICACION` o `EN_SANEAMIENTO` en `client/src/screens/agente/AgentHomeScreen.tsx`
+- [X] T009 [US2] Actualizar `AgentHomeScreen` para mostrar la "Bolsa de Casos" ordenada por `PrioritySemaphoreBadge`, botón `"Cómo llegar (Mapa)"` (usando `Linking.openURL` con `latitud,longitud`) y botón `"Tomar Caso"` con estado de carga transaccional en `client/src/screens/agente/AgentHomeScreen.tsx`
+- [X] T010 [US2] Implementar la vista/pestaña `"Mi Caso Activo"` en `AgentHomeScreen` y deshabilitar la toma de nuevos casos mientras el agente tenga un caso en `EN_VERIFICACION` o `EN_SANEAMIENTO` en `client/src/screens/agente/AgentHomeScreen.tsx`
 
 **Checkpoint**: Bolsa de casos y bloqueo 1 a 1 en funcionamiento.
 
@@ -76,7 +76,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T011 [US3] Integrar `VerificationFormModal` dentro de la tarjeta de `"Mi Caso Activo"` en `AgentHomeScreen`, conectándolo a `IFieldAgentRepository.enviarVerificacion` y mostrando el contador de intentos de inaccesibilidad (`intentosInaccesible / 3`) en `client/src/screens/agente/AgentHomeScreen.tsx`
+- [X] T011 [US3] Integrar `VerificationFormModal` dentro de la tarjeta de `"Mi Caso Activo"` en `AgentHomeScreen`, conectándolo a `IFieldAgentRepository.enviarVerificacion` y mostrando el contador de intentos de inaccesibilidad (`intentosInaccesible / 3`) en `client/src/screens/agente/AgentHomeScreen.tsx`
 
 **Checkpoint**: Verificación in situ y protocolo de 3 intentos operativos.
 
@@ -90,8 +90,8 @@
 
 ### Implementation for User Story 4
 
-- [ ] T012 [US4] Añadir botón `"Liberar Caso"` con confirmación en `"Mi Caso Activo"` dentro de `AgentHomeScreen` conectado a `IFieldAgentRepository.liberarCaso` en `client/src/screens/agente/AgentHomeScreen.tsx`
-- [ ] T013 [P] [US4] Añadir acción `"Desasignar / Liberar a la Bolsa"` para el Administrador en `client/src/screens/admin/AdminDenunciasScreen.tsx` y `client/src/screens/admin/AdminAgentesScreen.tsx`
+- [X] T012 [US4] Añadir botón `"Liberar Caso"` con confirmación en `"Mi Caso Activo"` dentro de `AgentHomeScreen` conectado a `IFieldAgentRepository.liberarCaso` en `client/src/screens/agente/AgentHomeScreen.tsx`
+- [X] T013 [P] [US4] Añadir acción `"Desasignar / Liberar a la Bolsa"` para el Administrador en `client/src/screens/admin/AdminDenunciasScreen.tsx` y `client/src/screens/admin/AdminAgentesScreen.tsx`
 
 **Checkpoint**: Liberación y reasignación sin pérdida de trazabilidad lista.
 
@@ -101,8 +101,8 @@
 
 **Purpose**: Pruebas automatizadas de concurrencia 1 a 1, regla de 3 intentos y liberación inteligente + verificación en Expo Go.
 
-- [ ] T014 [P] Crear pruebas de integración para `PATCH /api/denuncias/:id/tomar` (bloqueo 1 a 1 y rechazo `409` de segundo caso paralelo), `PATCH /api/denuncias/:id/verificar` (transición a `CERRADO_INACCESIBLE` en el 3.er intento) y `PATCH /api/denuncias/:id/liberar` en `server/src/__tests__/denuncias.agent.test.ts`
-- [ ] T015 Ejecutar checklist de verificación manual en Expo Go (Triaje Admin, Semáforo de bolsa, Mapa externo, Toma 1 a 1, Verificación A/B/C y Liberación) en `specs/003-triaje-y-agente-campo/checklists/requirements.md`
+- [X] T014 [P] Crear pruebas de integración para `PATCH /api/denuncias/:id/tomar` (bloqueo 1 a 1 y rechazo `409` de segundo caso paralelo), `PATCH /api/denuncias/:id/verificar` (transición a `CERRADO_INACCESIBLE` en el 3.er intento) y `PATCH /api/denuncias/:id/liberar` en `server/src/__tests__/denuncias.agent.test.ts`
+- [X] T015 Ejecutar checklist de verificación manual en Expo Go (Triaje Admin, Semáforo de bolsa, Mapa externo, Toma 1 a 1, Verificación A/B/C y Liberación) en `specs/003-triaje-y-agente-campo/checklists/requirements.md`
 
 ---
 

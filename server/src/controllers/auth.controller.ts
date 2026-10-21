@@ -274,3 +274,88 @@ const authHandlers = createAuthHandlers(database, process.env.AUTH_TOKEN_SECRET)
 
 export const login = authHandlers.login;
 export const register = authHandlers.register;
+
+/**
+ * GET /api/auth/me
+ * Obtener datos actualizados del usuario autenticado directamente desde la base de datos
+ */
+export const getMe = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.headers['x-user-id'] as string;
+    const { id, email } = req.query;
+
+    const queryIdentifier = (id as string) || (email as string) || userId;
+
+    if (!queryIdentifier) {
+      res.status(400).json({
+        success: false,
+        message: 'Identificador de usuario no proporcionado',
+      });
+      return;
+    }
+
+    const trimmedIdentifier = queryIdentifier.trim().toLowerCase();
+
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { id: queryIdentifier },
+          { email: { equals: trimmedIdentifier, mode: 'insensitive' } },
+          ...(queryIdentifier === 'demo-user-1' ? [{ email: 'ejemplo@email.com' }] : []),
+          ...(queryIdentifier === 'agent-user-1' ? [{ email: 'agente@municipio.gob.ar' }] : []),
+          ...(queryIdentifier === 'admin-user-1' ? [{ email: 'admin@ecoalerta.gob.ar' }] : []),
+        ],
+      },
+      include: {
+        municipio: true,
+      },
+    });
+
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        message: 'Usuario no encontrado en la base de datos',
+      });
+      return;
+    }
+
+    const roleMapping: Record<string, string> = {
+      CITIZEN: 'citizen',
+      AGENT: 'agent',
+      ADMIN: 'admin',
+      COLLABORATOR: 'collaborator',
+      citizen: 'citizen',
+      agent: 'agent',
+      admin: 'admin',
+      collaborator: 'collaborator',
+    };
+
+    res.status(200).json({
+      success: true,
+      user: {
+        id: user.id,
+        name: user.nombre,
+        email: user.email,
+        role: roleMapping[user.rol] || 'citizen',
+        points: user.puntos,
+        municipio: user.municipio?.nombre,
+        municipioId: user.municipioId,
+        createdAt: user.creadoEn,
+      },
+      data: {
+        id: user.id,
+        nombre: user.nombre,
+        email: user.email,
+        rol: user.rol,
+        puntos: user.puntos,
+        municipioId: user.municipioId,
+      },
+    });
+  } catch (error) {
+    console.error('Error al obtener perfil de usuario:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor al obtener datos del usuario',
+    });
+  }
+};

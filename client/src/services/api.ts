@@ -23,6 +23,16 @@ export const clienteApi = async <T>(
 
   try {
     const respuesta = await fetch(url, { ...opciones, headers });
+
+    const contentType = respuesta.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      const texto = await respuesta.text();
+      const mensaje = !respuesta.ok
+        ? `Error HTTP ${respuesta.status} en ${rutaConApi}: ${texto.slice(0, 100)}`
+        : `Respuesta no JSON (${respuesta.status}) en ${rutaConApi}`;
+      throw new Error(mensaje);
+    }
+
     const datos = await respuesta.json();
 
     if (!respuesta.ok) {
