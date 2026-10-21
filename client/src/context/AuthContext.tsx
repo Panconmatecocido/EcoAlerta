@@ -66,12 +66,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const queryParams = new URLSearchParams();
       if (user.id) queryParams.append('id', user.id);
       if (user.email) queryParams.append('email', user.email);
-      const res = await api.get(`/auth/me?${queryParams.toString()}`);
-      if (res?.data?.success && res.data.data) {
-        const u = res.data.data;
+      const res = await api.get<any>(`/auth/me?${queryParams.toString()}`);
+      if (res?.success && (res.user || res.data)) {
+        const u = res.user || res.data;
         const perfilActualizado: User = {
           ...user,
-          points: u.puntos ?? user.points,
+          points: u.points ?? u.puntos ?? user.points,
         };
         setUser(perfilActualizado);
         await authRepository.saveSession(perfilActualizado);

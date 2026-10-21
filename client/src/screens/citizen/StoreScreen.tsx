@@ -190,7 +190,7 @@ export const StoreScreen: React.FC = () => {
                   <Ionicons
                     name={cat.icono as any}
                     size={ICON_SIZE.md}
-                    color={esActiva ? COLORS.botonPrincipal : COLORS.iconoSecundario}
+                    color={esActiva ? COLORS.botonPrincipal : COLORS.textoSecundario}
                   />
                 </View>
                 <Text style={[estilos.textoCategoria, esActiva && estilos.textoCategoriaActiva]}>
@@ -214,7 +214,7 @@ export const StoreScreen: React.FC = () => {
         <Ionicons
           name="search-outline"
           size={ICON_SIZE.md}
-          color={COLORS.iconoSecundario}
+          color={COLORS.textoSecundario}
           style={estilos.iconoBuscador}
         />
       </View>
@@ -247,8 +247,8 @@ export const StoreScreen: React.FC = () => {
 
                 <View style={estilos.filaBadges}>
                   <View style={estilos.insigniaPrecio}>
-                    <Ionicons name="star" size={ICON_SIZE.xs} color={COLORS.iconoPrincipal} />
-                    <Text style={estilos.puntosProducto}>{item.precioPuntos} PTS</Text>
+                    <Ionicons name="star" size={ICON_SIZE.sm} color={COLORS.iconoPrincipal} />
+                    <Text style={estilos.puntosProducto}>{item.costoPuntos} PTS</Text>
                   </View>
                   {sinStock ? (
                     <View style={estilos.badgeSinStock}>
@@ -272,7 +272,7 @@ export const StoreScreen: React.FC = () => {
                     {sinStock ? 'Sin Stock' : 'Agregar'}
                   </Text>
                   {!sinStock && (
-                    <Ionicons name="add" size={ICON_SIZE.xs} color={COLORS.superficieTarjeta} />
+                    <Ionicons name="add" size={ICON_SIZE.sm} color={COLORS.superficieTarjeta} />
                   )}
                 </TouchableOpacity>
               </View>
