@@ -158,6 +158,7 @@ model Producto {
   id          String      @id @default(uuid())
   titulo      String
   descripcion String
+  categoria   String      @default("Otros")
   costoPuntos Int
   stock       Int         @default(10)
   imagenUrl   String?

@@ -12,6 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../../utils/theme';
+import { useAuth } from '../../../context/AuthContext';
 
 const { width } = Dimensions.get('window');
 const ANCHO_TARJETA = width * 0.48;
@@ -53,9 +54,12 @@ const DESAFIOS_FOTOS: FotoDesafio[] = [
 
 export const FotosPuntos: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { requireAuth } = useAuth();
 
   const irACamara = () => {
-    navigation.navigate('Camara');
+    if (requireAuth()) {
+      navigation.navigate('Camara');
+    }
   };
 
   return (

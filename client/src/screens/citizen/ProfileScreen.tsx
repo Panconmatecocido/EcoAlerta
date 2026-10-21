@@ -23,7 +23,7 @@ import { tiendaService, ResultadoCanje } from '../../services/tiendaService';
 import { BarraEstadoDenuncia } from '../../components/BarraEstadoDenuncia';
 
 export const ProfileScreen: React.FC = () => {
-  const { user: usuario } = useAuth();
+  const { user: usuario, logout } = useAuth();
   const [pestanaActiva, setPestanaActiva] = useState<'denuncias' | 'compras'>('denuncias');
 
   // Estados de datos remotos
@@ -123,6 +123,24 @@ export const ProfileScreen: React.FC = () => {
       ],
       { cancelable: true }
     );
+  };
+
+  const confirmarCerrarSesion = () => {
+    Alert.alert('Cerrar sesión', '¿Quieres salir de tu cuenta?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Cerrar sesión',
+        style: 'destructive',
+        onPress: () => {
+          void logout().catch((error: unknown) => {
+            Alert.alert(
+              'No se pudo cerrar sesión',
+              error instanceof Error ? error.message : 'Inténtalo nuevamente.'
+            );
+          });
+        },
+      },
+    ]);
   };
 
   return (
@@ -279,6 +297,15 @@ export const ProfileScreen: React.FC = () => {
             )}
           </>
         )}
+        <TouchableOpacity
+          accessibilityRole="button"
+          style={estilos.botonCerrarSesion}
+          onPress={confirmarCerrarSesion}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="log-out-outline" size={ICON_SIZE.md} color={COLORS.textoPeligro} />
+          <Text style={estilos.textoCerrarSesion}>Cerrar sesión</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -291,6 +318,24 @@ const estilos = StyleSheet.create({
   },
   contenidoScroll: {
     paddingBottom: SPACING.lg * 2,
+  },
+  botonCerrarSesion: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.sm,
+    marginHorizontal: SPACING.md,
+    marginTop: SPACING.lg,
+    padding: SPACING.md,
+    borderWidth: 1,
+    borderColor: COLORS.fondoPeligro,
+    borderRadius: BORDER_RADIUS.md,
+    backgroundColor: COLORS.superficieTarjeta,
+  },
+  textoCerrarSesion: {
+    color: COLORS.textoPeligro,
+    fontSize: 15,
+    fontWeight: '700',
   },
   cabecera: {
     backgroundColor: COLORS.fondoEncabezado,

@@ -56,7 +56,80 @@ async function main() {
     },
   });
 
-  // 3. Denuncias Demo
+  // 3. Cuentas de autenticación demo para los cuatro roles
+  await prisma.user.upsert({
+    where: { email: 'ciudadano@ecoalerta.com' },
+    update: {
+      nombre: 'Ciudadano Demo',
+      passwordHash: 'ciudadano123',
+      rol: Role.CITIZEN,
+      puntos: 0,
+      municipioId: municipio.id,
+    },
+    create: {
+      nombre: 'Ciudadano Demo',
+      email: 'ciudadano@ecoalerta.com',
+      passwordHash: 'ciudadano123',
+      rol: Role.CITIZEN,
+      puntos: 0,
+      municipioId: municipio.id,
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: 'agente1@ecoalerta.com' },
+    update: {
+      nombre: 'Agente Demo',
+      passwordHash: 'agente123',
+      rol: Role.AGENT,
+      disponible: true,
+      municipioId: municipio.id,
+    },
+    create: {
+      nombre: 'Agente Demo',
+      email: 'agente1@ecoalerta.com',
+      passwordHash: 'agente123',
+      rol: Role.AGENT,
+      disponible: true,
+      municipioId: municipio.id,
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: 'admin@ecoalerta.com' },
+    update: {
+      nombre: 'Administrador Demo',
+      passwordHash: 'admin123',
+      rol: Role.ADMIN,
+      municipioId: municipio.id,
+    },
+    create: {
+      nombre: 'Administrador Demo',
+      email: 'admin@ecoalerta.com',
+      passwordHash: 'admin123',
+      rol: Role.ADMIN,
+      municipioId: municipio.id,
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: 'colaborador@ecoalerta.com' },
+    update: {
+      nombre: 'Colaborador Demo',
+      passwordHash: 'colaborador123',
+      rol: Role.COLLABORATOR,
+      municipioId: municipio.id,
+    },
+    create: {
+      nombre: 'Colaborador Demo',
+      email: 'colaborador@ecoalerta.com',
+      passwordHash: 'colaborador123',
+      rol: Role.COLLABORATOR,
+      municipioId: municipio.id,
+    },
+  });
+
+  // 4. Denuncias Demo
   await prisma.denuncia.upsert({
     where: { codigo: 'REP-2026-001' },
     update: {},
@@ -90,13 +163,14 @@ async function main() {
     },
   });
 
-// 4. Productos de Tienda Ecológica
+  // 5. Productos de Tienda Ecológica
   await prisma.producto.createMany({
     skipDuplicates: true,
     data: [
       {
         titulo: 'Bolsa de Tela Reutilizable',
         descripcion: 'Bolsa ecológica de algodón orgánico.',
+        categoria: 'Hogar',
         costoPuntos: 40,
         stock: 50,
         municipioId: municipio.id,
@@ -104,6 +178,7 @@ async function main() {
       {
         titulo: 'Botella Térmica EcoAlerta',
         descripcion: 'Botella de acero inoxidable 500ml.',
+        categoria: 'Hogar',
         costoPuntos: 100,
         stock: 20,
         municipioId: municipio.id,
@@ -111,6 +186,7 @@ async function main() {
       {
         titulo: 'Gorra Oficial EcoAlerta',
         descripcion: 'Gorra de material reciclado.',
+        categoria: 'Cuidado Personal',
         costoPuntos: 80,
         stock: 15,
         municipioId: municipio.id,

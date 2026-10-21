@@ -13,6 +13,9 @@ import { StoreScreen } from '../screens/citizen/StoreScreen';
 import { CartScreen } from '../screens/citizen/CartScreen';
 import { MasScreen } from '../screens/citizen/MasScreen';
 import { COLORS, SPACING, ICON_SIZE } from '../utils/theme';
+import { useAuth } from '../context/AuthContext';
+import { AuthGateModal } from '../components/common/AuthGateModal';
+import { useNavigation } from '@react-navigation/native';
 
 const Tab = createBottomTabNavigator();
 const StoreStack = createNativeStackNavigator();
@@ -41,10 +44,18 @@ const CustomTabBarCameraButton = ({ onPress }: any) => (
 export const MainNavigator: React.FC = () => {
   // Obtenemos los márgenes seguros del dispositivo (superior, inferior, laterales)
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<any>();
+  const { user, authGateVisible, requireAuth, dismissAuthGate } = useAuth();
+
+  const navigateToAuth = (screen: 'Login' | 'Register') => {
+    dismissAuthGate();
+    navigation.navigate(screen);
+  };
 
   return (
-    <Tab.Navigator
-      screenOptions={{
+    <View style={styles.navigatorContainer}>
+      <Tab.Navigator
+        screenOptions={{
         headerShown: false,
         tabBarShowLabel: true,
         tabBarActiveTintColor: COLORS.iconoActivoInferior,
@@ -63,8 +74,8 @@ export const MainNavigator: React.FC = () => {
           fontSize: 11,
           fontWeight: '600',
         },
-      }}
-    >
+        }}
+      >
       <Tab.Screen
         name="Inicio"
         component={InicioHome}
@@ -82,6 +93,20 @@ export const MainNavigator: React.FC = () => {
       <Tab.Screen
         name="Perfil"
         component={ProfileScreen}
+        listeners={({ navigation: screenNavigation }) => ({
+          tabPress: (event) => {
+            if (user === null) {
+              event.preventDefault();
+              requireAuth();
+            }
+          },
+          focus: () => {
+            if (user === null) {
+              requireAuth();
+              screenNavigation.navigate('Inicio');
+            }
+          },
+        })}
         options={{
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
@@ -96,6 +121,20 @@ export const MainNavigator: React.FC = () => {
       <Tab.Screen
         name="Camara"
         component={ReportScreen}
+        listeners={({ navigation: screenNavigation }) => ({
+          tabPress: (event) => {
+            if (user === null) {
+              event.preventDefault();
+              requireAuth();
+            }
+          },
+          focus: () => {
+            if (user === null) {
+              requireAuth();
+              screenNavigation.navigate('Inicio');
+            }
+          },
+        })}
         options={{
           tabBarLabel: () => null,
           tabBarButton: (props) => <CustomTabBarCameraButton {...props} />,
@@ -125,11 +164,21 @@ export const MainNavigator: React.FC = () => {
           ),
         }}
       />
-    </Tab.Navigator>
+      </Tab.Navigator>
+      <AuthGateModal
+        visible={authGateVisible}
+        onClose={dismissAuthGate}
+        onRegister={() => navigateToAuth('Register')}
+        onLogin={() => navigateToAuth('Login')}
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  navigatorContainer: {
+    flex: 1,
+  },
   cameraButtonWrapper: {
     top: -18,
     justifyContent: 'center',
