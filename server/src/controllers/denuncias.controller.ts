@@ -1,7 +1,7 @@
 // server/src/controllers/denuncias.controller.ts
 
 import { Request, Response } from 'express';
-import { PrismaClient, EstadoDenuncia } from '@prisma/client';
+import { Prisma, PrismaClient, EstadoDenuncia, Role } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -172,6 +172,66 @@ export const asignarAgenteDenuncia = async (req: Request, res: Response): Promis
   }
 };
 
+// Inicio de Fase 2 (Foundational): endpoints ciudadanos y persistencia inicial sin puntos.
+const CATEGORIAS_DENUNCIA: Record<string, string> = {
+  Microbasural: 'Microbasural',
+  'Foco de Dengue': 'Foco de Dengue',
+  'Terreno Baldío': 'Terreno Baldío',
+  Otro: 'Otro',
+  BASURAL: 'Microbasural',
+  FOCO_DENGUE: 'Foco de Dengue',
+  TERRENO_BALDIO: 'Terreno Baldío',
+  OTRO: 'Otro',
+};
+
+const parseCoordinate = (value: unknown, min: number, max: number): number | null | undefined => {
+  if (value === undefined || value === null || value === '') return null;
+  const coordinate = Number(value);
+  return Number.isFinite(coordinate) && coordinate >= min && coordinate <= max
+    ? coordinate
+    : undefined;
+};
+
+const crearDenunciaConCodigo = async (
+  data: Omit<Prisma.DenunciaCreateInput, 'codigo'>,
+  year: number
+) => {
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try {
+      return await prisma.$transaction(
+        async (transaction) => {
+          const prefix = `REP-${year}-`;
+          const latestReport = await transaction.denuncia.findFirst({
+            where: { codigo: { startsWith: prefix } },
+            orderBy: { codigo: 'desc' },
+            select: { codigo: true },
+          });
+          const lastSequence = latestReport
+            ? Number(latestReport.codigo.slice(prefix.length))
+            : 0;
+
+          if (!Number.isInteger(lastSequence) || lastSequence >= 999) {
+            throw new Error(`Se agotaron los códigos de reporte para ${year}.`);
+          }
+
+          const codigo = `${prefix}${String(lastSequence + 1).padStart(3, '0')}`;
+          return transaction.denuncia.create({
+            data: { ...data, codigo },
+          });
+        },
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }
+      );
+    } catch (error) {
+      const retryable =
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        (error.code === 'P2034' || error.code === 'P2002');
+      if (!retryable || attempt === 4) throw error;
+    }
+  }
+
+  throw new Error('No se pudo reservar un código único para el reporte.');
+};
+
 // 5. Crear una nueva denuncia (Ciudadano)
 export const crearDenuncia = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -187,30 +247,69 @@ export const crearDenuncia = async (req: Request, res: Response): Promise<void> 
       municipioId,
     } = req.body;
 
-    if (!titulo || !descripcion || !categoria || !direccion || !ciudadanoId || !municipioId) {
+    const categoriaNormalizada =
+      typeof categoria === 'string' ? CATEGORIAS_DENUNCIA[categoria.trim()] : undefined;
+    const latitudValidada = parseCoordinate(latitud, -90, 90);
+    const longitudValidada = parseCoordinate(longitud, -180, 180);
+    if (
+      typeof titulo !== 'string' ||
+      !titulo.trim() ||
+      typeof descripcion !== 'string' ||
+      !descripcion.trim() ||
+      !categoriaNormalizada ||
+      typeof direccion !== 'string' ||
+      !direccion.trim() ||
+      typeof imagenUrl !== 'string' ||
+      !imagenUrl.trim() ||
+      typeof ciudadanoId !== 'string' ||
+      !ciudadanoId.trim() ||
+      typeof municipioId !== 'string' ||
+      !municipioId.trim() ||
+      latitudValidada === undefined ||
+      longitudValidada === undefined ||
+      ((latitudValidada === null) !== (longitudValidada === null))
+    ) {
       res.status(400).json({
         success: false,
-        message: 'Faltan campos obligatorios para registrar la denuncia',
+        message: 'Faltan campos obligatorios o hay datos inválidos para registrar la denuncia',
       });
       return;
     }
 
-    const codigoGenerado = `REP-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
-
-    const nuevaDenuncia = await prisma.denuncia.create({
-      data: {
-        codigo: codigoGenerado,
-        titulo,
-        descripcion,
-        categoria,
-        direccion,
-        latitud: latitud ? parseFloat(latitud) : null,
-        longitud: longitud ? parseFloat(longitud) : null,
-        imagenUrl,
-        ciudadanoId,
-        municipioId,
+    const ciudadano = await prisma.user.findFirst({
+      where: {
+        id: String(ciudadanoId),
+        municipioId: String(municipioId),
+        rol: Role.CITIZEN,
       },
+      select: { id: true },
     });
+
+    if (!ciudadano) {
+      res.status(404).json({
+        success: false,
+        message: 'No se encontró un ciudadano válido en el municipio indicado',
+      });
+      return;
+    }
+
+    const nuevaDenuncia = await crearDenunciaConCodigo(
+      {
+        titulo: titulo.trim(),
+        descripcion: descripcion.trim(),
+        categoria: categoriaNormalizada,
+        direccion: direccion.trim(),
+        latitud: latitudValidada,
+        longitud: longitudValidada,
+        imagenUrl: imagenUrl.trim(),
+        ciudadano: { connect: { id: ciudadano.id } },
+        municipio: { connect: { id: municipioId } },
+        estado: EstadoDenuncia.PENDIENTE,
+        puntosOtorgados: 0,
+        ocultarUsuario: false,
+      },
+      new Date().getFullYear()
+    );
 
     res.status(201).json({
       success: true,
@@ -222,6 +321,65 @@ export const crearDenuncia = async (req: Request, res: Response): Promise<void> 
     res.status(500).json({
       success: false,
       message: 'Error al registrar la nueva denuncia',
+    });
+  }
+};
+
+export const getDenunciasByCiudadano = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { ciudadanoId } = req.params;
+    const denuncias = await prisma.denuncia.findMany({
+      where: { ciudadanoId, ocultarUsuario: false },
+      orderBy: { creadoEn: 'desc' },
+    });
+
+    res.status(200).json({ success: true, data: denuncias });
+  } catch (error) {
+    console.error('Error al obtener los reportes del ciudadano:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener los reportes del ciudadano',
+    });
+  }
+};
+
+export const hideDenunciaForCitizen = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { ciudadanoId } = req.body as { ciudadanoId?: unknown };
+
+    if (typeof ciudadanoId !== 'string' || !ciudadanoId.trim()) {
+      res.status(400).json({
+        success: false,
+        message: 'Debes proporcionar el ID del ciudadano propietario del reporte',
+      });
+      return;
+    }
+
+    const actualizacion = await prisma.denuncia.updateMany({
+      where: { id, ciudadanoId, ocultarUsuario: false },
+      data: { ocultarUsuario: true },
+    });
+
+    if (actualizacion.count === 0) {
+      res.status(404).json({
+        success: false,
+        message: 'No se encontró un reporte visible perteneciente a ese ciudadano',
+      });
+      return;
+    }
+
+    const denuncia = await prisma.denuncia.findUnique({ where: { id } });
+    res.status(200).json({
+      success: true,
+      data: denuncia,
+      message: 'Reporte ocultado del historial del ciudadano',
+    });
+  } catch (error) {
+    console.error('Error al ocultar el reporte del ciudadano:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al ocultar el reporte del ciudadano',
     });
   }
 };

@@ -7,6 +7,8 @@ import {
   cambiarEstadoDenuncia,
   asignarAgenteDenuncia,
   crearDenuncia,
+  getDenunciasByCiudadano,
+  hideDenunciaForCitizen,
 } from '../controllers/denuncias.controller';
 
 const router = Router();
@@ -19,6 +21,10 @@ router.get('/metricas', obtenerMetricasAdmin);
 
 // POST /api/denuncias -> Crear nueva denuncia (Ciudadano)
 router.post('/', crearDenuncia);
+
+// Inicio de Fase 2 (Foundational): rutas de historial y ocultamiento ciudadano.
+router.get('/ciudadano/:ciudadanoId', getDenunciasByCiudadano);
+router.patch('/:id/ocultar', hideDenunciaForCitizen);
 
 // PATCH /api/denuncias/:id/estado -> Cambiar estado de una denuncia
 router.patch('/:id/estado', cambiarEstadoDenuncia);
