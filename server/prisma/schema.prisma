@@ -91,6 +91,9 @@ model User {
   rol          Role       @default(CITIZEN)
   puntos       Int        @default(0)
   disponible   Boolean    @default(true)
+  latitudActual             Float?
+  longitudActual            Float?
+  ubicacionActualizadaEn    DateTime?
   
   municipioId  String
   municipio    Municipio  @relation(fields: [municipioId], references: [id])

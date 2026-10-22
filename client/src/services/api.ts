@@ -1,6 +1,7 @@
 // src/services/api.ts
 import { Producto } from '../interfaces/product';
 import { MOCK_PRODUCTOS } from '../mocks/productos';
+import { getRemoteAuthToken } from '../utils/storage';
 
 const RAW_API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:4000';
 export const API_URL = RAW_API_URL.replace(/\/api\/?$/, '').replace(/\/$/, '');
@@ -22,6 +23,11 @@ export const clienteApi = async <T>(
   };
 
   try {
+    const token = await getRemoteAuthToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
     const respuesta = await fetch(url, { ...opciones, headers });
     const datos = await respuesta.json();
 

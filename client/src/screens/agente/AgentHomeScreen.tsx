@@ -9,21 +9,94 @@ import {
   Switch,
   Alert,
   Modal,
+  Linking,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import * as Location from 'expo-location';
 import { useAuth } from '../../context/AuthContext';
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
 import { MOCK_DENUNCIAS_AGENTE, DenunciaAgenteMock } from '../../mocks/denunciasAgente';
+import { adminService } from '../../services/adminService';
 
 export const AgentHomeScreen: React.FC = () => {
   const { user: usuario, logout: cerrarSesion } = useAuth();
-  const [enServicio, setEnServicio] = useState<boolean>(true);
+  const [enServicio, setEnServicio] = useState<boolean>(false);
+  const [actualizandoUbicacion, setActualizandoUbicacion] = useState(false);
   const [listaInspecciones, setListaInspecciones] = useState<DenunciaAgenteMock[]>(MOCK_DENUNCIAS_AGENTE);
   const [inspeccionSeleccionada, setInspeccionSeleccionada] = useState<DenunciaAgenteMock | null>(null);
 
-  const alternarServicio = () => {
-    setEnServicio(!enServicio);
+  const solicitarUbicacionActual = async (): Promise<Location.LocationObject | null> => {
+    const permiso = await Location.requestForegroundPermissionsAsync();
+    if (!permiso.granted) {
+      Alert.alert(
+        'Permiso de ubicación requerido',
+        'Para compartir disponibilidad geográfica, habilita la ubicación en primer plano y vuelve a intentarlo.',
+        [
+          { text: 'Ahora no', style: 'cancel' },
+          {
+            text: 'Abrir ajustes',
+            onPress: () => {
+              void Linking.openSettings().catch(() => {
+                Alert.alert('No se pudieron abrir los ajustes', 'Activa el permiso de ubicación desde los ajustes del dispositivo.');
+              });
+            },
+          },
+        ]
+      );
+      return null;
+    }
+
+    return Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+  };
+
+  const alternarServicio = async (disponible: boolean) => {
+    if (actualizandoUbicacion) return;
+    setActualizandoUbicacion(true);
+    try {
+      if (!disponible) {
+        await adminService.actualizarDisponibilidadPropia(false);
+        setEnServicio(false);
+        return;
+      }
+
+      const posicion = await solicitarUbicacionActual();
+      if (!posicion) return;
+      await adminService.actualizarDisponibilidadPropia(true, {
+        latitud: posicion.coords.latitude,
+        longitud: posicion.coords.longitude,
+      });
+      setEnServicio(true);
+    } catch (error) {
+      Alert.alert(
+        'No se pudo actualizar la disponibilidad',
+        error instanceof Error ? error.message : 'Comprueba la conexión e inténtalo nuevamente.'
+      );
+    } finally {
+      setActualizandoUbicacion(false);
+    }
+  };
+
+  const actualizarUbicacion = async () => {
+    if (actualizandoUbicacion || !enServicio) return;
+    setActualizandoUbicacion(true);
+    try {
+      const posicion = await solicitarUbicacionActual();
+      if (!posicion) return;
+      await adminService.actualizarUbicacionPropia(
+        posicion.coords.latitude,
+        posicion.coords.longitude
+      );
+      Alert.alert('Ubicación actualizada', 'Se compartió tu posición más reciente.');
+    } catch (error) {
+      Alert.alert(
+        'No se pudo actualizar la ubicación',
+        error instanceof Error ? error.message : 'Comprueba la conexión e inténtalo nuevamente.'
+      );
+    } finally {
+      setActualizandoUbicacion(false);
+    }
   };
 
   const obtenerColorPrioridad = (prioridad: DenunciaAgenteMock['prioridad']) => {
@@ -88,17 +161,32 @@ export const AgentHomeScreen: React.FC = () => {
             <Switch
               value={enServicio}
               onValueChange={alternarServicio}
+              disabled={actualizandoUbicacion}
               trackColor={{ false: COLORS.bordeSuave, true: COLORS.fondoEncabezado }}
               thumbColor={enServicio ? COLORS.botonPrincipal : COLORS.textoDesactivado}
             />
           </View>
+          {actualizandoUbicacion ? (
+            <ActivityIndicator color={COLORS.botonPrincipal} style={estilos.estadoUbicacion} />
+          ) : enServicio ? (
+            <TouchableOpacity style={estilos.botonActualizarUbicacion} onPress={actualizarUbicacion}>
+              <Ionicons name="navigate-outline" size={ICON_SIZE.sm} color={COLORS.botonPrincipal} />
+              <Text style={estilos.textoActualizarUbicacion}>Actualizar ubicación actual</Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
 
         {/* Mapa Simulado / Radar de Cobertura */}
         <View style={estilos.contenedorMapaSimulado}>
           <MaterialCommunityIcons name="map-marker-radius" size={ICON_SIZE.xl} color={COLORS.iconoPrincipal} />
-          <Text style={estilos.textoMapa}>Radar Operativo GPS Activo</Text>
-          <Text style={estilos.subtextoMapa}>Inspecciones asignadas en tu zona</Text>
+          <Text style={estilos.textoMapa}>
+            {enServicio ? 'Disponibilidad GPS activa' : 'Ubicación no compartida'}
+          </Text>
+          <Text style={estilos.subtextoMapa}>
+            {enServicio
+              ? 'Comparte solo tu ubicación actual mientras estés disponible'
+              : 'Activa el servicio para compartir tu ubicación actual'}
+          </Text>
         </View>
 
         {/* Lista de Trabajo */}
@@ -251,6 +339,25 @@ const estilos = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: COLORS.textoVerdeOscuro,
+  },
+  estadoUbicacion: {
+    marginTop: SPACING.sm,
+  },
+  botonActualizarUbicacion: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    marginTop: SPACING.sm,
+    paddingVertical: SPACING.xs,
+    paddingHorizontal: SPACING.sm,
+    borderRadius: BORDER_RADIUS.sm,
+    backgroundColor: COLORS.fondoTarjeta,
+  },
+  textoActualizarUbicacion: {
+    color: COLORS.botonPrincipal,
+    fontSize: 12,
+    fontWeight: '600',
+    marginLeft: SPACING.xs,
   },
   contenedorMapaSimulado: {
     backgroundColor: COLORS.superficieTarjeta,
