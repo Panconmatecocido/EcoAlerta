@@ -21,6 +21,15 @@ export interface Agente {
   casoActivoEstado?: string;
 }
 
+export interface AgenteCandidato {
+  id: string;
+  nombre: string;
+  disponible: boolean;
+  casosActivos: number;
+  distanciaMetros: number;
+  ubicacionActualizadaEn: string;
+}
+
 export type EstadoDenunciaAdmin =
   | 'PENDIENTE'
   | 'APROBADO'
@@ -33,16 +42,21 @@ export type EstadoDenunciaAdmin =
   | 'RECHAZADO'
   | 'CERRADO_INACCESIBLE';
 
+export type PrioridadDenuncia = 'BAJA' | 'MEDIA' | 'ALTA' | 'URGENTE';
+
 export interface Denuncia {
   id: string;
   codigo?: string;
   titulo: string;
   descripcion?: string;
   categoria: string;
-  ubicacion: string;
+  direccion?: string;
+  ubicacion?: string;
+  latitud?: number | null;
+  longitud?: number | null;
+  prioridad?: PrioridadDenuncia;
   fecha: string;
   estado: EstadoDenunciaAdmin;
-  prioridad?: PrioridadCaso;
   observacionesAdmin?: string;
   intentosInaccesible?: number;
   puntosOtorgados?: number;
@@ -56,6 +70,74 @@ export interface Denuncia {
   fechaResolucion?: string;
   ciudadanoId?: string;
   ciudadanoNombre?: string;
+}
+
+export interface DenunciaPersistida {
+  id: string;
+  codigo: string;
+  titulo: string;
+  descripcion: string;
+  categoria: string;
+  direccion?: string;
+  ubicacion?: string;
+  latitud?: number | null;
+  longitud?: number | null;
+  estado: Denuncia['estado'];
+  prioridad: PrioridadDenuncia;
+  creadoEn: string;
+  agenteId?: string | null;
+  agente?: { id: string; nombre: string } | null;
+  observacionesAdmin?: string;
+  intentosInaccesible?: number;
+  puntosOtorgados?: number;
+  imagenUrl?: string;
+  fotoVerificacionUrl?: string;
+  fotoSolucionUrl?: string;
+  informeSolucion?: string;
+  fechaVerificacion?: string;
+  fechaResolucion?: string;
+  ciudadanoId?: string;
+  ciudadano?: { id: string; nombre: string } | null;
+}
+
+function mapDenunciaPersistida(item: any): Denuncia {
+  const dateSource = item.creadoEn || item.fecha;
+  const timestamp = dateSource ? new Date(dateSource) : new Date();
+  if (Number.isNaN(timestamp.getTime())) {
+    throw new Error(`El reporte ${item.id} tiene una fecha de creación no válida`);
+  }
+
+  const result: Denuncia = {
+    id: item.id,
+    codigo: item.codigo,
+    titulo: item.titulo,
+    descripcion: item.descripcion,
+    categoria: item.categoria,
+    direccion: item.direccion ?? item.ubicacion ?? '',
+    latitud: item.latitud ?? null,
+    longitud: item.longitud ?? null,
+    prioridad: item.prioridad,
+    fecha: timestamp.toISOString().split('T')[0],
+    estado: item.estado,
+    agenteAsignadoId: item.agente?.id ?? item.agenteId ?? item.agenteAsignadoId ?? undefined,
+    agenteAsignadoNombre: item.agente?.nombre ?? item.agenteAsignadoNombre ?? undefined,
+  };
+
+  if (item.ubicacion !== undefined) result.ubicacion = item.ubicacion;
+  if (item.observacionesAdmin !== undefined) result.observacionesAdmin = item.observacionesAdmin;
+  if (item.intentosInaccesible !== undefined) result.intentosInaccesible = item.intentosInaccesible;
+  if (item.puntosOtorgados !== undefined) result.puntosOtorgados = item.puntosOtorgados;
+  if (item.imagenUrl !== undefined) result.imagenUrl = item.imagenUrl;
+  if (item.fotoVerificacionUrl !== undefined) result.fotoVerificacionUrl = item.fotoVerificacionUrl;
+  if (item.fotoSolucionUrl !== undefined) result.fotoSolucionUrl = item.fotoSolucionUrl;
+  if (item.informeSolucion !== undefined) result.informeSolucion = item.informeSolucion;
+  if (item.fechaVerificacion !== undefined) result.fechaVerificacion = item.fechaVerificacion;
+  if (item.fechaResolucion !== undefined) result.fechaResolucion = item.fechaResolucion;
+  if (item.ciudadanoId !== undefined) result.ciudadanoId = item.ciudadanoId;
+  if (item.ciudadano?.id !== undefined) result.ciudadanoId = item.ciudadano.id;
+  if (item.ciudadano?.nombre !== undefined) result.ciudadanoNombre = item.ciudadano.nombre;
+
+  return result;
 }
 
 export const adminService = {
@@ -85,51 +167,52 @@ export const adminService = {
 
     const queryStr = new URLSearchParams(cleanParams).toString();
     const endpoint = queryStr ? `/api/denuncias?${queryStr}` : '/api/denuncias';
-    const res = await api.get<RespuestaApi<any[]> | any[]>(endpoint);
-    const lista = Array.isArray(res) ? res : res.data || [];
+    const res = await api.get<RespuestaApi<DenunciaPersistida[]>>(endpoint);
+    if (!res || res.success !== true || !Array.isArray(res.data)) {
+      throw new Error(res?.message || 'La respuesta de reportes del servidor no es válida');
+    }
 
-    return lista.map((item: any) => ({
-      id: item.id,
-      codigo: item.codigo,
-      titulo: item.titulo,
-      descripcion: item.descripcion,
-      categoria: item.categoria,
-      ubicacion: item.ubicacion ?? item.direccion ?? '',
-      fecha:
-        item.fecha ??
-        (item.creadoEn ? new Date(item.creadoEn).toISOString().split('T')[0] : ''),
-      estado: item.estado,
-      prioridad: item.prioridad ?? 'MEDIA',
-      observacionesAdmin: item.observacionesAdmin ?? undefined,
-      intentosInaccesible: item.intentosInaccesible ?? 0,
-      puntosOtorgados: item.puntosOtorgados ?? 0,
-      agenteAsignadoId: item.agenteAsignadoId ?? item.agenteId ?? item.agente?.id,
-      agenteAsignadoNombre: item.agenteAsignadoNombre ?? item.agente?.nombre,
-      imagenUrl: item.imagenUrl ?? undefined,
-      fotoVerificacionUrl: item.fotoVerificacionUrl ?? undefined,
-      fotoSolucionUrl: item.fotoSolucionUrl ?? undefined,
-      informeSolucion: item.informeSolucion ?? undefined,
-      fechaVerificacion: item.fechaVerificacion ?? undefined,
-      fechaResolucion: item.fechaResolucion ?? undefined,
-      ciudadanoId: item.ciudadanoId ?? item.ciudadano?.id,
-      ciudadanoNombre: item.ciudadanoNombre ?? item.ciudadano?.nombre,
-    }));
-  },
-
-  actualizarEstadoDenuncia: async (id: string, estado: string) => {
-    return await api.patch<RespuestaApi<any>>(`/api/denuncias/${id}/estado`, { estado });
+    return res.data.map(mapDenunciaPersistida);
   },
 
   // Triaje Inicial (FR-001: Aprobar con Prioridad hacia APROBADO, o Rechazar con motivo hacia RECHAZADO)
   triajeDenuncia: async (
     id: string,
-    payload: {
-      accion: 'APROBAR' | 'RECHAZAR';
-      prioridad?: PrioridadCaso;
-      observacionesAdmin?: string;
+    decision:
+      | { accion: 'APROBAR'; prioridad?: PrioridadCaso | PrioridadDenuncia; observacionesAdmin?: string }
+      | { accion: 'RECHAZAR'; observacionesAdmin?: string; prioridad?: PrioridadCaso | PrioridadDenuncia }
+  ): Promise<Denuncia> => {
+    const response = await api.patch<RespuestaApi<DenunciaPersistida>>(
+      `/api/denuncias/${encodeURIComponent(id)}/triaje`,
+      decision
+    );
+    if (!response || response.success !== true || !response.data) {
+      throw new Error(response?.message || 'No se pudo confirmar el triaje del reporte');
     }
-  ) => {
-    return await api.patch<RespuestaApi<any>>(`/api/denuncias/${id}/triaje`, payload);
+    return mapDenunciaPersistida(response.data);
+  },
+
+  // Asignación directa o por proximidad
+  asignarAgenteDenuncia: async (denunciaId: string, agenteId: string): Promise<Denuncia> => {
+    const response = await api.patch<RespuestaApi<DenunciaPersistida>>(
+      `/api/denuncias/${encodeURIComponent(denunciaId)}/asignar`,
+      { agenteId }
+    );
+    if (!response || response.success !== true || !response.data) {
+      throw new Error(response?.message || 'No se pudo confirmar la asignación del reporte');
+    }
+    return mapDenunciaPersistida(response.data);
+  },
+
+  // Desasignar / Liberar Caso a la Bolsa General
+  liberarCasoAgente: async (
+    denunciaId: string,
+    motivo?: string
+  ): Promise<RespuestaApi<DenunciaPersistida>> => {
+    if (motivo) {
+      return api.patch(`/api/denuncias/${encodeURIComponent(denunciaId)}/liberar`, { motivo });
+    }
+    return api.patch(`/api/denuncias/${encodeURIComponent(denunciaId)}/liberar`);
   },
 
   // Validación de Veracidad y Acreditación Atómica de Puntos (FR-001, FR-002 / US1)
@@ -155,20 +238,6 @@ export const adminService = {
     return await api.patch<RespuestaApi<any>>(`/api/denuncias/${id}/certificar`, payload);
   },
 
-  // Desasignar / Liberar Caso a la Bolsa General (FR-006: retorna a APROBADO o mantiene EN_SANEAMIENTO)
-  liberarCasoAgente: async (denunciaId: string, motivo?: string) => {
-    return await api.patch<RespuestaApi<any>>(`/api/denuncias/${denunciaId}/liberar`, {
-      motivo: motivo || 'Desasignado por Administrador Municipal',
-    });
-  },
-
-  asignarAgenteDenuncia: async (denunciaId: string, agenteId: string) => {
-    return await api.patch<RespuestaApi<any>>(`/api/denuncias/${denunciaId}/asignar`, {
-      agenteId,
-    });
-  },
-
-
   // Agentes
   obtenerAgentes: async (municipioId?: string): Promise<Agente[]> => {
     const query = municipioId ? `?municipioId=${municipioId}` : '';
@@ -180,5 +249,32 @@ export const adminService = {
     return await api.patch<RespuestaApi<any>>(`/api/agentes/${agenteId}/disponibilidad`, {
       disponible,
     });
+  },
+
+  actualizarDisponibilidadPropia: async (
+    disponible: boolean,
+    ubicacion?: { latitud: number; longitud: number }
+  ): Promise<RespuestaApi<{ id: string; disponible: boolean; ubicacionActualizadaEn: string | null }>> => {
+    if (disponible && !ubicacion) {
+      throw new Error('Se requiere ubicación GPS para activar la disponibilidad');
+    }
+    const body = disponible ? { disponible, ...ubicacion } : { disponible };
+    return api.patch('/api/agentes/me/disponibilidad', body);
+  },
+
+  actualizarUbicacionPropia: async (
+    latitud: number,
+    longitud: number
+  ): Promise<RespuestaApi<{ ubicacionActualizadaEn: string }>> =>
+    api.patch('/api/agentes/me/ubicacion', { latitud, longitud }),
+
+  obtenerAgentesCandidatos: async (denunciaId: string): Promise<AgenteCandidato[]> => {
+    const response = await api.get<RespuestaApi<AgenteCandidato[]>>(
+      `/api/denuncias/${encodeURIComponent(denunciaId)}/agentes-disponibles`
+    );
+    if (!response || response.success !== true || !Array.isArray(response.data)) {
+      throw new Error(response?.message || 'La respuesta de agentes candidatos no es válida');
+    }
+    return response.data;
   },
 };

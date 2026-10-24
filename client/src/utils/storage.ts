@@ -87,5 +87,10 @@ export const saveNewUser = async (account: StoredUserAccount): Promise<void> => 
 export const getAuthToken = async (): Promise<string | null> =>
   AsyncStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
 
+export const getRemoteAuthToken = async (): Promise<string | null> => {
+  const token = await getAuthToken();
+  return token && !token.startsWith('local:') ? token : null;
+};
+
 export const saveAuthToken = async (token: string): Promise<void> =>
   AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token);

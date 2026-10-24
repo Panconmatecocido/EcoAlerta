@@ -39,23 +39,27 @@ export default function Bienvenidapuntos () {
 
   return (
     <View style={styles.welcomeCard}>
-      <View style={styles.avatar}>
-        <Text>👤</Text>
+      <View style={styles.userRow}>
+        <View style={styles.avatar}>
+          <Text>👤</Text>
+        </View>
+        <View style={styles.userInfo}>
+          <Text style={styles.texto_usuario}>¡Bienvenido!</Text>
+          <Text style={styles.userName} numberOfLines={1} ellipsizeMode="tail">
+            {user.name}
+          </Text>
+          <Text style={styles.texto_acompañamiento} numberOfLines={2}>
+            Juntos hacemos una ciudad más limpia 🌿
+          </Text>
+        </View>
       </View>
 
-      <View>
-        <Text style={styles.texto_usuario}>¡Bienvenido, {user.name}!</Text>
-        <Text style={styles.texto_acompañamiento}>
-          Juntos hacemos una ciudad más limpia 🌿
-        </Text>
-      </View>
-
-      <View style={styles.divisor} />
-
-      <View>
-        <Text style={styles.texto_puntos}>🏅 Mis puntos</Text>
-        <Text style={styles.punto}>{user.points.toLocaleString('es-AR')}</Text>
-        <Text style={styles.historial}>Ver historial</Text>
+      <View style={styles.pointsSection}>
+        <Text style={styles.texto_puntos}>Mis puntos</Text>
+        <View style={styles.pointsValue}>
+          <Text style={styles.pointsIcon}>🌿</Text>
+          <Text style={styles.punto}>{(user.points ?? 0).toLocaleString('es-AR')}</Text>
+        </View>
       </View>
     </View>
   );

@@ -6,11 +6,12 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "test": "tsx --test src/__tests__/auth.test.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "prisma db seed",
-    "test": "tsx --test src/__tests__/*.test.ts"
+    "test:jest": "jest",
+    "test:node": "tsx --test src/__tests__/auth.test.ts src/__tests__/canjes.checkout.test.ts src/__tests__/canjes.collaborator.test.ts src/__tests__/denuncias.agent.test.ts src/__tests__/denuncias.certification.test.ts",
+    "test": "jest && tsx --test src/__tests__/auth.test.ts src/__tests__/canjes.checkout.test.ts src/__tests__/canjes.collaborator.test.ts src/__tests__/denuncias.agent.test.ts src/__tests__/denuncias.certification.test.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
@@ -21,8 +22,13 @@
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.14",
     "@types/node": "^22.0.0",
+    "@types/supertest": "^6.0.2",
+    "jest": "^29.7.0",
     "prisma": "^5.22.0",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "tsx": "^4.23.15",
     "typescript": "^5.5.4"

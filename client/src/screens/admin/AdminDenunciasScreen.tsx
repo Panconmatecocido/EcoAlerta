@@ -786,7 +786,14 @@ export const AdminDenunciasScreen: React.FC = () => {
         {/* Modal Validación de Veracidad y Baremo de Puntos (US1) */}
         <PointsScaleModal
           visible={modalVeracidadVisible}
-          denuncia={denunciaParaVeracidad}
+          denuncia={
+            denunciaParaVeracidad
+              ? {
+                  ...denunciaParaVeracidad,
+                  ubicacion: denunciaParaVeracidad.ubicacion || denunciaParaVeracidad.direccion || '',
+                }
+              : null
+          }
           procesando={procesandoTriaje}
           onClose={() => {
             if (!procesandoTriaje) {
@@ -800,7 +807,14 @@ export const AdminDenunciasScreen: React.FC = () => {
         {/* Modal Certificación Antes vs. Después (US3) */}
         <BeforeAfterAuditModal
           visible={modalCertificarVisible}
-          denuncia={denunciaParaCertificar}
+          denuncia={
+            denunciaParaCertificar
+              ? {
+                  ...denunciaParaCertificar,
+                  ubicacion: denunciaParaCertificar.ubicacion || denunciaParaCertificar.direccion || '',
+                }
+              : null
+          }
           procesando={procesandoTriaje}
           onClose={() => {
             if (!procesandoTriaje) {

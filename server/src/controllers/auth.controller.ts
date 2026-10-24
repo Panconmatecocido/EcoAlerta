@@ -1,4 +1,9 @@
-import { createHmac, randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
+import {
+  createHmac,
+  randomBytes,
+  scrypt,
+  timingSafeEqual,
+} from 'node:crypto';
 import { promisify } from 'node:util';
 import { Request, Response } from 'express';
 import { Role } from '@prisma/client';
@@ -33,6 +38,16 @@ export interface AuthDataStore {
   updatePasswordHash(id: string, passwordHash: string): Promise<void>;
 }
 
+export interface AuthIdentity {
+  id: string;
+  rol: Role;
+  municipioId: string;
+}
+
+export interface AuthIdentityStore {
+  findUserById(id: string): Promise<AuthIdentity | null>;
+}
+
 const database: AuthDataStore = {
   async findMunicipalityIdByCode(code) {
     const municipality = await prisma.municipio.findUnique({
@@ -61,6 +76,15 @@ const database: AuthDataStore = {
   },
   async updatePasswordHash(id, passwordHash) {
     await prisma.user.update({ where: { id }, data: { passwordHash } });
+  },
+};
+
+export const authIdentityStore: AuthIdentityStore = {
+  findUserById(id) {
+    return prisma.user.findUnique({
+      where: { id },
+      select: { id: true, rol: true, municipioId: true },
+    });
   },
 };
 
@@ -113,6 +137,59 @@ function issueToken(user: AuthUserRecord, secret: string): string {
   const unsignedToken = `${header}.${payload}`;
   const signature = createHmac('sha256', secret).update(unsignedToken).digest('base64url');
   return `${unsignedToken}.${signature}`;
+}
+
+export interface SessionTokenPayload {
+  sub: string;
+  exp: number;
+}
+
+export function verifySessionToken(
+  token: string,
+  secret: string | undefined,
+  now = Math.floor(Date.now() / 1000)
+): SessionTokenPayload | null {
+  if (!secret || Buffer.byteLength(secret, 'utf8') < 32) return null;
+
+  const parts = token.split('.');
+  if (parts.length !== 3) return null;
+
+  const [encodedHeader, encodedPayload, encodedSignature] = parts;
+  try {
+    const header = JSON.parse(
+      Buffer.from(encodedHeader, 'base64url').toString('utf8')
+    ) as { alg?: unknown; typ?: unknown };
+    if (header.alg !== 'HS256' || header.typ !== 'JWT') return null;
+
+    const unsignedToken = `${encodedHeader}.${encodedPayload}`;
+    const expectedSignature = createHmac('sha256', secret)
+      .update(unsignedToken)
+      .digest();
+    const suppliedSignature = Buffer.from(encodedSignature, 'base64url');
+    if (
+      suppliedSignature.length !== expectedSignature.length ||
+      !timingSafeEqual(suppliedSignature, expectedSignature)
+    ) {
+      return null;
+    }
+
+    const payload = JSON.parse(
+      Buffer.from(encodedPayload, 'base64url').toString('utf8')
+    ) as Partial<SessionTokenPayload>;
+    if (
+      typeof payload.sub !== 'string' ||
+      !payload.sub ||
+      typeof payload.exp !== 'number' ||
+      !Number.isSafeInteger(payload.exp) ||
+      payload.exp <= now
+    ) {
+      return null;
+    }
+
+    return { sub: payload.sub, exp: payload.exp };
+  } catch {
+    return null;
+  }
 }
 
 function publicUser(user: AuthUserRecord) {
