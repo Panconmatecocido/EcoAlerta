@@ -130,7 +130,7 @@ export const CollaboratorHomeScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.contenedor}>
-      <StatusBar backgroundColor={COLORS.fondoEncabezado} barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" />
 
       {/* RNF-10: Modal Bloqueante con Spinner en Transacción de Base de Datos */}
       <TransactionLoaderModal

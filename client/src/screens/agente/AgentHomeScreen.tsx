@@ -325,7 +325,7 @@ export const AgentHomeScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={estilos.contenedor}>
-      <StatusBar backgroundColor={COLORS.fondoEncabezado} barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" />
 
       {/* Spinner Bloqueante de Transacción en Base de Datos (RNF-10) */}
       <TransactionLoaderModal
