@@ -146,6 +146,12 @@ describe('adminService.obtenerDenuncias', () => {
     mockedPatch.mockRejectedValueOnce(conflict);
     await expect(adminService.asignarAgenteDenuncia('report-1', 'agent-1')).rejects.toBe(conflict);
 
+    const noDisponibleError = new Error('Agente no disponible');
+    mockedPatch.mockRejectedValueOnce(noDisponibleError);
+    await expect(adminService.asignarAgenteDenuncia('report-1', 'agent-1')).rejects.toBe(
+      noDisponibleError
+    );
+
     const networkError = new Error('Network unavailable');
     mockedPatch.mockRejectedValueOnce(networkError);
     await expect(adminService.asignarAgenteDenuncia('report-1', 'agent-1')).rejects.toBe(

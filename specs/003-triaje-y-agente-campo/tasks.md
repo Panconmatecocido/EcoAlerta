@@ -48,6 +48,7 @@
 ### Implementation for User Story 1
 
 - [X] T008 [US1] Actualizar `AdminDenunciasScreen` para filtrar reportes en `PENDIENTE` y añadir modal de Triaje con selector de `Prioridad` (al aprobar) y campo obligatorio de `observacionesAdmin` (al rechazar) en `client/src/screens/admin/AdminDenunciasScreen.tsx`
+- [X] T008b [US1] Validar disponibilidad de agentes en asignación directa de Admin: impedir asignación si no hay disponibles y rechazar con mensaje `"Agente no disponible"` en `AdminDenunciasScreen.tsx` y `denuncias.controller.ts`
 
 **Checkpoint**: Triaje administrativo operativo.
 

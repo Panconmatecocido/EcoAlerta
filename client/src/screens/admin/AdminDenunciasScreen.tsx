@@ -296,12 +296,28 @@ export const AdminDenunciasScreen: React.FC = () => {
 
   const abrirModalAsignacion = (denuncia: Denuncia) => {
     if (procesandoTriaje) return;
+    const agentesDisponibles = agentes.filter((a) => a.disponible);
+    if (agentesDisponibles.length === 0) {
+      Alert.alert(
+        'Agente no disponible',
+        'No hay agentes disponibles para asignar en este momento. Todos los inspectores se encuentran fuera de servicio o con casos activos.'
+      );
+      return;
+    }
     setDenunciaSeleccionada(denuncia);
     setModalVisible(true);
   };
 
   const asignarAgente = async (agente: Agente) => {
     if (!denunciaSeleccionada || procesandoTriaje) return;
+
+    if (!agente.disponible) {
+      Alert.alert(
+        'Agente no disponible',
+        `El inspector ${agente.nombre} no se encuentra disponible para recibir asignaciones.`
+      );
+      return;
+    }
 
     const nuevoEstado: EstadoDenunciaAdmin =
       denunciaSeleccionada.estado === 'EN_SANEAMIENTO'
@@ -757,20 +773,48 @@ export const AdminDenunciasScreen: React.FC = () => {
               <FlatList
                 data={agentes}
                 keyExtractor={(agente) => agente.id}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={styles.itemAgenteModal}
-                    onPress={() => asignarAgente(item)}
-                  >
-                    <View>
-                      <Text style={styles.nombreAgenteModal}>{item.nombre}</Text>
-                      <Text style={styles.emailAgenteModal}>
-                        {item.disponible ? 'Disponible' : 'Franco/Ocupado'} • {item.casosAsignados} caso(s)
+                ListEmptyComponent={
+                  <View style={{ padding: 20, alignItems: 'center' }}>
+                    <Text style={{ color: COLORS.textoSecundario, textAlign: 'center' }}>
+                      No hay inspectores disponibles para asignar en este momento.
+                    </Text>
+                  </View>
+                }
+                renderItem={({ item }) => {
+                  const estaDisponible = item.disponible;
+                  return (
+                    <TouchableOpacity
+                      style={[
+                        styles.itemAgenteModal,
+                        !estaDisponible && { opacity: 0.5, backgroundColor: '#f0f0f0' },
+                      ]}
+                      onPress={() => asignarAgente(item)}
+                      disabled={!estaDisponible}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          style={[
+                            styles.nombreAgenteModal,
+                            !estaDisponible && { color: COLORS.textoDesactivado },
+                          ]}
+                        >
+                          {item.nombre} {!estaDisponible ? '(No disponible)' : ''}
+                        </Text>
+                        <Text style={styles.emailAgenteModal}>
+                          {estaDisponible ? 'Disponible' : 'Franco/Ocupado'} • {item.casosAsignados} caso(s)
+                        </Text>
+                      </View>
+                      <Text
+                        style={[
+                          styles.textoSeleccionar,
+                          !estaDisponible && { color: COLORS.textoDesactivado },
+                        ]}
+                      >
+                        {estaDisponible ? 'Asignar →' : 'No disponible'}
                       </Text>
-                    </View>
-                    <Text style={styles.textoSeleccionar}>Asignar →</Text>
-                  </TouchableOpacity>
-                )}
+                    </TouchableOpacity>
+                  );
+                }}
               />
 
               <TouchableOpacity

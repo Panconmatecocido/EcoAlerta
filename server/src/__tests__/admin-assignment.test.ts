@@ -186,6 +186,21 @@ describe('PATCH /api/denuncias/:id/asignar', () => {
     expect(prisma.denuncia.updateMany).not.toHaveBeenCalled();
   });
 
+  it('rejects assignment with "Agente no disponible" when the agent is not available', async () => {
+    prisma.user.findFirst.mockResolvedValueOnce({
+      ...eligibleAgent,
+      disponible: false,
+    });
+    const response = await request(createApp())
+      .patch('/api/denuncias/report-1/asignar')
+      .set('Authorization', `Bearer ${createToken(admin.id)}`)
+      .send({ agenteId: eligibleAgent.id })
+      .expect(409);
+
+    expect(response.body.message).toBe('Agente no disponible');
+    expect(prisma.denuncia.updateMany).not.toHaveBeenCalled();
+  });
+
   it('rejects an agent from another municipality or an agent with an active case', async () => {
     prisma.user.findFirst.mockResolvedValueOnce({
       ...eligibleAgent,

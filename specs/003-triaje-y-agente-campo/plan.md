@@ -89,6 +89,13 @@ server/
 - Si `accion === 'RECHAZAR'`: exige `observacionesAdmin` no vacío (`400 Bad Request` si falta). Cambia `estado = 'RECHAZADO'`, `puntosOtorgados = 0`.
 - Si `accion === 'APROBAR'`: exige `prioridad` (`BAJA`, `MEDIA`, `ALTA`, `URGENTE`). Cambia `estado = 'APROBADO'`, `prioridad`, `agenteId = null` (entra a la bolsa general del municipio).
 
+### 1.1 Asignación Directa de Agente (`PATCH /api/denuncias/:id/asignar`)
+- Recibe `{ agenteId: string }`.
+- Valida disponibilidad estricta:
+  1. Si no hay inspectores disponibles en el municipio o el agente objetivo tiene `disponible === false`, rechaza la asignación con `409 Conflict` y el mensaje `"Agente no disponible"`.
+  2. Si el agente ya tiene un caso activo en curso (`EN_VERIFICACION` o `EN_SANEAMIENTO`), rechaza con `409 Conflict` (`"El agente ya tiene un caso activo"`).
+  3. En la interfaz (`AdminDenunciasScreen`), si no hay agentes disponibles se bloquea la apertura del modal alertando al Administrador. Dentro del modal, los agentes no disponibles se muestran deshabilitados.
+
 ### 2. Bolsa de Casos y Toma Atómica 1 a 1 (`GET /api/denuncias/bolsa` y `PATCH /api/denuncias/:id/tomar`)
 - **Bolsa (`GET /api/denuncias/bolsa`)**: Retorna denuncias con `estado IN ('APROBADO')` o aquellas liberadas tras verificación (`estado === 'EN_SANEAMIENTO'` y `agenteId === null`), ordenadas por peso de prioridad (`URGENTE` > `ALTA` > `MEDIA` > `BAJA`) y antigüedad (`createdAt ASC`).
 - **Toma Atómica (`PATCH /api/denuncias/:id/tomar`)**:

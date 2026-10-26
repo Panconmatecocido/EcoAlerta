@@ -57,10 +57,13 @@ Este documento centraliza **todas las Historias de Usuario (HU), Requisitos Func
 - Se guarda con código único (`REP-2026-XXX`) y estado inicial `PENDIENTE` (`REPORTADO`).
 - **Regla de Puntos:** NO se acreditan puntos al enviar el reporte; quedan en revisión hasta que la denuncia sea verificada como real en el terreno.
 
-### 2. Triaje por Administrador (`RF-ADM-01 a 03`, `HU-05`)
+### 2. Triaje y Asignación por Administrador (`RF-ADM-01 a 03b`, `HU-05`)
 - El Admin evalúa reportes iniciales.
 - Si es improcedente/broma, lo rechaza (`RECHAZADO` / `CERRADO_FALSO`) con justificación obligatoria (`observacionesAdmin`) y `0 puntos`.
 - Si es válido, le asigna `Prioridad` (`BAJA`, `MEDIA`, `ALTA`, `URGENTE`) y lo aprueba (`APROBADO` / `APROBADO_EN_BOLSA`) para que sea visible por todos los agentes de campo del municipio.
+- **Asignación directa y control de disponibilidad (`RF-ADM-03b`):**
+  - Si no hay inspectores disponibles en el municipio (`disponible = true`), el sistema bloquea la asignación notificando al Administrador.
+  - Si se intenta asignar a un inspector no disponible (`disponible = false`), el sistema (frontend y backend) rechaza la operación enviando el mensaje: `"Agente no disponible"`.
 
 ### 3. Toma de Caso con Bloqueo 1 a 1 por Agente (`RF-AGE-01 a 04`, `HU-08`)
 - Todos los agentes ven la bolsa de casos aprobados ordenados por prioridad (Rojo = Urgente, Naranja = Alta, Verde = Media/Baja) y cercanía, con acceso a navegación en mapa.

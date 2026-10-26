@@ -342,8 +342,10 @@ export const asignarAgenteDenuncia = async (req: Request, res: Response): Promis
         if (!agent || (req.auth?.municipioId && agent.municipioId !== req.auth.municipioId)) {
           return { status: 404 as const, message: 'Agente no encontrado en el municipio' };
         }
+        if (!agent.disponible) {
+          return { status: 409 as const, message: 'Agente no disponible' };
+        }
         if (
-          !agent.disponible ||
           typeof agent.latitudActual !== 'number' ||
           !Number.isFinite(agent.latitudActual) ||
           agent.latitudActual < -90 ||
@@ -355,7 +357,7 @@ export const asignarAgenteDenuncia = async (req: Request, res: Response): Promis
           !(agent.ubicacionActualizadaEn instanceof Date) ||
           Number.isNaN(agent.ubicacionActualizadaEn.getTime())
         ) {
-          return { status: 409 as const, message: 'El agente no está disponible con una ubicación actual' };
+          return { status: 409 as const, message: 'El agente no tiene una ubicación GPS válida' };
         }
 
         const activeCases = await transaction.denuncia.count({
