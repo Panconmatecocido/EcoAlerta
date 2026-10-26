@@ -6,7 +6,11 @@ import { RemoteReportRepository } from './RemoteReportRepository';
 const remoteRepository = new RemoteReportRepository();
 const localRepository = new LocalReportRepository();
 
-const isNetworkFailure = (error: unknown): boolean => error instanceof TypeError;
+const isNetworkOrServerError = (error: unknown): boolean =>
+  error instanceof TypeError ||
+  (error instanceof Error &&
+    (error.name === 'TypeError' ||
+      /network|fetch|conexion|servidor|500|failed to fetch/i.test(error.message)));
 
 export const reportRepository: IReportRepository = {
   async createReport(report: CreateReportDTO): Promise<CitizenReport> {
@@ -15,7 +19,7 @@ export const reportRepository: IReportRepository = {
       await localRepository.cacheReport(createdReport);
       return createdReport;
     } catch (error) {
-      if (!isNetworkFailure(error)) throw error;
+      console.warn('Fallo remoto al obtener reportes, usando caché local:', error);
       return localRepository.createReport(report);
     }
   },
@@ -25,7 +29,7 @@ export const reportRepository: IReportRepository = {
       const remoteReports = await remoteRepository.getCitizenReports(ciudadanoId);
       return localRepository.cacheCitizenReports(ciudadanoId, remoteReports);
     } catch (error) {
-      if (!isNetworkFailure(error)) throw error;
+      console.warn('Fallo remoto al obtener reportes, usando caché local:', error);
       return localRepository.getCitizenReports(ciudadanoId);
     }
   },
@@ -36,7 +40,7 @@ export const reportRepository: IReportRepository = {
       await localRepository.cacheReport(hiddenReport);
       return hiddenReport;
     } catch (error) {
-      if (!isNetworkFailure(error)) throw error;
+      console.warn('Fallo remoto al obtener reportes, usando caché local:', error);
       const cachedReport = (await localRepository.getCitizenReports(ciudadanoId)).find(
         (report) => report.id === id
       );

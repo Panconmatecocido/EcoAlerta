@@ -979,11 +979,11 @@ export const getDenunciasByCiudadano = async (req: Request, res: Response): Prom
     });
 
     res.status(200).json({ success: true, data: denuncias });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error al obtener los reportes del ciudadano:', error);
     res.status(500).json({
       success: false,
-      message: 'Error al obtener los reportes del ciudadano',
+      message: error?.message || 'Error al obtener los reportes del ciudadano',
     });
   }
 };
