@@ -107,6 +107,17 @@
 
 ---
 
+## Phase 8: Operational Support & Geotracking (Métricas, Proximidad y Agentes)
+
+**Purpose**: Métricas globales para triaje, cálculo geodésico Haversine de cercanía y geolocalización continua de inspectores.
+
+- [X] T016 [US1] Implementar endpoint `GET /api/denuncias/metricas` para métricas consolidadas de denuncias agrupadas por los 8 estados del ciclo de vida en `server/src/controllers/denuncias.controller.ts`
+- [X] T017 [US1] Implementar endpoint `GET /api/denuncias/:id/agentes-disponibles` con cálculo de distancia geodésica Haversine para sugerencia de inspectores próximos en `server/src/controllers/agentes.controller.ts`
+- [X] T018 [US1] Implementar endpoint `POST /api/agentes` para alta administrativa y provisión de nuevos agentes de campo en el municipio en `server/src/controllers/agentes.controller.ts`
+- [X] T019 [US2] Implementar endpoints `PATCH /api/agentes/me/ubicacion` y `PATCH /api/agentes/me/disponibilidad` para geotracking de inspectores en tiempo real en `server/src/controllers/agentes.controller.ts`
+
+---
+
 ## Dependencies & Execution Order
 
 - **Phase 1 & Phase 2** son prerrequisitos bloqueantes.

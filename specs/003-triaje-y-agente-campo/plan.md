@@ -121,6 +121,14 @@ server/
 - Si la denuncia estaba en `EN_VERIFICACION` (aún no verificada): vuelve a `estado = 'APROBADO'` y `agenteId = null`.
 - Si la denuncia estaba en `EN_SANEAMIENTO` (ya verificada y con puntos acreditados): mantiene `estado = 'EN_SANEAMIENTO'` y pone `agenteId = null` para que otro agente tome directamente la limpieza sin repetir la verificación ni duplicar puntos.
 
+### 5. Métricas, Candidatos Geodésicos y Geotracking
+- **Dashboard de Métricas (`GET /api/denuncias/metricas`)**:
+  - Agrupa y totaliza en tiempo real los reportes registrados según los 8 estados del ciclo de vida ambiental (`PENDIENTE`, `APROBADO`, `EN_VERIFICACION`, `VERIFICADO_PENDIENTE`, `EN_SANEAMIENTO`, `RESUELTO`, `RECHAZADO`, `CERRADO_INACCESIBLE`).
+- **Candidatos por Proximidad Haversine (`GET /api/denuncias/:id/agentes-disponibles`)**:
+  - Filtra agentes del municipio con `disponible === true` y calcula `distanciaMetros` geodésica entre las coordenadas del foco ambiental y la posición GPS del inspector para sugerir candidatos óptimos.
+- **Geotracking y Alta de Agentes (`PATCH /api/agentes/me/ubicacion`, `POST /api/agentes`)**:
+  - Permite a los agentes de campo reportar su ubicación en tiempo real (`latitudActual`, `longitudActual`, `ubicacionActualizadaEn`) y al Administrador dar de alta nuevos inspectores municipales con credenciales seguras.
+
 ## Complexity Tracking
 
 > Sin violaciones a la Constitución.

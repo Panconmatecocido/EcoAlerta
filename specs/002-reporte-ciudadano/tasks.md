@@ -91,7 +91,9 @@
 
 - [X] T015 [P] Crear pruebas unitarias para `imageCompressor.ts` (límite `< 1.2 MB`) y `LocalReportRepository` en `client/src/utils/__tests__/imageCompressor.test.ts`
 - [X] T016 [P] Crear pruebas de integración para `POST /api/denuncias` (verificar `puntosOtorgados === 0` y saldo del vecino sin cambios) y `PATCH /api/denuncias/:id/ocultar` (`ocultarUsuario === true` pero registro existente en DB) en `server/src/__tests__/denuncias.citizen.test.ts`
-- [ ] T017 Ejecutar checklist de verificación manual en Expo Go (creación con foto y GPS, denegación de permiso GPS con dirección manual, 0 puntos al enviar, visualización de estados y ocultamiento lógico) en `specs/002-reporte-ciudadano/checklists/requirements.md`
+- [X] T017 Ejecutar checklist de verificación manual en Expo Go (creación con foto y GPS, denegación de permiso GPS con dirección manual, 0 puntos al enviar, visualización de estados y ocultamiento lógico) en `specs/002-reporte-ciudadano/checklists/requirements.md`
+- [X] T018 [US2] Implementar endpoint unificado GET /api/denuncias/mis-denuncias en backend y fallback resiliente en RemoteReportRepository/LocalReportRepository ante errores de red o servidor en `server/src/controllers/denuncias.controller.ts` y `client/src/repositories/reports/index.ts`
+- [X] T019 [P] Actualizar arquitectura cliente a Expo SDK 58 y React Native 0.88 con compatibilidad de StatusBar Edge-to-Edge y Expo Go en `client/package.json` y `client/app.json`
 
 ---
 

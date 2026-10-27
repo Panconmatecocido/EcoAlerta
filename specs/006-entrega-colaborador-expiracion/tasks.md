@@ -94,6 +94,7 @@
 
 - [x] T011 Suprimir el fallback local en `client/src/repositories/store/index.ts` haciendo que `storeRepository` consuma exclusivamente `RemoteStoreRepository` y propague los errores del servidor a la interfaz de usuario.
 - [x] T012 Sembrar directamente en PostgreSQL (`server/prisma/seed.ts`) las órdenes de prueba `ECO-7894-K` (vigente), `ECO-2026-ENTR` (entregado) y `ECO-2026-EXPD` (expirado > 30 días) asociadas al ciudadano `ejemplo@email.com` y sucursales municipales, ejecutando la siembra en la BD.
+- [x] T013 [US2] Implementar endpoint POST /api/canjes/procesar-expirados para barrido y ejecución masiva de cancelaciones por expiración de 30 días en `server/src/controllers/canjes.controller.ts`
 
 ---
 

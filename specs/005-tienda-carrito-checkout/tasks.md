@@ -104,6 +104,7 @@
 - [X] T014 [P] Crear suite de pruebas con `jest.useFakeTimers()` que verifique la reserva de stock por 5 minutos (`300.000 ms`), la restitución automática del stock si no se confirma a tiempo y la confirmación exitosa con descuento de puntos en `server/src/__tests__/canjes.checkout.test.ts`
 - [X] T015 [P] Crear pruebas unitarias de `CartContext` / lógica de cálculo de puntos y límite de stock (verificando ausencia de cargos en ARS) en `client/src/context/__tests__/cart.test.ts`
 - [X] T016 Ejecutar checklist de verificación manual en Expo Go (Tienda como Invitado + Auth Gate, Carrito 100% en puntos, Reloj de 5 minutos en Checkout, Voucher `ECO-2026-XXXX` y ABM Admin con baja lógica) en `specs/005-tienda-carrito-checkout/checklists/requirements.md`
+- [X] T017 [US3] Implementar worker batch POST /api/canjes/liberar-vencidas y endpoints de consulta por ID GET /api/productos/:id y GET /api/canjes/:id para auditoría y saneamiento de reservas expiradas en `server/src/controllers/canjes.controller.ts` y `server/src/controllers/productos.controller.ts`
 
 ---
 

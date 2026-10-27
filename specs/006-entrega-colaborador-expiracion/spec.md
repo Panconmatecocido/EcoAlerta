@@ -74,6 +74,7 @@ El vecino consulta desde la pestaña "Canjes" en su Perfil (o desde el enlace "V
   - Canje vigente `ECO-7894-K` (`PENDIENTE_RETIRO`, vigencia por 25 días más).
   - Canje histórico entregado `ECO-2026-ENTR` (`ENTREGADO`, con `fechaEntrega` registrada).
   - Canje vencido `ECO-2026-EXPD` (`fechaExpiracion` en el pasado, > 30 días de antigüedad), para comprobar la transición atómica a `CANCELADO`, la restitución física de stock y el bloqueo de entrega.
+- **FR-008 (RF-COL-02 - Procesamiento Masivo Forzado de Expiraciones)**: El sistema DEBE proveer el endpoint `POST /api/canjes/procesar-expirados` para ejecutar bajo demanda o por tareas programadas el barrido de vouchers en `PENDIENTE_RETIRO` con más de 30 días transcurridos (`fechaExpiracion < now`), cancelándolos y reponiendo el stock de productos en inventario sin devolución de puntos.
 
 ### Key Entities
 
