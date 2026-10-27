@@ -165,3 +165,10 @@ Un ciudadano puede optar por el botón de acceso rápido con Google para ingresa
 - Los usuarios no autenticados pueden volver atrás desde la pantalla de Registro o Inicio de Sesión hacia el Home de Bienvenida si desean seguir explorando como invitados.
 - Los usuarios con roles `AGENT`, `ADMIN` y `COLLABORATOR` ingresan a través de la opción "Iniciar Sesión" accesible desde el flujo de registro/autenticación.
 - El diseño visual del Home de Bienvenida, Login y Registro conserva intacta la estética institucional de Eco Alerta mediante `StyleSheet.create` y las variables globales de `theme.ts`.
+
+## Supplemental guest navigation requirement
+
+**Acceptance scenario**: **Given** un usuario invitado en el navegador principal, **When** pulsa la pestaña **Más**, **Then** se muestra directamente el modal compartido con opciones para registrarse o iniciar sesión, sin abrir la pantalla de opciones. Los usuarios autenticados mantienen la navegación normal a **Más**.
+
+- **FR-012 (Auth Gate desde la pestaña Más)**: Cuando un usuario invitado pulse la pestaña **Más**, el sistema DEBE mostrar directamente el mismo modal compartido de registro/inicio de sesión utilizado por las demás acciones protegidas. Los usuarios autenticados DEBEN poder abrir Más sin cambios en su navegación.
+- **SC-007**: El 100% de las pulsaciones de invitados sobre **Más** abre el modal de autenticación; el 100% de las pulsaciones de usuarios autenticados mantiene el acceso a la pantalla de opciones.

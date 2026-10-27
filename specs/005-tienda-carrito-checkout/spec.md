@@ -99,3 +99,19 @@ El Administrador Municipal gestiona el inventario de premios ecológicos pudiend
 
 - El municipio dispone de al menos una sucursal de retiro activa cargada en el padrón (ej. *"Palacio Municipal de Pilar"* y *"Delegación Presidente Derqui"*).
 - Los productos entregados son retirados presencialmente por el vecino presentando su `codigoRetiro` a partir de las 48 horas hábiles de confirmado el canje.
+
+## Supplemental home catalog requirements
+
+**Acceptance scenarios**:
+
+1. **Given** un usuario que abre Inicio, **When** carga el carrusel de productos, **Then** se muestran productos activos del catálogo compartido con la Tienda y, si está disponible, filtrados por el municipio del usuario, en vez de productos de ejemplo.
+2. **Given** un ciudadano habilitado para canjear que pulsa un producto con stock desde el carrusel, **When** se valida la selección, **Then** se agrega una unidad al carrito y se abre la pantalla del carrito.
+3. **Given** un invitado o un usuario sin permiso de canje que pulsa un producto del carrusel, **When** intenta agregarlo, **Then** no se modifica el carrito y se muestra el Auth Gate o el aviso de acceso restringido correspondiente.
+4. **Given** que el catálogo no puede cargarse o la imagen de un producto no está disponible, **When** se presenta el carrusel, **Then** se informa el error con una opción de reintento o se muestra una alternativa visual para la imagen, sin dejar la tarjeta en blanco.
+
+- **FR-011 (RF-TIE-08 - Carrusel del Inicio conectado al catálogo y al carrito)**: El carrusel del Inicio DEBE consultar el mismo catálogo activo que la Tienda y aplicar el municipio del usuario cuando esté disponible. Al pulsar un producto, el sistema DEBE validar sesión/rol y stock, agregar una unidad al carrito y navegar a este; si el usuario es invitado, DEBE mostrar el Auth Gate sin modificar el carrito. Una imagen faltante o inaccesible DEBE representarse con una alternativa visual.
+
+**Success criteria**:
+
+- **SC-005**: El carrusel presenta productos activos del catálogo de la Tienda y, al pulsar un producto con sesión y stock válidos, lo agrega al carrito y abre esta pantalla.
+- **SC-006**: Un usuario invitado no modifica el carrito al pulsar un producto; recibe el Auth Gate y una imagen no disponible no deja la tarjeta en blanco.

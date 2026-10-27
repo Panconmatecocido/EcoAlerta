@@ -40,3 +40,8 @@
 - Client TypeScript check (`npx tsc --noEmit`): passed.
 - Server authentication integration tests: passed (4 tests).
 - Manual Expo Go checklist: passed. The user manually verified guest Home and auth CTAs, category filters (including "Otros"), Auth Gate, zero-point registration, duplicate/invalid credential feedback, login for all four roles, agent/admin safe-area layouts, session persistence, and role-specific logout destinations.
+
+## UX regression checklist (pending device verification)
+
+- [ ] As a guest, tap **Más** and verify that the shared register/login modal opens immediately without navigating to the options screen.
+- [ ] As an authenticated user, tap **Más** and verify that the options screen opens normally.

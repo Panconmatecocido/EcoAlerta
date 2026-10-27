@@ -117,3 +117,26 @@ Una vez que el ciudadano ya recibió los puntos por su denuncia verificada (o el
 
 - El dispositivo móvil cuenta con cámara operativa o galería de imágenes accesible mediante los permisos estándar del sistema operativo.
 - Cuando el vecino opera sin conexión al servidor central, el repositorio local almacena el reporte y actualiza inmediatamente la lista del vecino manteniendo la experiencia fluida.
+
+## Supplemental report flow requirements
+
+**Acceptance scenarios**:
+
+1. **Given** un ciudadano en ReportScreen, **When** concede permiso de ubicación y pulsa "Usar mi ubicación GPS", **Then** el mapa se centra en su posición y muestra un pin que puede mover o reemplazar tocando otra ubicación.
+2. **Given** un ciudadano que deniega el permiso GPS o no obtiene una dirección automática, **When** selecciona un punto en el mapa o ingresa una dirección manual, **Then** puede completar y enviar el reporte sin que GPS o geocodificación sean obligatorios.
+3. **Given** un punto seleccionado en el mapa, **When** la geocodificación inversa devuelve una sugerencia de dirección/localidad, **Then** el ciudadano puede editarla antes del envío y se guardan las coordenadas del pin junto con la dirección final. La selección no implica validar que el punto pertenezca al municipio de Pilar.
+4. **Given** que ReportScreen está abierta y la cámara está lista, **When** el ciudadano pulsa el botón central de cámara del menú inferior, **Then** se captura la foto sin requerir un segundo obturador dentro de la vista previa; la primera pulsación desde otra pestaña sigue abriendo ReportScreen.
+5. **Given** que el ciudadano abre la pantalla de permisos de cámara, **When** se muestran las acciones para permitir cámara y elegir desde galería, **Then** los controles mantienen separación visual y el encabezado con logo, notificaciones y ajustes permanece en la parte superior.
+6. **Given** que existen reportes propios y las consultas de perfil o canjes siguen pendientes, **When** termina la consulta de reportes, **Then** Perfil muestra y conserva la lista sin alternarla repetidamente con un estado de carga por actualizaciones del perfil.
+
+- **FR-012 (RF-REP-09 - Captura desde el Botón Central)**: Una vez activa y lista la cámara en ReportScreen, el botón central de cámara de la navegación inferior DEBE capturar la fotografía. La primera pulsación que abre la pestaña desde otra pantalla DEBE conservar la navegación al reporte; la galería permanece disponible como alternativa.
+- **FR-013 (RF-REP-10 - GPS Opcional, Mapa y Dirección Editable)**: El sistema DEBE permitir solicitar el permiso GPS, centrar el mapa en la ubicación actual y seleccionar/ajustar un pin con la ubicación en el dispositivo. Sin permiso GPS, el mapa DEBE permitir la selección manual y comenzar centrado en Pilar, Buenos Aires. El sistema DEBE intentar sugerir dirección/localidad mediante geocodificación inversa, permitir editarla y exigir una dirección legible al enviar. La geocodificación no DEBE bloquear el envío ni implicar validación territorial del municipio.
+- **FR-014 (RF-REP-11 - Carga Independiente y Estable de Reportes en Perfil)**: La carga de reportes DEBE ser independiente de la consulta de canjes y terminar de mostrarse cuando sus propios datos estén disponibles. Las actualizaciones del perfil (por ejemplo, puntos) no DEBEN reiniciar repetidamente la consulta ni hacer parpadear la lista.
+- **FR-015 (RNF-12 - Distribución de la Pantalla de Permisos)**: La pantalla inicial de permisos de cámara DEBE mantener el encabezado en la parte superior y separación visual clara entre las acciones de abrir cámara y seleccionar desde galería.
+
+**Success criteria**:
+
+- **SC-005**: Con la cámara activa y lista, el botón central de navegación captura la foto; la galería continúa disponible y no se requiere un obturador duplicado.
+- **SC-006**: Un usuario puede enviar un reporte con una dirección manual sin conceder permiso GPS; cuando elige un pin, se guardan las coordenadas asociadas.
+- **SC-007**: En Perfil, los reportes aparecen al finalizar su propia consulta y no desaparecen mientras se cargan canjes o se actualiza el perfil.
+- **SC-008**: La pantalla inicial de permisos presenta el encabezado en la parte superior y controles de cámara y galería claramente separados.

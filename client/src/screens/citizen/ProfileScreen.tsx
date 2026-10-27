@@ -1,6 +1,6 @@
 // src/screens/citizen/ProfileScreen.tsx
 // Fusión de Módulos 002 (reportes ciudadanos, historial y ocultamiento) y 006 (vouchers de canje).
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import {
   Modal,
   View,
@@ -28,12 +28,17 @@ import { ReportStatusBadge } from '../../components/citizen/ReportStatusBadge';
 
 export const ProfileScreen: React.FC = () => {
   const { user: usuario, logout, recargarPerfilUsuario } = useAuth();
+  const usuarioId = usuario?.id;
+  const esCiudadano = usuario?.role === 'citizen';
+  const recargarPerfilRef = useRef(recargarPerfilUsuario);
+  recargarPerfilRef.current = recargarPerfilUsuario;
   const [pestanaActiva, setPestanaActiva] = useState<'denuncias' | 'canjes'>('denuncias');
 
   // Estados de datos remotos
   const [denuncias, setDenuncias] = useState<CitizenReport[]>([]);
   const [vouchers, setVouchers] = useState<RedemptionDetail[]>([]);
-  const [cargando, setCargando] = useState<boolean>(true);
+  const [cargandoDenuncias, setCargandoDenuncias] = useState<boolean>(true);
+  const [cargandoVouchers, setCargandoVouchers] = useState<boolean>(true);
   const [refrescando, setRefrescando] = useState<boolean>(false);
   const [errorDenuncias, setErrorDenuncias] = useState<string | null>(null);
   const [denunciaSeleccionada, setDenunciaSeleccionada] = useState<CitizenReport | null>(null);
@@ -44,57 +49,71 @@ export const ProfileScreen: React.FC = () => {
 
   const cargarDatosPerfil = useCallback(
     async (refrescar = false, sigueActivo: () => boolean = () => true) => {
-      if (!usuario || usuario.role !== 'citizen') {
+      if (!usuarioId || !esCiudadano) {
         setDenuncias([]);
         setVouchers([]);
-        setCargando(false);
+        setCargandoDenuncias(false);
+        setCargandoVouchers(false);
         setRefrescando(false);
         return;
       }
       if (refrescar) {
         setRefrescando(true);
       } else {
-        setCargando(true);
+        setCargandoDenuncias(true);
+        setCargandoVouchers(true);
       }
 
-      if (recargarPerfilUsuario) {
-        recargarPerfilUsuario().catch(() => {});
+      if (recargarPerfilRef.current) {
+        recargarPerfilRef.current().catch((error: unknown) => {
+          console.warn('No se pudo actualizar el perfil antes de cargar el historial:', error);
+        });
       }
+
+      const cargarDenuncias = async () => {
+        try {
+          const misDenuncias = await reportRepository.getCitizenReports(usuarioId);
+          if (sigueActivo()) {
+            setDenuncias(misDenuncias || []);
+            setErrorDenuncias(null);
+          }
+        } catch (error) {
+          console.error('Error al cargar reportes del perfil:', error);
+          if (sigueActivo()) {
+            setErrorDenuncias(
+              error instanceof Error
+                ? error.message
+                : 'No se pudieron cargar tus reportes. Intenta nuevamente.'
+            );
+          }
+        } finally {
+          if (sigueActivo()) setCargandoDenuncias(false);
+        }
+      };
+
+      const cargarVouchers = async () => {
+        try {
+          const misVouchers = await storeRepository.getCitizenRedemptions(
+            usuarioId || 'demo-user-1'
+          );
+          if (sigueActivo()) setVouchers(misVouchers || []);
+        } catch (error) {
+          console.warn('No se pudieron obtener los vouchers de canje:', error);
+          if (sigueActivo()) setVouchers([]);
+        } finally {
+          if (sigueActivo()) setCargandoVouchers(false);
+        }
+      };
 
       try {
-        const [misDenuncias, misVouchers] = await Promise.all([
-          reportRepository.getCitizenReports(usuario.id).catch((err) => {
-            console.warn('No se pudieron obtener las denuncias:', err.message);
-            throw err;
-          }),
-          storeRepository.getCitizenRedemptions(usuario.id || 'demo-user-1').catch((err) => {
-            console.warn('No se pudieron obtener los vouchers de canje:', err.message);
-            return [];
-          }),
-        ]);
-
-        if (sigueActivo()) {
-          setDenuncias(misDenuncias || []);
-          setVouchers(misVouchers || []);
-          setErrorDenuncias(null);
-        }
-      } catch (error) {
-        console.error('Error al cargar datos del perfil:', error);
-        if (sigueActivo()) {
-          setErrorDenuncias(
-            error instanceof Error
-              ? error.message
-              : 'No se pudieron cargar tus reportes. Intenta nuevamente.'
-          );
-        }
+        await Promise.all([cargarDenuncias(), cargarVouchers()]);
       } finally {
         if (sigueActivo()) {
-          setCargando(false);
           setRefrescando(false);
         }
       }
     },
-    [usuario, recargarPerfilUsuario]
+    [usuarioId, esCiudadano]
   );
 
   useFocusEffect(
@@ -108,7 +127,6 @@ export const ProfileScreen: React.FC = () => {
   );
 
   const cambiarPestana = (nuevaPestana: 'denuncias' | 'canjes') => {
-    if (cargando) return;
     setPestanaActiva(nuevaPestana);
   };
 
@@ -308,7 +326,6 @@ export const ProfileScreen: React.FC = () => {
               pestanaActiva === 'denuncias' && estilos.botonPestanaActiva,
             ]}
             onPress={() => cambiarPestana('denuncias')}
-            disabled={cargando}
           >
             <Text
               style={[
@@ -326,7 +343,6 @@ export const ProfileScreen: React.FC = () => {
               pestanaActiva === 'canjes' && estilos.botonPestanaActiva,
             ]}
             onPress={() => cambiarPestana('canjes')}
-            disabled={cargando}
           >
             <Text
               style={[
@@ -340,7 +356,7 @@ export const ProfileScreen: React.FC = () => {
         </View>
 
         {/* Contenido de Pestañas */}
-        {cargando ? (
+        {(pestanaActiva === 'denuncias' ? cargandoDenuncias : cargandoVouchers) ? (
           <View style={{ alignItems: 'center', marginTop: SPACING.lg, gap: SPACING.xs }}>
             <ActivityIndicator size="large" color={COLORS.botonPrincipal} />
             <Text style={{ fontSize: 13, color: COLORS.textoVerdeOscuro, fontWeight: '600' }}>

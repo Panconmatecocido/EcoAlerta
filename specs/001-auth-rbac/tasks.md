@@ -136,3 +136,7 @@
 - **Phase 3 (US1 - Modo Invitado)** y **Phase 4 (US2 - Auth Gate)** deben ejecutarse primero como MVP de entrada a la aplicación.
 - **Phase 5 (US3 - Registro)** y **Phase 6 (US4 - Login 4 Roles)** pueden ejecutarse en paralelo tras completar Phase 2.
 - **Phase 7 (US5/US6)** y **Phase 8 (Testing)** cierran el módulo.
+
+## Ajustes de UX posteriores
+
+- [x] T028 [US2] Interceptar la pestaña **Más** en modo invitado para mostrar directamente el `AuthGateModal`, sin navegar a `MasScreen`; mantener el comportamiento original para sesiones activas en `client/src/navigation/MainNavigator.tsx`.

@@ -93,7 +93,7 @@
 - [X] T016 [P] Crear pruebas de integración para `POST /api/denuncias` (verificar `puntosOtorgados === 0` y saldo del vecino sin cambios) y `PATCH /api/denuncias/:id/ocultar` (`ocultarUsuario === true` pero registro existente en DB) en `server/src/__tests__/denuncias.citizen.test.ts`
 - [X] T017 Ejecutar checklist de verificación manual en Expo Go (creación con foto y GPS, denegación de permiso GPS con dirección manual, 0 puntos al enviar, visualización de estados y ocultamiento lógico) en `specs/002-reporte-ciudadano/checklists/requirements.md`
 - [X] T018 [US2] Implementar endpoint unificado GET /api/denuncias/mis-denuncias en backend y fallback resiliente en RemoteReportRepository/LocalReportRepository ante errores de red o servidor en `server/src/controllers/denuncias.controller.ts` y `client/src/repositories/reports/index.ts`
-- [X] T019 [P] Actualizar arquitectura cliente a Expo SDK 58 y React Native 0.88 con compatibilidad de StatusBar Edge-to-Edge y Expo Go en `client/package.json` y `client/app.json`
+- [X] T019 [P] Verificar que la arquitectura cliente existente usa Expo SDK 58 y React Native 0.88 y es compatible con StatusBar Edge-to-Edge y Expo Go en `client/package.json` y `client/app.json`
 
 ---
 
@@ -103,3 +103,10 @@
 - **Phase 3 (US1 - Creación)** es el MVP del módulo.
 - **Phase 4 (US2 - Seguimiento)** y **Phase 5 (US3 - Baja Lógica Visual)** se construyen sobre `ProfileScreen.tsx` de forma secuencial.
 - **Phase 6 (Testing)** valida las reglas críticas de negocio (`0 puntos al crear` y `ocultarUsuario = true`).
+
+## Ajustes de UX posteriores
+
+- [x] T020 [US1] Agregar mapa con pin seleccionable/arrastrable, región inicial de Pilar, GPS opcional y sugerencia editable mediante geocodificación inversa; instalar `react-native-maps` compatible con Expo SDK 58 en `client/package.json`, `client/package-lock.json` y `client/src/screens/citizen/ReportScreen.tsx`.
+- [x] T021 [US1] Reutilizar el botón central de cámara para capturar cuando ReportScreen esté activa y la cámara lista; mantener la galería y quitar el obturador duplicado de la vista previa en `client/src/screens/citizen/ReportScreen.tsx`.
+- [x] T022 [US2] Separar los estados de carga de reportes y canjes, estabilizar el efecto de foco frente a actualizaciones del perfil y mostrar cada pestaña al completar su propia consulta en `client/src/screens/citizen/ProfileScreen.tsx`.
+- [x] T023 [US1] Ajustar la pantalla inicial de permisos de cámara para ubicar el encabezado en la parte superior y separar las acciones de cámara y galería en `client/src/screens/citizen/ReportScreen.tsx`.

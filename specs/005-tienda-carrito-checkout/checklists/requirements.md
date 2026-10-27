@@ -33,3 +33,11 @@
 
 - All 16 quality criteria passed on first validation pass.
 - Ready for `/speckit.plan`.
+
+## UX regression checklist (pending device verification)
+
+- [ ] Iniciar sesión como ciudadano y verificar que el carrusel del Inicio presenta los productos actuales de la Tienda.
+- [ ] Pulsar un producto con stock y verificar que se agrega una unidad y se abre el carrito.
+- [ ] Comprobar que el límite de stock se respeta desde el carrusel.
+- [ ] Iniciar como invitado y verificar que pulsar un producto muestra el Auth Gate sin agregarlo.
+- [ ] Verificar el estado de reintento si falla la carga del catálogo y la alternativa visual si una imagen no está disponible.

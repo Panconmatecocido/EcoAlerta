@@ -33,3 +33,12 @@
 
 - All 16 quality criteria passed on first validation pass.
 - Ready for `/speckit.plan`.
+
+## UX regression checklist (pending device verification)
+
+- [ ] Con cámara concedida y lista en ReportScreen, pulsar el botón central inferior y verificar que captura una foto; verificar que la galería sigue disponible.
+- [ ] Conceder permiso GPS, usar la ubicación y comprobar que el mapa y el pin se centran en la posición del dispositivo.
+- [ ] Ajustar el pin y verificar la sugerencia de dirección/localidad; editar la dirección y confirmar que las coordenadas corresponden al pin.
+- [ ] Denegar el permiso GPS, seleccionar un punto en el mapa y enviar con una dirección ingresada manualmente.
+- [ ] Verificar que la pantalla de permisos mantiene el encabezado arriba y controles de cámara/galería claramente separados.
+- [ ] Abrir Perfil después de crear un reporte y verificar que el reporte aparece y permanece visible mientras se resuelven consultas independientes de perfil o canjes.

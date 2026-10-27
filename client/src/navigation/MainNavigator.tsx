@@ -158,6 +158,20 @@ export const MainNavigator: React.FC = () => {
       <Tab.Screen
         name="Más"
         component={MasScreen}
+        listeners={({ navigation: screenNavigation }) => ({
+          tabPress: (event) => {
+            if (user === null) {
+              event.preventDefault();
+              requireAuth();
+            }
+          },
+          focus: () => {
+            if (user === null) {
+              requireAuth();
+              screenNavigation.navigate('Inicio');
+            }
+          },
+        })}
         options={{
           tabBarIcon: ({ color }) => (
             <Feather name="menu" size={ICON_SIZE.lg} color={color} />

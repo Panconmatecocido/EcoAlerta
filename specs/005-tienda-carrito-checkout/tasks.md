@@ -114,3 +114,7 @@
 - **Phase 3 (US1 - Catálogo)** y **Phase 4 (US2 - Carrito)** preceden a **Phase 5 (US3 - Checkout 5 min)**.
 - **Phase 6 (US4 - ABM Admin)** puede ejecutarse en paralelo tras completar Phase 2.
 - **Phase 7 (Testing)** certifica el TTL de 5 minutos con `jest.useFakeTimers()`.
+
+## Ajustes de UX posteriores
+
+- [x] T018 [US1] Reemplazar los productos mockeados del carrusel del Inicio por productos de `storeRepository`, manejar estados de carga/error/vacío y alternativas ante imágenes inaccesibles; al pulsar un producto validar rol y stock, agregarlo al carrito y navegar a `Cart` en `client/src/screens/citizen/HomeScreenPrueba/CarruselPrueba.tsx`.

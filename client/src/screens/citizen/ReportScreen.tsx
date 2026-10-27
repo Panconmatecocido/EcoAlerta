@@ -1,5 +1,5 @@
 // Inicio de Fase 3 (US1): creación autenticada de reportes ambientales geolocalizados.
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -16,7 +16,9 @@ import {
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
+import MapView, { Marker, type MapPressEvent, type Region } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { NavigationProp, ParamListBase, useNavigation } from '@react-navigation/native';
 import { Header } from '../../components/Header';
 import { useAuth } from '../../context/AuthContext';
@@ -27,11 +29,20 @@ import { COLORS, SPACING, BORDER_RADIUS } from '../../utils/theme';
 const CATEGORIES = ['Microbasural', 'Foco de Dengue', 'Terreno Baldío', 'Otro'] as const;
 type ReportCategory = (typeof CATEGORIES)[number];
 
+const PILAR_REGION: Region = {
+  latitude: -34.4587,
+  longitude: -58.9142,
+  latitudeDelta: 0.02,
+  longitudeDelta: 0.02,
+};
+
 export const ReportScreen: React.FC = () => {
   const { user } = useAuth();
-  const navigation = useNavigation<NavigationProp<ParamListBase>>();
+  const navigation = useNavigation<BottomTabNavigationProp<ParamListBase>>();
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
+  const [isCameraReady, setIsCameraReady] = useState(false);
+  const isCapturingRef = useRef(false);
   const [image, setImage] = useState<CompressedImage | null>(null);
   const [category, setCategory] = useState<ReportCategory | null>(null);
   const [title, setTitle] = useState('');
@@ -40,13 +51,22 @@ export const ReportScreen: React.FC = () => {
   const [coordinates, setCoordinates] = useState<{ latitude: number; longitude: number } | null>(
     null
   );
+  const [mapCoordinate, setMapCoordinate] = useState({
+    latitude: PILAR_REGION.latitude,
+    longitude: PILAR_REGION.longitude,
+  });
+  const [mapVisible, setMapVisible] = useState(false);
+  const [detectedMunicipality, setDetectedMunicipality] = useState('');
+  const [isResolvingAddress, setIsResolvingAddress] = useState(false);
   const [locationMessage, setLocationMessage] = useState('');
+  const geocodeRequestId = useRef(0);
   const [errorMessage, setErrorMessage] = useState('');
   const [isProcessingImage, setIsProcessingImage] = useState(false);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const processImage = async (uri: string) => {
+    setIsCameraReady(false);
     setIsProcessingImage(true);
     setErrorMessage('');
     try {
@@ -62,6 +82,17 @@ export const ReportScreen: React.FC = () => {
   };
 
   const takePicture = async () => {
+    if (!permission?.granted || image || isProcessingImage || isCapturingRef.current) {
+      return;
+    }
+
+    if (!isCameraReady) {
+      setErrorMessage('La cámara todavía se está preparando. Inténtalo nuevamente en un momento.');
+      return;
+    }
+
+    isCapturingRef.current = true;
+    setErrorMessage('');
     try {
       const photo = await cameraRef.current?.takePictureAsync({ quality: 0.7 });
       if (!photo?.uri) {
@@ -73,8 +104,26 @@ export const ReportScreen: React.FC = () => {
       setErrorMessage(
         error instanceof Error ? error.message : 'Ocurrió un error al tomar la fotografía.'
       );
+    } finally {
+      isCapturingRef.current = false;
     }
   };
+
+  const takePictureRef = useRef(takePicture);
+  takePictureRef.current = takePicture;
+
+  useEffect(
+    () =>
+      navigation.addListener('tabPress', (event) => {
+        if (!navigation.isFocused() || !permission?.granted || image) {
+          return;
+        }
+
+        event.preventDefault();
+        void takePictureRef.current();
+      }),
+    [image, navigation, permission?.granted]
+  );
 
   const chooseFromGallery = async () => {
     try {
@@ -92,15 +141,74 @@ export const ReportScreen: React.FC = () => {
     }
   };
 
+  const updateAddressFromCoordinates = async (
+    coordinate: { latitude: number; longitude: number }
+  ) => {
+    const requestId = ++geocodeRequestId.current;
+    setIsResolvingAddress(true);
+
+    try {
+      const [result] = await Location.reverseGeocodeAsync(coordinate);
+      if (requestId !== geocodeRequestId.current) return;
+
+      if (!result) {
+        setDetectedMunicipality('');
+        setLocationMessage(
+          'No se pudo identificar la dirección automáticamente. Puedes ingresarla manualmente.'
+        );
+        return;
+      }
+
+      const localidad = result.city || result.subregion || result.district || '';
+      const direccionCalle = [result.street, result.streetNumber].filter(Boolean).join(' ');
+      const direccionSugerida = [direccionCalle || result.name, localidad, result.region]
+        .filter(Boolean)
+        .join(', ');
+
+      setDetectedMunicipality([localidad, result.region].filter(Boolean).join(', '));
+      if (direccionSugerida) {
+        setAddress(direccionSugerida);
+        setLocationMessage('Ubicación detectada. Puedes ajustar el pin o editar la dirección.');
+      } else {
+        setLocationMessage(
+          'No se pudo identificar la dirección automáticamente. Puedes ingresarla manualmente.'
+        );
+      }
+    } catch (error) {
+      console.warn('No se pudo obtener la dirección de la ubicación seleccionada:', error);
+      if (requestId === geocodeRequestId.current) {
+        setDetectedMunicipality('');
+        setLocationMessage(
+          'No se pudo identificar la dirección automáticamente. Puedes ingresarla manualmente.'
+        );
+      }
+    } finally {
+      if (requestId === geocodeRequestId.current) {
+        setIsResolvingAddress(false);
+      }
+    }
+  };
+
+  const selectMapCoordinate = (coordinate: { latitude: number; longitude: number }) => {
+    setMapCoordinate(coordinate);
+    setCoordinates(coordinate);
+    setAddress('');
+    setDetectedMunicipality('');
+    void updateAddressFromCoordinates(coordinate);
+  };
+
+  const handleMapPress = (event: MapPressEvent) => {
+    selectMapCoordinate(event.nativeEvent.coordinate);
+  };
+
   const captureLocation = async () => {
     setIsGettingLocation(true);
     setLocationMessage('');
     try {
       const permissionResult = await Location.requestForegroundPermissionsAsync();
       if (!permissionResult.granted) {
-        setCoordinates(null);
         setLocationMessage(
-          'No se concedió el permiso de ubicación. Puedes continuar indicando la dirección manual.'
+          'No se concedió el permiso de ubicación. Puedes elegir el punto en el mapa o ingresar la dirección manualmente.'
         );
         return;
       }
@@ -108,21 +216,33 @@ export const ReportScreen: React.FC = () => {
       const position = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Balanced,
       });
-      setCoordinates({
+      const currentCoordinate = {
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
-      });
-      setLocationMessage('Ubicación GPS capturada.');
+      };
+      setMapCoordinate(currentCoordinate);
+      setCoordinates(currentCoordinate);
+      setAddress('');
+      setDetectedMunicipality('');
+      setMapVisible(true);
+      setLocationMessage('Ubicación GPS capturada. Revisa el pin y ajusta la dirección si hace falta.');
+      void updateAddressFromCoordinates(currentCoordinate);
     } catch (error) {
-      setCoordinates(null);
       setLocationMessage(
         error instanceof Error
-          ? `No se pudo obtener el GPS: ${error.message}. Puedes indicar la dirección manual.`
-          : 'No se pudo obtener el GPS. Puedes indicar la dirección manual.'
+          ? `No se pudo obtener el GPS: ${error.message}. Puedes elegir el punto en el mapa o ingresar la dirección manualmente.`
+          : 'No se pudo obtener el GPS. Puedes elegir el punto en el mapa o ingresar la dirección manualmente.'
       );
     } finally {
       setIsGettingLocation(false);
     }
+  };
+
+  const openLocationMap = () => {
+    if (coordinates) {
+      setMapCoordinate(coordinates);
+    }
+    setMapVisible((visible) => !visible);
   };
 
   const submitReport = async () => {
@@ -172,6 +292,12 @@ export const ReportScreen: React.FC = () => {
       setDescription('');
       setAddress('');
       setCoordinates(null);
+      setMapCoordinate({
+        latitude: PILAR_REGION.latitude,
+        longitude: PILAR_REGION.longitude,
+      });
+      setMapVisible(false);
+      setDetectedMunicipality('');
       setLocationMessage('');
     } catch (error) {
       setErrorMessage(
@@ -205,31 +331,35 @@ export const ReportScreen: React.FC = () => {
 
   if (!permission?.granted && !image) {
     return (
-      <View style={styles.gateContainer}>
+      <View style={styles.container}>
         <Header />
-        <Ionicons name="camera-outline" size={64} color={COLORS.camaraInferior} />
-        <Text style={styles.gateTitle}>Agrega una foto del problema</Text>
-        <Text style={styles.gateText}>
-          Puedes tomar una fotografía o seleccionar una imagen de tu galería.
-        </Text>
-        {permission ? (
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={requestPermission}
-            accessibilityRole="button"
-          >
-            <Text style={styles.primaryButtonText}>Permitir acceso a la cámara</Text>
-          </TouchableOpacity>
-        ) : (
-          <ActivityIndicator color={COLORS.botonPrincipal} />
-        )}
-        <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={chooseFromGallery}
-          accessibilityRole="button"
-        >
-          <Text style={styles.secondaryButtonText}>Elegir de la galería</Text>
-        </TouchableOpacity>
+        <View style={styles.permissionContent}>
+          <Ionicons name="camera-outline" size={64} color={COLORS.camaraInferior} />
+          <Text style={styles.gateTitle}>Agrega una foto del problema</Text>
+          <Text style={styles.gateText}>
+            Puedes tomar una fotografía o seleccionar una imagen de tu galería.
+          </Text>
+          <View style={styles.permissionActions}>
+            {permission ? (
+              <TouchableOpacity
+                style={[styles.primaryButton, styles.permissionButton]}
+                onPress={requestPermission}
+                accessibilityRole="button"
+              >
+                <Text style={styles.primaryButtonText}>Permitir acceso a la cámara</Text>
+              </TouchableOpacity>
+            ) : (
+              <ActivityIndicator color={COLORS.botonPrincipal} />
+            )}
+            <TouchableOpacity
+              style={[styles.secondaryButton, styles.permissionButton]}
+              onPress={chooseFromGallery}
+              accessibilityRole="button"
+            >
+              <Text style={styles.secondaryButtonText}>Elegir de la galería</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
     );
   }
@@ -271,16 +401,18 @@ export const ReportScreen: React.FC = () => {
           <View style={styles.photoActions}>
             {permission?.granted ? (
               <View style={styles.cameraPreview}>
-                <CameraView ref={cameraRef} style={StyleSheet.absoluteFill} facing="back" />
-                <TouchableOpacity
-                  style={styles.captureButton}
-                  onPress={takePicture}
-                  disabled={isProcessingImage}
-                  accessibilityRole="button"
-                  accessibilityLabel="Tomar fotografía"
-                >
-                  <Ionicons name="camera" size={24} color={COLORS.superficieTarjeta} />
-                </TouchableOpacity>
+                <CameraView
+                  ref={cameraRef}
+                  style={StyleSheet.absoluteFill}
+                  facing="back"
+                  onCameraReady={() => setIsCameraReady(true)}
+                />
+                <View style={styles.cameraHint}>
+                  <Ionicons name="camera-outline" size={22} color={COLORS.superficieTarjeta} />
+                  <Text style={styles.cameraHintText}>
+                    Presiona el botón de cámara del menú inferior para tomar la foto.
+                  </Text>
+                </View>
               </View>
             ) : null}
             <TouchableOpacity
@@ -347,27 +479,77 @@ export const ReportScreen: React.FC = () => {
         <TextInput
           style={styles.input}
           value={address}
-          onChangeText={setAddress}
+          onChangeText={(value) => {
+            geocodeRequestId.current += 1;
+            setIsResolvingAddress(false);
+            setAddress(value);
+          }}
           placeholder="Calle, altura o referencia cercana"
           placeholderTextColor={COLORS.textoDesactivado}
           accessibilityLabel="Dirección de referencia"
         />
-        <TouchableOpacity
-          style={styles.locationButton}
-          onPress={captureLocation}
-          disabled={isGettingLocation}
-          accessibilityRole="button"
-        >
-          {isGettingLocation ? (
-            <ActivityIndicator size="small" color={COLORS.iconoPrincipal} />
-          ) : (
-            <Ionicons name="location-outline" size={20} color={COLORS.iconoPrincipal} />
-          )}
-          <Text style={styles.locationButtonText}>
-            {coordinates ? 'Actualizar ubicación GPS' : 'Agregar ubicación GPS (opcional)'}
+        <View style={styles.locationActions}>
+          <TouchableOpacity
+            style={styles.locationAction}
+            onPress={captureLocation}
+            disabled={isGettingLocation}
+            accessibilityRole="button"
+          >
+            {isGettingLocation ? (
+              <ActivityIndicator size="small" color={COLORS.iconoPrincipal} />
+            ) : (
+              <Ionicons name="locate-outline" size={20} color={COLORS.iconoPrincipal} />
+            )}
+            <Text style={styles.locationButtonText}>
+              {coordinates ? 'Actualizar con mi ubicación GPS' : 'Usar mi ubicación GPS'}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.locationAction}
+            onPress={openLocationMap}
+            accessibilityRole="button"
+            accessibilityState={{ expanded: mapVisible }}
+          >
+            <Ionicons name="map-outline" size={20} color={COLORS.iconoPrincipal} />
+            <Text style={styles.locationButtonText}>
+              {mapVisible ? 'Ocultar mapa' : 'Elegir ubicación en el mapa'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        {mapVisible ? (
+          <View style={styles.mapCard}>
+            <Text style={styles.mapInstructions}>
+              Toca el mapa o arrastra el pin para marcar el lugar del reporte.
+            </Text>
+            <MapView
+              style={styles.map}
+              region={{
+                ...mapCoordinate,
+                latitudeDelta: 0.012,
+                longitudeDelta: 0.012,
+              }}
+              onPress={handleMapPress}
+              accessibilityLabel="Mapa para seleccionar la ubicación del reporte"
+            >
+              <Marker
+                coordinate={mapCoordinate}
+                draggable
+                title="Ubicación del reporte"
+                onDragEnd={(event) => selectMapCoordinate(event.nativeEvent.coordinate)}
+              />
+            </MapView>
+          </View>
+        ) : null}
+        {isResolvingAddress ? (
+          <Text style={styles.helperText}>Buscando la dirección de la ubicación…</Text>
+        ) : locationMessage ? (
+          <Text style={styles.helperText}>{locationMessage}</Text>
+        ) : null}
+        {detectedMunicipality ? (
+          <Text style={styles.detectedMunicipality}>
+            Localidad detectada: {detectedMunicipality}
           </Text>
-        </TouchableOpacity>
-        {locationMessage ? <Text style={styles.helperText}>{locationMessage}</Text> : null}
+        ) : null}
         {coordinates ? (
           <Text style={styles.helperText}>
             Coordenadas: {coordinates.latitude.toFixed(5)}, {coordinates.longitude.toFixed(5)}
@@ -382,9 +564,12 @@ export const ReportScreen: React.FC = () => {
         ) : null}
 
         <TouchableOpacity
-          style={[styles.primaryButton, (isSubmitting || isProcessingImage) && styles.disabledButton]}
+          style={[
+            styles.primaryButton,
+            (isSubmitting || isProcessingImage || isResolvingAddress) && styles.disabledButton,
+          ]}
           onPress={submitReport}
-          disabled={isSubmitting || isProcessingImage}
+          disabled={isSubmitting || isProcessingImage || isResolvingAddress}
           accessibilityRole="button"
         >
           {isSubmitting ? (
@@ -442,15 +627,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: SPACING.md,
   },
-  captureButton: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: COLORS.camaraInferior,
+  cameraHint: {
+    maxWidth: '90%',
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 3,
-    borderColor: COLORS.superficieTarjeta,
+    gap: SPACING.sm,
+    padding: SPACING.sm,
+    borderRadius: BORDER_RADIUS.md,
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+  },
+  cameraHintText: {
+    flexShrink: 1,
+    color: COLORS.superficieTarjeta,
+    fontSize: 13,
+    fontWeight: '600',
   },
   photoCard: {
     overflow: 'hidden',
@@ -519,13 +709,43 @@ const styles = StyleSheet.create({
   multilineInput: {
     minHeight: 110,
   },
-  locationButton: {
-    minHeight: 44,
+  locationActions: {
+    gap: SPACING.sm,
+    marginTop: SPACING.sm,
+  },
+  locationAction: {
+    minHeight: 46,
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.sm,
-    alignSelf: 'flex-start',
+    paddingHorizontal: SPACING.md,
+    borderRadius: BORDER_RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.bordeSuave,
+    backgroundColor: COLORS.superficieTarjeta,
+  },
+  mapCard: {
     marginTop: SPACING.sm,
+    overflow: 'hidden',
+    borderRadius: BORDER_RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.bordeSuave,
+    backgroundColor: COLORS.superficieTarjeta,
+  },
+  mapInstructions: {
+    padding: SPACING.sm,
+    color: COLORS.textoSecundario,
+    fontSize: 13,
+  },
+  map: {
+    width: '100%',
+    height: 240,
+  },
+  detectedMunicipality: {
+    color: COLORS.textoVerdeOscuro,
+    fontSize: 13,
+    fontWeight: '700',
+    marginTop: SPACING.xs,
   },
   locationButtonText: {
     color: COLORS.textoVerde,
@@ -604,6 +824,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: COLORS.fondoAplicacion,
     padding: SPACING.lg,
+  },
+  permissionContent: {
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: SPACING.lg,
+  },
+  permissionActions: {
+    width: '100%',
+    gap: SPACING.md,
+  },
+  permissionButton: {
+    width: '100%',
+    marginTop: 0,
   },
   gateTitle: {
     color: COLORS.textoVerdeOscuro,
