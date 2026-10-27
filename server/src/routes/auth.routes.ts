@@ -6,6 +6,7 @@ import {
   createAuthHandlers,
   login,
   register,
+  getMe,
 } from '../controllers/auth.controller';
 
 export function createAuthRouter(
@@ -15,8 +16,15 @@ export function createAuthRouter(
   const router = Router();
   const handlers = store ? createAuthHandlers(store, tokenSecret) : { login, register };
 
+  // POST /api/auth/login
   router.post('/login', handlers.login);
+
+  // POST /api/auth/register
   router.post('/register', handlers.register);
+
+  // GET /api/auth/me & /api/auth/perfil
+  router.get('/me', getMe);
+  router.get('/perfil', getMe);
 
   return router;
 }

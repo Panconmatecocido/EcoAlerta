@@ -1,4 +1,9 @@
-import { createHmac, randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
+import {
+  createHmac,
+  randomBytes,
+  scrypt,
+  timingSafeEqual,
+} from 'node:crypto';
 import { promisify } from 'node:util';
 import { Request, Response } from 'express';
 import { Role } from '@prisma/client';
@@ -33,6 +38,16 @@ export interface AuthDataStore {
   updatePasswordHash(id: string, passwordHash: string): Promise<void>;
 }
 
+export interface AuthIdentity {
+  id: string;
+  rol: Role;
+  municipioId: string;
+}
+
+export interface AuthIdentityStore {
+  findUserById(id: string): Promise<AuthIdentity | null>;
+}
+
 const database: AuthDataStore = {
   async findMunicipalityIdByCode(code) {
     const municipality = await prisma.municipio.findUnique({
@@ -61,6 +76,15 @@ const database: AuthDataStore = {
   },
   async updatePasswordHash(id, passwordHash) {
     await prisma.user.update({ where: { id }, data: { passwordHash } });
+  },
+};
+
+export const authIdentityStore: AuthIdentityStore = {
+  findUserById(id) {
+    return prisma.user.findUnique({
+      where: { id },
+      select: { id: true, rol: true, municipioId: true },
+    });
   },
 };
 
@@ -113,6 +137,59 @@ function issueToken(user: AuthUserRecord, secret: string): string {
   const unsignedToken = `${header}.${payload}`;
   const signature = createHmac('sha256', secret).update(unsignedToken).digest('base64url');
   return `${unsignedToken}.${signature}`;
+}
+
+export interface SessionTokenPayload {
+  sub: string;
+  exp: number;
+}
+
+export function verifySessionToken(
+  token: string,
+  secret: string | undefined,
+  now = Math.floor(Date.now() / 1000)
+): SessionTokenPayload | null {
+  if (!secret || Buffer.byteLength(secret, 'utf8') < 32) return null;
+
+  const parts = token.split('.');
+  if (parts.length !== 3) return null;
+
+  const [encodedHeader, encodedPayload, encodedSignature] = parts;
+  try {
+    const header = JSON.parse(
+      Buffer.from(encodedHeader, 'base64url').toString('utf8')
+    ) as { alg?: unknown; typ?: unknown };
+    if (header.alg !== 'HS256' || header.typ !== 'JWT') return null;
+
+    const unsignedToken = `${encodedHeader}.${encodedPayload}`;
+    const expectedSignature = createHmac('sha256', secret)
+      .update(unsignedToken)
+      .digest();
+    const suppliedSignature = Buffer.from(encodedSignature, 'base64url');
+    if (
+      suppliedSignature.length !== expectedSignature.length ||
+      !timingSafeEqual(suppliedSignature, expectedSignature)
+    ) {
+      return null;
+    }
+
+    const payload = JSON.parse(
+      Buffer.from(encodedPayload, 'base64url').toString('utf8')
+    ) as Partial<SessionTokenPayload>;
+    if (
+      typeof payload.sub !== 'string' ||
+      !payload.sub ||
+      typeof payload.exp !== 'number' ||
+      !Number.isSafeInteger(payload.exp) ||
+      payload.exp <= now
+    ) {
+      return null;
+    }
+
+    return { sub: payload.sub, exp: payload.exp };
+  } catch {
+    return null;
+  }
 }
 
 function publicUser(user: AuthUserRecord) {
@@ -274,3 +351,88 @@ const authHandlers = createAuthHandlers(database, process.env.AUTH_TOKEN_SECRET)
 
 export const login = authHandlers.login;
 export const register = authHandlers.register;
+
+/**
+ * GET /api/auth/me
+ * Obtener datos actualizados del usuario autenticado directamente desde la base de datos
+ */
+export const getMe = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.headers['x-user-id'] as string;
+    const { id, email } = req.query;
+
+    const queryIdentifier = (id as string) || (email as string) || userId;
+
+    if (!queryIdentifier) {
+      res.status(400).json({
+        success: false,
+        message: 'Identificador de usuario no proporcionado',
+      });
+      return;
+    }
+
+    const trimmedIdentifier = queryIdentifier.trim().toLowerCase();
+
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { id: queryIdentifier },
+          { email: { equals: trimmedIdentifier, mode: 'insensitive' } },
+          ...(queryIdentifier === 'demo-user-1' ? [{ email: 'ejemplo@email.com' }] : []),
+          ...(queryIdentifier === 'agent-user-1' ? [{ email: 'agente@municipio.gob.ar' }] : []),
+          ...(queryIdentifier === 'admin-user-1' ? [{ email: 'admin@ecoalerta.gob.ar' }] : []),
+        ],
+      },
+      include: {
+        municipio: true,
+      },
+    });
+
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        message: 'Usuario no encontrado en la base de datos',
+      });
+      return;
+    }
+
+    const roleMapping: Record<string, string> = {
+      CITIZEN: 'citizen',
+      AGENT: 'agent',
+      ADMIN: 'admin',
+      COLLABORATOR: 'collaborator',
+      citizen: 'citizen',
+      agent: 'agent',
+      admin: 'admin',
+      collaborator: 'collaborator',
+    };
+
+    res.status(200).json({
+      success: true,
+      user: {
+        id: user.id,
+        name: user.nombre,
+        email: user.email,
+        role: roleMapping[user.rol] || 'citizen',
+        points: user.puntos,
+        municipio: user.municipio?.nombre,
+        municipioId: user.municipioId,
+        createdAt: user.creadoEn,
+      },
+      data: {
+        id: user.id,
+        nombre: user.nombre,
+        email: user.email,
+        rol: user.rol,
+        puntos: user.puntos,
+        municipioId: user.municipioId,
+      },
+    });
+  } catch (error) {
+    console.error('Error al obtener perfil de usuario:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor al obtener datos del usuario',
+    });
+  }
+};

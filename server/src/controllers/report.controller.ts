@@ -4,7 +4,7 @@ import { prisma } from '../config/db';
 // Obtener todos los reportes
 export const getReports = async (req: Request, res: Response) => {
   try {
-    const reports = await prisma.report.findMany({
+    const reports = await (prisma as any).report.findMany({
       include: { user: true } // Trae también la info del usuario que hizo el reporte
     });
     res.json(reports);
@@ -18,7 +18,7 @@ export const createReport = async (req: Request, res: Response) => {
   try {
     const { title, description, location, userId } = req.body;
 
-    const newReport = await prisma.report.create({
+    const newReport = await (prisma as any).report.create({
       data: {
         title,
         description,
@@ -26,6 +26,7 @@ export const createReport = async (req: Request, res: Response) => {
         userId
       }
     });
+
 
     res.status(201).json(newReport);
   } catch (error) {

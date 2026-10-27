@@ -52,6 +52,8 @@ specs/003-triaje-y-agente-campo/
 client/
 ├── src/
 │   ├── components/
+│   │   ├── common/
+│   │   │   └── TransactionLoaderModal.tsx    # [NUEVO] Modal bloqueante con spinner (RNF-10) para todas las mutaciones en BD
 │   │   └── agent/
 │   │       ├── PrioritySemaphoreBadge.tsx    # [NUEVO] Badge semáforo (Rojo=URGENTE, Naranja=ALTA, Verde=MEDIA/BAJA)
 │   │       └── VerificationFormModal.tsx     # [NUEVO] Modal de verificación in situ (Caso A Real, Caso B Falso, Caso C Inaccesible 1..3)
@@ -87,6 +89,13 @@ server/
 - Si `accion === 'RECHAZAR'`: exige `observacionesAdmin` no vacío (`400 Bad Request` si falta). Cambia `estado = 'RECHAZADO'`, `puntosOtorgados = 0`.
 - Si `accion === 'APROBAR'`: exige `prioridad` (`BAJA`, `MEDIA`, `ALTA`, `URGENTE`). Cambia `estado = 'APROBADO'`, `prioridad`, `agenteId = null` (entra a la bolsa general del municipio).
 
+### 1.1 Asignación Directa de Agente (`PATCH /api/denuncias/:id/asignar`)
+- Recibe `{ agenteId: string }`.
+- Valida disponibilidad estricta:
+  1. Si no hay inspectores disponibles en el municipio o el agente objetivo tiene `disponible === false`, rechaza la asignación con `409 Conflict` y el mensaje `"Agente no disponible"`.
+  2. Si el agente ya tiene un caso activo en curso (`EN_VERIFICACION` o `EN_SANEAMIENTO`), rechaza con `409 Conflict` (`"El agente ya tiene un caso activo"`).
+  3. En la interfaz (`AdminDenunciasScreen`), si no hay agentes disponibles se bloquea la apertura del modal alertando al Administrador. Dentro del modal, los agentes no disponibles se muestran deshabilitados.
+
 ### 2. Bolsa de Casos y Toma Atómica 1 a 1 (`GET /api/denuncias/bolsa` y `PATCH /api/denuncias/:id/tomar`)
 - **Bolsa (`GET /api/denuncias/bolsa`)**: Retorna denuncias con `estado IN ('APROBADO')` o aquellas liberadas tras verificación (`estado === 'EN_SANEAMIENTO'` y `agenteId === null`), ordenadas por peso de prioridad (`URGENTE` > `ALTA` > `MEDIA` > `BAJA`) y antigüedad (`createdAt ASC`).
 - **Toma Atómica (`PATCH /api/denuncias/:id/tomar`)**:
@@ -111,6 +120,14 @@ server/
 - Puede ser invocado por el propio Agente o por el Admin (`AdminDenunciasScreen` / `AdminAgentesScreen`).
 - Si la denuncia estaba en `EN_VERIFICACION` (aún no verificada): vuelve a `estado = 'APROBADO'` y `agenteId = null`.
 - Si la denuncia estaba en `EN_SANEAMIENTO` (ya verificada y con puntos acreditados): mantiene `estado = 'EN_SANEAMIENTO'` y pone `agenteId = null` para que otro agente tome directamente la limpieza sin repetir la verificación ni duplicar puntos.
+
+### 5. Métricas, Candidatos Geodésicos y Geotracking
+- **Dashboard de Métricas (`GET /api/denuncias/metricas`)**:
+  - Agrupa y totaliza en tiempo real los reportes registrados según los 8 estados del ciclo de vida ambiental (`PENDIENTE`, `APROBADO`, `EN_VERIFICACION`, `VERIFICADO_PENDIENTE`, `EN_SANEAMIENTO`, `RESUELTO`, `RECHAZADO`, `CERRADO_INACCESIBLE`).
+- **Candidatos por Proximidad Haversine (`GET /api/denuncias/:id/agentes-disponibles`)**:
+  - Filtra agentes del municipio con `disponible === true` y calcula `distanciaMetros` geodésica entre las coordenadas del foco ambiental y la posición GPS del inspector para sugerir candidatos óptimos.
+- **Geotracking y Alta de Agentes (`PATCH /api/agentes/me/ubicacion`, `POST /api/agentes`)**:
+  - Permite a los agentes de campo reportar su ubicación en tiempo real (`latitudActual`, `longitudActual`, `ubicacionActualizadaEn`) y al Administrador dar de alta nuevos inspectores municipales con credenciales seguras.
 
 ## Complexity Tracking
 

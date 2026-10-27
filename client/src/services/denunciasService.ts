@@ -25,8 +25,12 @@ export interface DenunciaCiudadano {
 
 export const denunciaService = {
   // Obtener reportes creados por el ciudadano autenticado
-  obtenerMisDenuncias: async (): Promise<DenunciaCiudadano[]> => {
-    return await clienteApi<DenunciaCiudadano[]>('/api/denuncias/mis-denuncias');
+  obtenerMisDenuncias: async (ciudadanoId?: string): Promise<DenunciaCiudadano[]> => {
+    const endpoint = ciudadanoId
+      ? `/api/denuncias/mis-denuncias?ciudadanoId=${encodeURIComponent(ciudadanoId)}`
+      : '/api/denuncias/mis-denuncias';
+    const res = await clienteApi<any>(endpoint);
+    return Array.isArray(res) ? res : (res.data || []);
   },
 
   // Crear una nueva denuncia enviando datos y foto (FormData)

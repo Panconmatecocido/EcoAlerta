@@ -134,11 +134,13 @@ Un ciudadano puede optar por el botón de acceso rápido con Google para ingresa
 - **FR-008 (Seguridad y Semillas de Prueba)**: El sistema DEBE proteger las contraseñas mediante hash seguro y disponer de cuentas de prueba preconfiguradas para los 4 roles (`CITIZEN` con 1250 pts y 50 pts, `AGENT` 1 y 2, `ADMIN` y `COLLABORATOR`) en el municipio `"Pilar"` (`PILAR-BA`).
 - **FR-009 (RF-AUT-06 - Home de Bienvenida Explicativo y Botón CTA de Cabecera)**: Cuando el usuario no está autenticado (`user === null`), la pantalla de Inicio DEBE mostrar una guía explicativa del funcionamiento de Eco Alerta y reemplazar el bloque de nombre e ícono del usuario por un botón con la leyenda **"Regístrate para empezar a usar la app"** que redirija al flujo de Registro/Login.
 - **FR-010 (RF-AUT-07 y 08 - Guardián de Modo Invitado / Auth Gate)**: Cuando un usuario no autenticado intente realizar cualquier acción que requiera cuenta o datos del usuario —incluyendo abrir **Cámara / Reportar un foco**, entrar a **Perfil**, consultar **Historial** o pulsar **"Agregar al Carrito"** en la Tienda—, el sistema DEBE bloquear la acción y solicitarle que se registre o inicie sesión.
+- **FR-011 (RF-AUT-09 - Refresco en Caliente de Perfil y Puntos en DB)**: El sistema DEBE exponer endpoints autenticados `GET /api/auth/me` y `GET /api/auth/perfil` que retornen el perfil y saldo de puntos en tiempo real directamente de la base de datos PostgreSQL, e integrar `recargarPerfilUsuario()` en el cliente para mantener sincronizado el estado local con la base de datos tras canjes, entregas o acreditación de puntos.
 
 ### Non-Functional Requirements
 
 - **NFR-001 (RNF-09 - Arranque Inmediato en Modo Invitado y Respuesta del Auth Gate)**: La carga inicial en Modo Invitado DEBE mostrar el Home de Bienvenida en menos de `300 ms` sin exigir credenciales, y la intercepción de acciones protegidas (Auth Gate) DEBE responder en menos de `100 ms` mostrando el aviso o pantalla de registro sin cierres inesperados.
 - **NFR-002 (RNF-01 y 06 - Resiliencia y Tiempos de Respuesta)**: Las consultas de autenticación al servidor central DEBEN responder en menos de `600 ms` y conmutar automáticamente al repositorio local en caso de falla de red.
+- **NFR-003 (RNF-10 - Bloqueo de UI con Spinner Transaccional en DB)**: Al enviar solicitudes de Registro o Inicio de Sesión a la Base de Datos, el sistema DEBE mostrar un spinner bloqueante (`TransactionLoaderModal` / botón deshabilitado) impidiendo pulsaciones repetidas hasta conocer el estado de la transacción: si es positiva, avanza en el flujo; si es negativa, permanece en el formulario y muestra un mensaje de error invitando a reintentar.
 
 ### Key Entities
 

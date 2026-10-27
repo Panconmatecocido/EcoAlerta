@@ -8,14 +8,14 @@ Este documento centraliza **todas las Historias de Usuario (HU), Requisitos Func
 
 | Orden | Artefactos Spec Kit (`spec` / `plan` / `tasks`) | Módulo / Alcance | Estado | Siguiente Fase Recomendada |
 | :--- | :--- | :--- | :--- | :--- |
-| **001** | [`spec.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/001-auth-rbac/spec.md) · [`plan.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/001-auth-rbac/plan.md) · [`tasks.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/001-auth-rbac/tasks.md) | **Módulo 1:** Modo Invitado (Guest Home + Auth Gate), Autenticación, Cuentas y 4 Roles (RBAC) | ✅ **Spec + Plan + Tasks (26 tareas)** | `/speckit-implement` sobre `001-auth-rbac` |
-| **002** | [`spec.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/002-reporte-ciudadano/spec.md) · [`plan.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/002-reporte-ciudadano/plan.md) · [`tasks.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/002-reporte-ciudadano/tasks.md) | **Módulo 2 (Parte A):** Creación de Reporte Ciudadano, GPS, Cámara `< 1.2 MB`, Seguimiento y Soft Delete | ✅ **Spec + Plan + Tasks (17 tareas)** | `/speckit-implement` sobre `002-reporte-ciudadano` |
-| **003** | [`spec.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/003-triaje-y-agente-campo/spec.md) · [`plan.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/003-triaje-y-agente-campo/plan.md) · [`tasks.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/003-triaje-y-agente-campo/tasks.md) | **Módulo 2 (Parte B):** Triaje Admin, Bolsa de Casos, Toma 1 a 1 por Agente, Verificación In Situ (3 Intentos) y Liberación | ✅ **Spec + Plan + Tasks (15 tareas)** | `/speckit-implement` sobre `003-triaje-y-agente-campo` |
-| **004** | [`spec.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/004-saneamiento-y-certificacion/spec.md) · [`plan.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/004-saneamiento-y-certificacion/plan.md) · [`tasks.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/004-saneamiento-y-certificacion/tasks.md) | **Módulo 2 (Parte C):** Validación de Veracidad con Acreditación de Puntos, Saneamiento Técnico y Doble Certificación Antes vs Después | ✅ **Spec + Plan + Tasks (15 tareas)** | `/speckit-implement` sobre `004-saneamiento-y-certificacion` |
-| **005** | [`spec.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/005-tienda-carrito-checkout/spec.md) · [`plan.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/005-tienda-carrito-checkout/plan.md) · [`tasks.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/005-tienda-carrito-checkout/tasks.md) | **Módulo 3 (Parte A):** ABM de Catálogo Admin, Tienda Reactiva (Modo Invitado), Carrito 100% Puntos y Checkout con Reserva TTL de 5 Minutos | ✅ **Spec + Plan + Tasks (16 tareas)** | `/speckit-implement` sobre `005-tienda-carrito-checkout` |
-| **006** | [`spec.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/006-entrega-colaborador-expiracion/spec.md) · [`plan.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/006-entrega-colaborador-expiracion/plan.md) · [`tasks.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/006-entrega-colaborador-expiracion/tasks.md) | **Módulo 3 (Parte B):** Panel Colaborador de Entrega (`codigoRetiro`) y Expiración de Canjes a los 30 Días | ✅ **Spec + Plan + Tasks (10 tareas)** | `/speckit-implement` sobre `006-entrega-colaborador-expiracion` |
+| **001** | [`spec.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/001-auth-rbac/spec.md) · [`plan.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/001-auth-rbac/plan.md) · [`tasks.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/001-auth-rbac/tasks.md) | **Módulo 1:** Modo Invitado (Guest Home + Auth Gate), Autenticación, Cuentas y 4 Roles (RBAC) | ✅ **Implementado (27/27 tareas + Tests OK)** | Integrado en `main` |
+| **002** | [`spec.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/002-reporte-ciudadano/spec.md) · [`plan.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/002-reporte-ciudadano/plan.md) · [`tasks.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/002-reporte-ciudadano/tasks.md) | **Módulo 2 (Parte A):** Creación de Reporte Ciudadano, GPS, Cámara `< 1.2 MB`, Seguimiento y Soft Delete | ✅ **Implementado (19/19 tareas + Tests OK)** | Integrado en `main` |
+| **003** | [`spec.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/003-triaje-y-agente-campo/spec.md) · [`plan.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/003-triaje-y-agente-campo/plan.md) · [`tasks.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/003-triaje-y-agente-campo/tasks.md) | **Módulo 2 (Parte B):** Triaje Admin, Bolsa de Casos, Toma 1 a 1 por Agente, Verificación In Situ (3 Intentos) y Liberación | ✅ **Implementado (19/19 tareas + Tests OK)** | Integrado en `main` |
+| **004** | [`spec.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/004-saneamiento-y-certificacion/spec.md) · [`plan.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/004-saneamiento-y-certificacion/plan.md) · [`tasks.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/004-saneamiento-y-certificacion/tasks.md) | **Módulo 2 (Parte C):** Validación de Veracidad con Acreditación de Puntos, Saneamiento Técnico y Doble Certificación Antes vs Después | ✅ **Implementado (15/15 tareas + Tests OK)** | Integrado en `main` |
+| **005** | [`spec.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/005-tienda-carrito-checkout/spec.md) · [`plan.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/005-tienda-carrito-checkout/plan.md) · [`tasks.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/005-tienda-carrito-checkout/tasks.md) | **Módulo 3 (Parte A):** ABM de Catálogo Admin, Tienda Reactiva (Modo Invitado), Carrito 100% Puntos y Checkout con Reserva TTL de 5 Minutos | ✅ **Implementado (17/17 tareas + Tests OK)** | Integrado en `main` |
+| **006** | [`spec.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/006-entrega-colaborador-expiracion/spec.md) · [`plan.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/006-entrega-colaborador-expiracion/plan.md) · [`tasks.md`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/specs/006-entrega-colaborador-expiracion/tasks.md) | **Módulo 3 (Parte B):** Panel Colaborador de Entrega (`codigoRetiro`) y Expiración de Canjes a los 30 Días | ✅ **Implementado (13/13 tareas + Tests OK)** | Integrado en `main` |
 
-> 💡 **Nota de uso:** Los 6 módulos ya cuentan con su especificación (`spec.md`), plan de arquitectura (`plan.md`) y lista de tareas ejecutables (`tasks.md`). Para comenzar a programar en orden de dependencia, ejecuta `/speckit-implement` empezando por `001-auth-rbac`.
+> 💡 **Nota de uso:** Los 6 módulos están 100% implementados (110/110 tareas resueltas), probados exhaustivamente con suites de integración y unitarias (96 tests pasando) y fusionados en la rama principal `main`.
 
 ---
 
@@ -45,6 +45,7 @@ Este documento centraliza **todas las Historias de Usuario (HU), Requisitos Func
   3. Pulsar **"Agregar al Carrito"** en cualquier producto de la Tienda, o
   4. Ejecutar cualquier acción que requiera datos del usuario,
   el sistema DEBE bloquear la ejecución y desplegar un aviso/modal o redirección directa solicitándole que se registre o inicie sesión para continuar.
+- **RF-AUT-09 (Refresco en Caliente de Perfil y Puntos en DB):** Endpoints autenticados `GET /api/auth/me` y `GET /api/auth/perfil` conectados a `recargarPerfilUsuario()` de `AuthContext` para reflejar en tiempo real el saldo de puntos y datos del usuario directamente desde PostgreSQL tras cualquier canje, entrega o inspección.
 
 ---
 
@@ -57,15 +58,22 @@ Este documento centraliza **todas las Historias de Usuario (HU), Requisitos Func
 - Se guarda con código único (`REP-2026-XXX`) y estado inicial `PENDIENTE` (`REPORTADO`).
 - **Regla de Puntos:** NO se acreditan puntos al enviar el reporte; quedan en revisión hasta que la denuncia sea verificada como real en el terreno.
 
-### 2. Triaje por Administrador (`RF-ADM-01 a 03`, `HU-05`)
+### 2. Triaje y Asignación por Administrador (`RF-ADM-01 a 03b`, `HU-05`)
 - El Admin evalúa reportes iniciales.
 - Si es improcedente/broma, lo rechaza (`RECHAZADO` / `CERRADO_FALSO`) con justificación obligatoria (`observacionesAdmin`) y `0 puntos`.
 - Si es válido, le asigna `Prioridad` (`BAJA`, `MEDIA`, `ALTA`, `URGENTE`) y lo aprueba (`APROBADO` / `APROBADO_EN_BOLSA`) para que sea visible por todos los agentes de campo del municipio.
+- **Asignación directa y control de disponibilidad (`RF-ADM-03b`):**
+  - Si no hay inspectores disponibles en el municipio (`disponible = true`), el sistema bloquea la asignación notificando al Administrador.
+  - Si se intenta asignar a un inspector no disponible (`disponible = false`), el sistema (frontend y backend) rechaza la operación enviando el mensaje: `"Agente no disponible"`.
+- **Dashboard de Métricas por los 8 Estados (`RF-ADM-09`):** Endpoint `GET /api/denuncias/metricas` que totaliza los reportes clasificados en los 8 estados del ciclo de vida ambiental (`PENDIENTE`, `APROBADO`, `EN_VERIFICACION`, `VERIFICADO_PENDIENTE`, `EN_SANEAMIENTO`, `RESUELTO`, `RECHAZADO`, `CERRADO_INACCESIBLE`).
+- **Proximidad GPS Haversine y Candidatos Disponibles (`RF-ADM-10`):** Endpoint `GET /api/denuncias/:id/agentes-disponibles` con cálculo geodésico Haversine de cercanía entre el foco ambiental y la posición GPS de los inspectores en servicio.
 
-### 3. Toma de Caso con Bloqueo 1 a 1 por Agente (`RF-AGE-01 a 04`, `HU-08`)
+### 3. Toma de Caso con Bloqueo 1 a 1 por Agente (`RF-AGE-01 a 04, 09, 10`, `HU-08`)
 - Todos los agentes ven la bolsa de casos aprobados ordenados por prioridad (Rojo = Urgente, Naranja = Alta, Verde = Media/Baja) y cercanía, con acceso a navegación en mapa.
 - Al pulsar *"Tomar Caso"*, se aplica un **bloqueo transaccional atómico 1 a 1** (`prisma.$transaction`): asigna `agenteId` y pasa a estado `EN_VERIFICACION` (`EN_PROCESO`).
 - Un agente con un caso activo NO puede tomar otro en paralelo.
+- **Geotracking y Disponibilidad en Vivo (`RF-AGE-09`):** Endpoints `PATCH /api/agentes/me/ubicacion` y `PATCH /api/agentes/me/disponibilidad` para actualización continua de posición GPS (`latitudActual`, `longitudActual`, `ubicacionActualizadaEn`) y estado de guardia.
+- **Alta Administrativa de Agentes (`RF-AGE-10`):** Endpoint `POST /api/agentes` para el alta y aprovisionamiento seguro de nuevos inspectores municipales por el Administrador.
 
 ### 4. Verificación In Situ y Protocolo de 3 Intentos por Inaccesibilidad (`RF-AGE-05 a 06`, `HU-09`)
 - El agente va al lugar y completa el formulario de verificación con nueva foto (`fotoVerificacionUrl`):
@@ -90,10 +98,11 @@ Este documento centraliza **todas las Historias de Usuario (HU), Requisitos Func
 - Si la limpieza es deficiente, pulsa *"Observar / Rechazar Saneamiento"* con notas técnicas (`observacionesAdmin`) y el caso regresa a `EN_SANEAMIENTO`.
 - Si aprueba, pasa a `RESUELTO` (`CERRADO_DEFINITIVO`) y notifica al ciudadano.
 
-### 9. Seguimiento en Home y Soft Delete Ciudadano (`RF-REP-06 a 07`, `HU-04`, `HU-VEC01`)
+### 9. Seguimiento en Home y Soft Delete Ciudadano (`RF-REP-06 a 08`, `HU-04`, `HU-VEC01`)
 - El vecino ve el progreso de sus casos en el Home/Perfil.
 - Una vez que cobró sus puntos, puede eliminar/archivar el reporte de su panel (`ocultarUsuario = true`).
 - Esto aplica un **Soft Delete visual**: desaparece de la lista del vecino (incluso si sigue en etapa de saneamiento), pero se conserva íntegro en la base de datos municipal.
+- **Endpoint Mis Denuncias y Fallback Silencioso (`RF-REP-08`):** Endpoint `GET /api/denuncias/mis-denuncias` con resolución de identidad y fallback automático a `LocalReportRepository` ante contingencias de red, manteniendo una experiencia fluida sin pantallas rojas.
 
 ---
 
@@ -112,10 +121,12 @@ Este documento centraliza **todas las Historias de Usuario (HU), Requisitos Func
 - Al iniciar el Checkout, el sistema aplica una **reserva/bloqueo temporal de stock por 5 minutos (TTL)** (`estado: RESERVADO_PENDIENTE`, `bloqueadoHasta: now + 5 min`) para evitar sobreventa si dos vecinos intentan canjear la última unidad disponible al mismo tiempo. Si pasan los 5 min o se cierra la app sin confirmar, el stock se libera automáticamente.
 - El vecino selecciona la sucursal/punto de retiro municipal (`Sucursal`, con aviso de disponibilidad a partir de las **48 hs hábiles**).
 - Al confirmar, una transacción atómica (`prisma.$transaction`) descuenta los puntos del vecino, descuenta el stock definitivo, vacía el carrito y emite el comprobante con `codigoRetiro` único (ej. `ECO-7894-K`) y `fechaExpiracion` a 30 días.
+- **Worker de Liberación de Reservas TTL y Consultas por ID (`RF-TIE-07`):** Endpoint `POST /api/canjes/liberar-vencidas` para barrido masivo de reservas expiradas con restitución de stock, junto a `GET /api/productos/:id` y `GET /api/canjes/:id` para auditoría directa.
 
-### 4. Entrega Presencial y Expiración a los 30 Días (`RF-COL-01`, `RF-TIE-06`)
+### 4. Entrega Presencial y Expiración a los 30 Días (`RF-COL-01 a 02`, `RF-TIE-06`)
 - El Colaborador Municipal (`COLLABORATOR`) o Admin ingresa el `codigoRetiro`, valida el pedido y lo marca como `ENTREGADO` (`fechaEntrega`).
 - Si un canje no es retirado pasados **30 días corridos** (`fechaExpiracion`), pasa a estado `CANCELADO` (`EXPIRADO`): el stock físico vuelve a sumarse al inventario municipal, pero **no se reembolsan los puntos** al ciudadano.
+- **Procesamiento Masivo Forzado de Expiraciones (`RF-COL-02`):** Endpoint `POST /api/canjes/procesar-expirados` para barrido bajo demanda o cron de vouchers vencidos a los 30 días con retorno de stock a inventario sin devolución de puntos.
 
 ---
 
@@ -127,4 +138,10 @@ Este documento centraliza **todas las Historias de Usuario (HU), Requisitos Func
 - **RNF-06 (Patrón Repositorio):** Capa de servicios/repositorios desacoplada que opera contra la API `/server` y mantiene soporte de caché/mocks locales (`AsyncStorage`) para tolerancia a fallos de red.
 - **RNF-07 y 08 (Seguridad e Integridad):** Contraseñas hasheadas (`passwordHash`), bajas lógicas en productos (`activo: false`) y reportes (`ocultarUsuario: true`).
 - **RNF-09 (Onboarding Sin Fricción y Guardián de Invitado - Auth Gate):** El inicio en frío de la aplicación para usuarios sin sesión activa DEBE aterrizar en el Home de Bienvenida en `< 300 ms` sin exigir login previo, interceptando en `< 100 ms` cualquier intento de acceder a rutas o acciones que requieran identidad del usuario (Cámara/Reporte, Perfil, Agregar al Carrito) sin provocar errores ni pantallas en blanco.
+- **RNF-10 (Bloqueo de UI con Spinner Transaccional, Spinner en Filtros de Listas y Flujo Estricto Éxito/Error):**
+  1. **Mutaciones / Escrituras en BD:** Cada vez que se envía una solicitud de escritura/mutación a la Base de Datos (tomar caso, liberar caso, verificar in situ, triaje, acreditar puntos, cerrar saneamiento, certificar, crear/ocultar reporte, reservar/confirmar canje o registrar entrega), DEBE desplegarse inmediatamente un **loader/spinner bloqueante (`TransactionLoaderModal`)** que impida volver a presionar los botones hasta conocer el estado de la transacción en la BD:
+     - **Si es positiva (éxito):** Se actualiza el estado local con la respuesta de la transacción (sin recargas bloqueantes redundantes), se oculta el spinner, se avanza en el flujo/vista y se muestra el mensaje de confirmación inmediatamente.
+     - **Si es negativa (error):** Se oculta el spinner manteniendo la pantalla/formulario actual intacto y se muestra un mensaje de error claro solicitando al usuario que vuelva a intentar.
+  2. **Filtros de Listas, Pestañas y Buscadores:** En todas las pantallas que posean filtros de listas, chips de estado/categoría/prioridad, pestañas o buscadores (`AdminDenunciasScreen`, `AgentHomeScreen`, `StoreScreen`, `ProfileScreen`, `AdminCatalogoScreen`, `CollaboratorDeliveryScreen`), cada vez que el usuario cambie un filtro o pestaña DEBE mostrarse inmediatamente un spinner de carga (`ActivityIndicator` con mensaje contextual) en el área de la lista hasta obtener y renderizar el resultado filtrado.
+- **RNF-11 (Compatibilidad Expo SDK 58 y React Native 0.88 Edge-to-Edge):** Arquitectura móvil completamente homologada para Expo SDK 58 y React Native 0.88 con compatibilidad de `StatusBar` Edge-to-Edge nativa y ejecución fluida en Expo Go sin avisos de incompatibilidad.
 - **Estilo UI:** `StyleSheet.create` por componente consumiendo las variables globales de [`client/src/utils/theme.ts`](file:///c:/Users/raulr/Desktop/uni/2doA%C3%B1o/2doCuatri/aplicaciones%20moviles/EcoAlerta/client/src/utils/theme.ts) (sin Tailwind/NativeWind).

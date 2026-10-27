@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, LoginCredentials, RegisterData } from '../interfaces/user';
 import { AuthNetworkError, AuthRepositoryError, authRepository } from '../repositories/auth';
+import { api } from '../services/api';
 
 interface AuthContextType {
   user: User | null;
@@ -14,6 +15,7 @@ interface AuthContextType {
   requireAuth: () => boolean;
   dismissAuthGate: () => void;
   updateUserPoints?: (nuevosPuntos: number) => void;
+  recargarPerfilUsuario?: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -56,6 +58,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const updatedUser = { ...user, points: nuevosPuntos };
     await authRepository.saveSession(updatedUser);
     setUser(updatedUser);
+  };
+
+  const recargarPerfilUsuario = async () => {
+    if (!user) return;
+    try {
+      const queryParams = new URLSearchParams();
+      if (user.id) queryParams.append('id', user.id);
+      if (user.email) queryParams.append('email', user.email);
+      const res = await api.get<any>(`/auth/me?${queryParams.toString()}`);
+      if (res?.success && (res.user || res.data)) {
+        const u = res.user || res.data;
+        const perfilActualizado: User = {
+          ...user,
+          points: u.points ?? u.puntos ?? user.points,
+        };
+        setUser(perfilActualizado);
+        await authRepository.saveSession(perfilActualizado);
+      }
+    } catch (err) {
+      console.warn('Error al recargar perfil:', err);
+    }
   };
 
   const login = async (
@@ -178,6 +201,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         requireAuth,
         dismissAuthGate,
         updateUserPoints,
+        recargarPerfilUsuario,
       }}
     >
       {children}

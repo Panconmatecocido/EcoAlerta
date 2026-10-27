@@ -68,6 +68,13 @@ El vecino consulta desde la pestaña "Canjes" en su Perfil (o desde el enlace "V
 - **FR-002 (RF-COL-01 - Validación y Confirmación de Entrega)**: El sistema DEBE permitir marcar como `ENTREGADO` únicamente órdenes que se encuentren en estado `PENDIENTE_RETIRO` y cuya `fechaExpiracion` no haya vencido, registrando la marca de tiempo `fechaEntrega`.
 - **FR-003 (RF-TIE-06 y RNF-03 - Expiración a los 30 Días Corridos)**: Para toda orden en `PENDIENTE_RETIRO` que supere los `30 días corridos` (`ahora > fechaExpiracion`), el sistema DEBE ejecutar una transacción atómica que: (a) cambie el estado del canje a `CANCELADO`, (b) incremente el `stock` de cada `Producto` según las cantidades de `ItemCanje`, y (c) mantenga sin cambios (`0 puntos reembolsados`) el saldo del ciudadano.
 - **FR-004 (RF-TIE-05 y 06 - Historial de Canjes del Ciudadano)**: El sistema DEBE mostrar al ciudadano en su perfil el listado de sus canjes reales con su `codigoRetiro`, sucursal, puntos utilizados, fecha y estado actualizado.
+- **FR-005 (RNF-10 - Spinner en Mutaciones de BD y en Búsqueda/Filtros de Canjes)**: Al confirmar la entrega presencial de un canje (`PATCH /api/canjes/:id/entregar`) en la Base de Datos, el sistema DEBE desplegar inmediatamente un spinner bloqueante (`TransactionLoaderModal`) impidiendo volver a presionar el botón hasta recibir el resultado de la transacción (positiva: actualiza a `ENTREGADO` y confirma; negativa: mantiene vista actual y muestra error solicitando reintentar). Asimismo, al buscar por `codigoRetiro` o cambiar filtros/pestañas de historial de canjes, DEBE mostrarse un spinner de carga hasta obtener el resultado.
+- **FR-006 (Fase 2 - Consumo Exclusivo de Base de Datos y Supresión de Fallback Local)**: Todas las operaciones de catálogo, sucursales, reservas, vouchers de canje y confirmaciones de entrega DEBEN operar exclusivamente contra la Base de Datos PostgreSQL (Supabase) a través de la API REST del servidor (`RemoteStoreRepository`). Se elimina por completo el fallback silencioso a almacenamiento mock local (`LocalStoreRepository`), garantizando que cualquier error de red o rechazo transaccional de la BD se propague directamente a la UI.
+- **FR-007 (Semilla Directa en Base de Datos para Pruebas Operativas)**: El script de inicialización (`server/prisma/seed.ts`) DEBE sembrar directamente en la base de datos PostgreSQL los canjes necesarios para validación manual y automatizada:
+  - Canje vigente `ECO-7894-K` (`PENDIENTE_RETIRO`, vigencia por 25 días más).
+  - Canje histórico entregado `ECO-2026-ENTR` (`ENTREGADO`, con `fechaEntrega` registrada).
+  - Canje vencido `ECO-2026-EXPD` (`fechaExpiracion` en el pasado, > 30 días de antigüedad), para comprobar la transición atómica a `CANCELADO`, la restitución física de stock y el bloqueo de entrega.
+- **FR-008 (RF-COL-02 - Procesamiento Masivo Forzado de Expiraciones)**: El sistema DEBE proveer el endpoint `POST /api/canjes/procesar-expirados` para ejecutar bajo demanda o por tareas programadas el barrido de vouchers en `PENDIENTE_RETIRO` con más de 30 días transcurridos (`fechaExpiracion < now`), cancelándolos y reponiendo el stock de productos en inventario sin devolución de puntos.
 
 ### Key Entities
 
@@ -78,11 +85,14 @@ El vecino consulta desde la pestaña "Canjes" en su Perfil (o desde el enlace "V
 
 ### Measurable Outcomes
 
-- **SC-001**: Un Colaborador Municipal puede buscar un `codigoRetiro`, verificar la identidad y los productos y registrar la entrega en menos de 20 segundos.
-- **SC-002**: El 100% de los intentos de entregar por segunda vez un código ya `ENTREGADO` o un código `CANCELADO` (expirado) son bloqueados por el sistema.
+- **SC-001**: Un Colaborador Municipal puede buscar un `codigoRetiro`, verificar la identidad y los productos y registrar la entrega en menos de 20 segundos consultando directamente PostgreSQL.
+- **SC-002**: El 100% de los intentos de entregar por segunda vez un código ya `ENTREGADO` o un código `CANCELADO` (expirado) son bloqueados por el sistema en la Base de Datos.
 - **SC-003**: El 100% de los canjes que superan los 30 días sin retiro restituyen la totalidad de sus unidades físicas al stock del catálogo municipal y retienen el 100% de los puntos utilizados (0% de reembolso de puntos).
+- **SC-004**: Los datos desplegados en el panel del Colaborador y en el perfil del Ciudadano provienen 100% de la Base de Datos PostgreSQL sin intervención de almacenamiento simulado local.
 
 ## Assumptions
 
 - El vecino presenta su documento o pantalla de la aplicación con el `codigoRetiro` en la sucursal municipal elegida a partir de las 48 horas hábiles de realizado el canje.
 - La evaluación de vencimiento de 30 días se verifica de forma automática al consultar los canjes o buscar un código de retiro, asegurando que ninguna orden vencida pueda ser entregada aunque no haya corrido un proceso programado externo.
+- La base de datos PostgreSQL en Supabase se encuentra inicializada y poblada con los canjes semilla correspondientes.
+

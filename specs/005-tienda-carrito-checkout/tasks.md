@@ -18,7 +18,7 @@
 
 **Purpose**: Sembrar productos y sucursales municipales en Prisma y preparar el montaje de rutas en Express.
 
-- [ ] T001 Actualizar `server/prisma/seed.ts` para sembrar al menos 4 productos ecológicos (`activo: true`) y 2 sucursales municipales (`Sucursal` con nombre, dirección y horario) asociadas al municipio `MUN-001` en `server/prisma/seed.ts`
+- [X] T001 Actualizar `server/prisma/seed.ts` para sembrar al menos 4 productos ecológicos (`activo: true`) y 2 sucursales municipales (`Sucursal` con nombre, dirección y horario) asociadas al municipio `MUN-001` en `server/prisma/seed.ts`
 
 ---
 
@@ -28,11 +28,11 @@
 
 **⚠️ CRITICAL**: Bloqueante para la tienda ciudadana, el carrito y el ABM administrativo.
 
-- [ ] T002 Crear `productos.controller.ts` con listado público de productos activos (`activo: true`), listado completo para Admin, creación, edición y baja lógica (`activo: false`), más listado/ABM de `Sucursal` en `server/src/controllers/productos.controller.ts`
-- [ ] T003 Crear `canjes.controller.ts` con `liberarReservasVencidas`, `reservarCanje` (`RESERVADO_PENDIENTE`, `bloqueadoHasta = +5 min` y descuento preventivo de stock en `prisma.$transaction`), `cancelarReserva` y `confirmarCanje` (descuento de `User.puntos`, `codigoRetiro = ECO-2026-XXXX`, `fechaExpiracion = +30 días`, `PENDIENTE_RETIRO`) en `server/src/controllers/canjes.controller.ts`
-- [ ] T004 Crear las rutas `server/src/routes/productos.routes.ts` y `server/src/routes/canjes.routes.ts` y montarlas en `server/src/index.ts`
-- [ ] T005 [P] Definir la interfaz `IStoreRepository` y tipos (`StoreProduct`, `StoreBranch`, `ReservationResponse`, `ConfirmRedemptionResponse`) en `client/src/repositories/store/IStoreRepository.ts`
-- [ ] T006 [P] Implementar `RemoteStoreRepository` y `LocalStoreRepository` (con lógica de reserva temporal de 5 minutos y persistencia en `AsyncStorage`) en `client/src/repositories/store/RemoteStoreRepository.ts`, `client/src/repositories/store/LocalStoreRepository.ts` y `client/src/repositories/store/index.ts`
+- [X] T002 Crear `productos.controller.ts` con listado público de productos activos (`activo: true`), listado completo para Admin, creación, edición y baja lógica (`activo: false`), más listado/ABM de `Sucursal` en `server/src/controllers/productos.controller.ts`
+- [X] T003 Crear `canjes.controller.ts` con `liberarReservasVencidas`, `reservarCanje` (`RESERVADO_PENDIENTE`, `bloqueadoHasta = +5 min` y descuento preventivo de stock en `prisma.$transaction`), `cancelarReserva` y `confirmarCanje` (descuento de `User.puntos`, `codigoRetiro = ECO-2026-XXXX`, `fechaExpiracion = +30 días`, `PENDIENTE_RETIRO`) en `server/src/controllers/canjes.controller.ts`
+- [X] T004 Crear las rutas `server/src/routes/productos.routes.ts` y `server/src/routes/canjes.routes.ts` y montarlas en `server/src/index.ts`
+- [X] T005 [P] Definir la interfaz `IStoreRepository` y tipos (`StoreProduct`, `StoreBranch`, `ReservationResponse`, `ConfirmRedemptionResponse`) en `client/src/repositories/store/IStoreRepository.ts`
+- [X] T006 [P] Implementar `RemoteStoreRepository` y `LocalStoreRepository` (con lógica de reserva temporal de 5 minutos y persistencia en `AsyncStorage`) en `client/src/repositories/store/RemoteStoreRepository.ts`, `client/src/repositories/store/LocalStoreRepository.ts` y `client/src/repositories/store/index.ts`
 
 **Checkpoint**: API `/api/productos`, `/api/sucursales`, `/api/canjes` y `IStoreRepository` listos.
 
@@ -46,7 +46,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T007 [US1] Actualizar `StoreScreen` para cargar productos desde `IStoreRepository.getProducts`, mostrar badge `"Sin Stock"` cuando `stock === 0` e interceptar el botón `"Agregar"` con el Auth Gate si `user === null` en `client/src/screens/citizen/StoreScreen.tsx`
+- [X] T007 [US1] Actualizar `StoreScreen` para cargar productos desde `IStoreRepository.getProducts`, mostrar badge `"Sin Stock"` cuando `stock === 0` e interceptar el botón `"Agregar"` con el Auth Gate si `user === null` en `client/src/screens/citizen/StoreScreen.tsx`
 
 **Checkpoint**: Catálogo conectado a datos reales y protegido para invitados.
 
@@ -60,8 +60,8 @@
 
 ### Implementation for User Story 2
 
-- [ ] T008 [US2] Actualizar `CartContext` para persistir el carrito en `AsyncStorage` (`@ecoalerta_cart`), validar el límite de `stock` al incrementar unidades y exponer `totalPoints` sin cargos monetarios en `client/src/context/CartContext.tsx`
-- [ ] T009 [US2] Refactorizar `CartScreen` usando `StyleSheet.create` y `theme.ts` para eliminar el cargo de envío de `$2.500 ARS`, mostrar comparativa `Saldo Actual vs. Total a Canjear` y habilitar/deshabilitar el botón `"Continuar al Canje"` según alcance de puntos y stock en `client/src/screens/citizen/CartScreen.tsx`
+- [X] T008 [US2] Actualizar `CartContext` para persistir el carrito en `AsyncStorage` (`@ecoalerta_cart`), validar el límite de `stock` al incrementar unidades y exponer `totalPoints` sin cargos monetarios en `client/src/context/CartContext.tsx`
+- [X] T009 [US2] Refactorizar `CartScreen` usando `StyleSheet.create` y `theme.ts` para eliminar el cargo de envío de `$2.500 ARS`, mostrar comparativa `Saldo Actual vs. Total a Canjear` y habilitar/deshabilitar el botón `"Continuar al Canje"` según alcance de puntos y stock en `client/src/screens/citizen/CartScreen.tsx`
 
 **Checkpoint**: Carrito reactivo 100% en puntos operativo.
 
@@ -75,8 +75,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T010 [P] [US3] Crear el componente `CheckoutReservationModal` con `StyleSheet.create` y `theme.ts` que incluye contador regresivo de 5 minutos (`300s`), selector de `Sucursal`, aviso de retiro a partir de 48 hs hábiles y vista final del voucher `ECO-2026-XXXX` en `client/src/components/citizen/CheckoutReservationModal.tsx`
-- [ ] T011 [US3] Conectar `CartScreen` con `IStoreRepository.reserveCart`, `IStoreRepository.confirmRedemption` y `IStoreRepository.cancelReservation` (al cerrar o expirar el reloj), actualizando el saldo de `AuthContext` tras confirmar en `client/src/screens/citizen/CartScreen.tsx`
+- [X] T010 [P] [US3] Crear el componente `CheckoutReservationModal` con `StyleSheet.create` y `theme.ts` que incluye contador regresivo de 5 minutos (`300s`), selector de `Sucursal`, aviso de retiro a partir de 48 hs hábiles y vista final del voucher `ECO-2026-XXXX` en `client/src/components/citizen/CheckoutReservationModal.tsx`
+- [X] T011 [US3] Conectar `CartScreen` con `IStoreRepository.reserveCart`, `IStoreRepository.confirmRedemption` y `IStoreRepository.cancelReservation` (al cerrar o expirar el reloj), actualizando el saldo de `AuthContext` tras confirmar en `client/src/screens/citizen/CartScreen.tsx`
 
 **Checkpoint**: Checkout en 2 fases con bloqueo TTL de 5 minutos y generación de voucher completado.
 
@@ -90,8 +90,8 @@
 
 ### Implementation for User Story 4
 
-- [ ] T012 [P] [US4] Crear la pantalla `AdminProductosScreen` con `StyleSheet.create` y `theme.ts` para listar, crear, editar stock/puntos y alternar `activo` (`true`/`false`) de productos y sucursales en `client/src/screens/admin/AdminProductosScreen.tsx`
-- [ ] T013 [US4] Registrar `AdminProductosScreen` en `AdminNavigator` y agregar tarjeta de acceso en `AdminHomeScreen` en `client/src/navigation/AdminNavigator.tsx` y `client/src/screens/admin/AdminHomeScreen.tsx`
+- [X] T012 [P] [US4] Crear la pantalla `AdminProductosScreen` con `StyleSheet.create` y `theme.ts` para listar, crear, editar stock/puntos y alternar `activo` (`true`/`false`) de productos y sucursales en `client/src/screens/admin/AdminProductosScreen.tsx`
+- [X] T013 [US4] Registrar `AdminProductosScreen` en `AdminNavigator` y agregar tarjeta de acceso en `AdminHomeScreen` en `client/src/navigation/AdminNavigator.tsx` y `client/src/screens/admin/AdminHomeScreen.tsx`
 
 **Checkpoint**: ABM administrativo con baja lógica operativo.
 
@@ -101,9 +101,10 @@
 
 **Purpose**: Validar matemáticamente el bloqueo de stock de 5 minutos, el descuento de puntos y la baja lógica.
 
-- [ ] T014 [P] Crear suite de pruebas con `jest.useFakeTimers()` que verifique la reserva de stock por 5 minutos (`300.000 ms`), la restitución automática del stock si no se confirma a tiempo y la confirmación exitosa con descuento de puntos en `server/src/__tests__/canjes.checkout.test.ts`
-- [ ] T015 [P] Crear pruebas unitarias de `CartContext` / lógica de cálculo de puntos y límite de stock (verificando ausencia de cargos en ARS) en `client/src/context/__tests__/cart.test.ts`
-- [ ] T016 Ejecutar checklist de verificación manual en Expo Go (Tienda como Invitado + Auth Gate, Carrito 100% en puntos, Reloj de 5 minutos en Checkout, Voucher `ECO-2026-XXXX` y ABM Admin con baja lógica) en `specs/005-tienda-carrito-checkout/checklists/requirements.md`
+- [X] T014 [P] Crear suite de pruebas con `jest.useFakeTimers()` que verifique la reserva de stock por 5 minutos (`300.000 ms`), la restitución automática del stock si no se confirma a tiempo y la confirmación exitosa con descuento de puntos en `server/src/__tests__/canjes.checkout.test.ts`
+- [X] T015 [P] Crear pruebas unitarias de `CartContext` / lógica de cálculo de puntos y límite de stock (verificando ausencia de cargos en ARS) en `client/src/context/__tests__/cart.test.ts`
+- [X] T016 Ejecutar checklist de verificación manual en Expo Go (Tienda como Invitado + Auth Gate, Carrito 100% en puntos, Reloj de 5 minutos en Checkout, Voucher `ECO-2026-XXXX` y ABM Admin con baja lógica) en `specs/005-tienda-carrito-checkout/checklists/requirements.md`
+- [X] T017 [US3] Implementar worker batch POST /api/canjes/liberar-vencidas y endpoints de consulta por ID GET /api/productos/:id y GET /api/canjes/:id para auditoría y saneamiento de reservas expiradas en `server/src/controllers/canjes.controller.ts` y `server/src/controllers/productos.controller.ts`
 
 ---
 

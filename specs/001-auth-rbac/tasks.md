@@ -115,6 +115,7 @@
 
 - [x] T022 [US5] Garantizar la hidratación de sesión (`@ecoalerta_user`, `@ecoalerta_token`) al iniciar `AuthProvider` y la limpieza total en `logout()` retornando al estado `user === null` en `client/src/context/AuthContext.tsx`
 - [x] T023 [P] [US5] Verificar en Expo Go que el logout ciudadano vuelva al Home invitado y que los roles agente, administrador y colaborador vuelvan a Login; probar los `SafeAreaView` de los paneles en `client/src/screens/agente/AgentHomeScreen.tsx`, `client/src/screens/admin/AdminHomeScreen.tsx` y `client/src/screens/collaborator/CollaboratorHomeScreen.tsx`
+- [x] T027 [US5] Implementar endpoints GET /api/auth/me y GET /api/auth/perfil en el backend y recargarPerfilUsuario() en AuthContext para refresco en tiempo real de perfil y puntos en base de datos en `server/src/controllers/auth.controller.ts` y `client/src/context/AuthContext.tsx`
 
 ---
 

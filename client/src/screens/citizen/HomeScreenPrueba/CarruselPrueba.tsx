@@ -6,7 +6,7 @@ import {
   FlatList,
   Image,
   TouchableOpacity,
-  Dimensions,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -14,16 +14,12 @@ import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../../utils/theme'
 import { MOCK_PRODUCTOS } from '../../../mocks/productos';
 import { Producto } from '../../../interfaces/product';
 import { useNavigation } from '@react-navigation/native';
-import { MainNavigator } from '../../../navigation/MainNavigator'
-
-const { width } = Dimensions.get('window');
-
-
-const ANCHO_TARJETA = width * 0.38;
 
 export const CarruselTienda = () => {
   const navigation = useNavigation<any>();
   const flatListRef = useRef<FlatList<Producto>>(null);
+  const { width } = useWindowDimensions();
+  const cardWidth = width * 0.38;
 
   const moverIzquierda = () => {
     flatListRef.current?.scrollToOffset({
@@ -34,7 +30,7 @@ export const CarruselTienda = () => {
 
   const moverDerecha = () => {
     flatListRef.current?.scrollToOffset({
-      offset: ANCHO_TARJETA + SPACING.sm,
+      offset: cardWidth + SPACING.sm,
       animated: true,
     });
   };
@@ -42,7 +38,7 @@ export const CarruselTienda = () => {
   const renderProducto = ({ item }: { item: Producto }) => {
     return (
       <TouchableOpacity
-        style={styles.card}
+        style={[styles.card, { width: cardWidth }]}
         activeOpacity={0.8}
       >
         <Image
@@ -78,7 +74,7 @@ export const CarruselTienda = () => {
             color={COLORS.iconoPrincipal}
           />
 
-          <Text style={styles.titulo}>
+          <Text style={styles.titulo} numberOfLines={1} ellipsizeMode="tail">
             Canjeá tus puntos
           </Text>
         </View>
@@ -117,6 +113,7 @@ export const CarruselTienda = () => {
           renderItem={renderProducto}
           keyExtractor={(item) => item.id}
           horizontal
+          style={styles.productList}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.lista}
         />
@@ -155,6 +152,8 @@ const styles = StyleSheet.create({
   },
 
   tituloContainer: {
+    flex: 1,
+    minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.sm,
@@ -162,12 +161,15 @@ const styles = StyleSheet.create({
   },
 
   titulo: {
+    flexShrink: 1,
+    minWidth: 0,
     fontSize: 20,
     fontWeight: '700',
     color: COLORS.textoVerdeOscuro,
   },
 
   verTodo: {
+    flexShrink: 0,
     fontSize: 14,
     fontWeight: '600',
     color: COLORS.botonPrincipal,
@@ -175,8 +177,14 @@ const styles = StyleSheet.create({
   },
 
   carruselContainer: {
+    minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
+  },
+
+  productList: {
+    flex: 1,
+    minWidth: 0,
   },
 
   lista: {
@@ -197,7 +205,6 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    width: ANCHO_TARJETA,
     backgroundColor: COLORS.superficieTarjeta,
     borderRadius: BORDER_RADIUS.lg,
     padding: SPACING.sm,

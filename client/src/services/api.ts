@@ -1,6 +1,7 @@
 // src/services/api.ts
 import { Producto } from '../interfaces/product';
 import { MOCK_PRODUCTOS } from '../mocks/productos';
+import { getRemoteAuthToken } from '../utils/storage';
 
 const RAW_API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:4000';
 export const API_URL = RAW_API_URL.replace(/\/api\/?$/, '').replace(/\/$/, '');
@@ -22,7 +23,22 @@ export const clienteApi = async <T>(
   };
 
   try {
+    const token = await getRemoteAuthToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
     const respuesta = await fetch(url, { ...opciones, headers });
+
+    const contentType = respuesta.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      const texto = await respuesta.text();
+      const mensaje = !respuesta.ok
+        ? `Error HTTP ${respuesta.status} en ${rutaConApi}: ${texto.slice(0, 100)}`
+        : `Respuesta no JSON (${respuesta.status}) en ${rutaConApi}`;
+      throw new Error(mensaje);
+    }
+
     const datos = await respuesta.json();
 
     if (!respuesta.ok) {

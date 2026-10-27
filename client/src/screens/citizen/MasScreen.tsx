@@ -48,7 +48,7 @@ export const MasScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={estilos.contenedor}>
-      <StatusBar backgroundColor={COLORS.fondoEncabezado} barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" />
       <ScrollView contentContainerStyle={estilos.contenidoScroll}>
         
         {/* Encabezado */}

@@ -100,6 +100,7 @@ server/
 - **Controlador `server/src/controllers/auth.controller.ts`**:
   - `register`: Validar presencia de `nombre`, `email`, `password` (`>= 6` caracteres) y formato de email. Verificar en Prisma si `email` existe (retornar `409 Conflict` con mensaje claro). Obtener el municipio por defecto (`PILAR-BA`) y crear el usuario con `rol: 'CITIZEN'`, `puntos: 0` y contraseña derivada con scrypt.
   - `login`: Buscar usuario por `email` o nombre (case-insensitive `trim().toLowerCase()`), validar contraseña y retornar `{ token, user: { id, nombre, email, rol, puntos, municipioId } }`. Emitir token firmado HS256 por una hora con `AUTH_TOKEN_SECRET`; migrar al formato scrypt las contraseñas semilla heredadas al iniciar sesión.
+  - `obtenerPerfilActual` / `obtenerPerfil`: Endpoints autenticados `GET /api/auth/me` y `GET /api/auth/perfil` para consultar en caliente desde PostgreSQL la versión más reciente del perfil y los puntos del usuario autenticado.
 
 ### 2. Capa de Repositorio (`client/src/repositories/auth/`)
 - **`IAuthRepository`**:
@@ -107,7 +108,8 @@ server/
   - `register(data: RegisterDTO): Promise<AuthResponse>`
   - `getCurrentSession(): Promise<User | null>`
   - `clearSession(): Promise<void>`
-- **`RemoteAuthRepository`**: Consume `POST /api/auth/login` y `POST /api/auth/register` usando la URL base configurada en `client/src/services/api.ts`, y persiste la sesión en `AsyncStorage`.
+  - `getProfile(): Promise<User | null>` (consumido por `recargarPerfilUsuario()` en `AuthContext.tsx` para sincronización en tiempo real tras canjes o inspecciones)
+- **`RemoteAuthRepository`**: Consume `POST /api/auth/login`, `POST /api/auth/register`, `GET /api/auth/me` y persiste la sesión en `AsyncStorage`.
 - **`LocalAuthRepository`**: Fallback con usuarios semilla locales (incluyendo los 4 roles) y registro en `AsyncStorage` cuando `/server` no está alcanzable (modo offline/demo).
 
 ### 3. Modo Invitado (`user === null`) y Auth Gate

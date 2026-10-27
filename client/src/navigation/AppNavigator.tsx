@@ -66,6 +66,7 @@ export const AppNavigator: React.FC = () => {
         // Flujo de Administrador
         <Stack.Screen name="AdminApp" component={AdminNavigator} />
       ) : user.role === 'collaborator' ? (
+        // Flujo de Colaborador Municipal (Módulo 006)
         <Stack.Screen name="CollaboratorApp" component={CollaboratorNavigator} />
       ) : (
         // Flujo de Ciudadano Principal (Home con Tabs)
@@ -86,14 +87,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   loadingLogoText: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '800',
-    color: COLORS.textoLogo,
-    letterSpacing: 1.5,
-    marginBottom: 20,
+    color: COLORS.textoVerdeOscuro,
+    letterSpacing: 2,
+    marginBottom: 16,
   },
   spinner: {
-    marginTop: 12,
+    marginTop: 8,
   },
 });
 

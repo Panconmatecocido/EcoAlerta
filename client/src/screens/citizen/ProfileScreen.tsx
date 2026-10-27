@@ -1,7 +1,8 @@
 // src/screens/citizen/ProfileScreen.tsx
-
-import React, { useState, useEffect, useCallback } from 'react';
+// Fusión de Módulos 002 (reportes ciudadanos, historial y ocultamiento) y 006 (vouchers de canje).
+import React, { useState, useCallback } from 'react';
 import {
+  Modal,
   View,
   Text,
   StyleSheet,
@@ -16,53 +17,155 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
-import { denunciaService, DenunciaCiudadano } from '../../services/denunciasService';
-import { tiendaService, ResultadoCanje } from '../../services/tiendaService';
-import { BarraEstadoDenuncia } from '../../components/BarraEstadoDenuncia';
+import { storeRepository, RedemptionDetail } from '../../repositories/store';
+import { CitizenVouchersList } from '../../components/citizen/CitizenVouchersList';
+import { reportRepository } from '../../repositories/reports';
+import { CitizenReport } from '../../repositories/reports/IReportRepository';
+import { ReportStatusBadge } from '../../components/citizen/ReportStatusBadge';
 
 export const ProfileScreen: React.FC = () => {
-  const { user: usuario, logout } = useAuth();
-  const [pestanaActiva, setPestanaActiva] = useState<'denuncias' | 'compras'>('denuncias');
+  const { user: usuario, logout, recargarPerfilUsuario } = useAuth();
+  const [pestanaActiva, setPestanaActiva] = useState<'denuncias' | 'canjes'>('denuncias');
 
   // Estados de datos remotos
-  const [denuncias, setDenuncias] = useState<DenunciaCiudadano[]>([]);
-  const [canjes, setCanjes] = useState<ResultadoCanje[]>([]);
+  const [denuncias, setDenuncias] = useState<CitizenReport[]>([]);
+  const [vouchers, setVouchers] = useState<RedemptionDetail[]>([]);
   const [cargando, setCargando] = useState<boolean>(true);
   const [refrescando, setRefrescando] = useState<boolean>(false);
+  const [errorDenuncias, setErrorDenuncias] = useState<string | null>(null);
+  const [denunciaSeleccionada, setDenunciaSeleccionada] = useState<CitizenReport | null>(null);
+  const [ocultandoReporteId, setOcultandoReporteId] = useState<string | null>(null);
 
   // Foto de perfil local o del usuario
   const [fotoPerfilUri, setFotoPerfilUri] = useState<string | null>(null);
 
-  // Carga de datos desde la API
-  const cargarDatosPerfil = useCallback(async () => {
-    try {
-      const [misDenuncias] = await Promise.all([
-        denunciaService.obtenerMisDenuncias(),
-        // Nota: Si cuentas con endpoint de historial de canjes en el backend, lo sumas aquí
-      ]);
-      setDenuncias(misDenuncias);
-    } catch (error) {
-      console.error('Error al cargar datos del perfil:', error);
-    } finally {
-      setCargando(false);
-      setRefrescando(false);
-    }
-  }, []);
+  const cargarDatosPerfil = useCallback(
+    async (refrescar = false, sigueActivo: () => boolean = () => true) => {
+      if (!usuario || usuario.role !== 'citizen') {
+        setDenuncias([]);
+        setVouchers([]);
+        setCargando(false);
+        setRefrescando(false);
+        return;
+      }
+      if (refrescar) {
+        setRefrescando(true);
+      } else {
+        setCargando(true);
+      }
 
-  useEffect(() => {
-    cargarDatosPerfil();
-  }, [cargarDatosPerfil]);
+      if (recargarPerfilUsuario) {
+        recargarPerfilUsuario().catch(() => {});
+      }
 
-  const alRefrescar = () => {
-    setRefrescando(true);
-    cargarDatosPerfil();
+      try {
+        const [misDenuncias, misVouchers] = await Promise.all([
+          reportRepository.getCitizenReports(usuario.id).catch((err) => {
+            console.warn('No se pudieron obtener las denuncias:', err.message);
+            throw err;
+          }),
+          storeRepository.getCitizenRedemptions(usuario.id || 'demo-user-1').catch((err) => {
+            console.warn('No se pudieron obtener los vouchers de canje:', err.message);
+            return [];
+          }),
+        ]);
+
+        if (sigueActivo()) {
+          setDenuncias(misDenuncias || []);
+          setVouchers(misVouchers || []);
+          setErrorDenuncias(null);
+        }
+      } catch (error) {
+        console.error('Error al cargar datos del perfil:', error);
+        if (sigueActivo()) {
+          setErrorDenuncias(
+            error instanceof Error
+              ? error.message
+              : 'No se pudieron cargar tus reportes. Intenta nuevamente.'
+          );
+        }
+      } finally {
+        if (sigueActivo()) {
+          setCargando(false);
+          setRefrescando(false);
+        }
+      }
+    },
+    [usuario, recargarPerfilUsuario]
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      let activo = true;
+      void cargarDatosPerfil(false, () => activo);
+      return () => {
+        activo = false;
+      };
+    }, [cargarDatosPerfil])
+  );
+
+  const cambiarPestana = (nuevaPestana: 'denuncias' | 'canjes') => {
+    if (cargando) return;
+    setPestanaActiva(nuevaPestana);
   };
 
-  // Puntos consumidos calculados sobre denuncias/canjes
-  const totalPuntosGastados = canjes.reduce(
-    (acumulado, canje) => acumulado + canje.puntosDescontados,
+  const alRefrescar = () => {
+    void cargarDatosPerfil(true);
+  };
+
+  const confirmarOcultamiento = (denuncia: CitizenReport) => {
+    if (denuncia.estado === 'PENDIENTE') {
+      Alert.alert(
+        'Reporte en revisión',
+        'Solo puedes ocultar reportes que ya hayan sido evaluados por el municipio.'
+      );
+      return;
+    }
+
+    Alert.alert(
+      'Ocultar de mi historial',
+      `El reporte ${denuncia.codigo} dejará de aparecer en tu historial. Se conservará en los registros municipales.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Ocultar',
+          onPress: () => {
+            void ocultarReporte(denuncia);
+          },
+        },
+      ]
+    );
+  };
+
+  const ocultarReporte = async (denuncia: CitizenReport) => {
+    if (!usuario || usuario.role !== 'citizen' || ocultandoReporteId) return;
+
+    setOcultandoReporteId(denuncia.id);
+    try {
+      await reportRepository.hideReportForCitizen(denuncia.id, usuario.id);
+      setDenuncias((reportes) => reportes.filter((reporte) => reporte.id !== denuncia.id));
+      setDenunciaSeleccionada((seleccionada) =>
+        seleccionada?.id === denuncia.id ? null : seleccionada
+      );
+    } catch (error) {
+      console.error('Error al ocultar reporte del historial:', error);
+      Alert.alert(
+        'No se pudo ocultar el reporte',
+        error instanceof Error
+          ? error.message
+          : 'Ocurrió un error al archivar el reporte. Inténtalo nuevamente.'
+      );
+    } finally {
+      setOcultandoReporteId(null);
+    }
+  };
+
+  // Puntos consumidos calculados sobre vouchers reales
+  const totalPuntosGastados = vouchers.reduce(
+    (acumulado, v) => acumulado + (v.totalPuntos || 0),
     0
   );
 
@@ -145,7 +248,7 @@ export const ProfileScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={estilos.contenedor}>
-      <StatusBar backgroundColor={COLORS.fondoEncabezado} barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" />
       <ScrollView
         contentContainerStyle={estilos.contenidoScroll}
         showsVerticalScrollIndicator={false}
@@ -204,7 +307,8 @@ export const ProfileScreen: React.FC = () => {
               estilos.botonPestana,
               pestanaActiva === 'denuncias' && estilos.botonPestanaActiva,
             ]}
-            onPress={() => setPestanaActiva('denuncias')}
+            onPress={() => cambiarPestana('denuncias')}
+            disabled={cargando}
           >
             <Text
               style={[
@@ -212,37 +316,50 @@ export const ProfileScreen: React.FC = () => {
                 pestanaActiva === 'denuncias' && estilos.textoPestanaActiva,
               ]}
             >
-              Mis Denuncias ({denuncias.length})
+              Mis Reportes ({denuncias.length})
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[
               estilos.botonPestana,
-              pestanaActiva === 'compras' && estilos.botonPestanaActiva,
+              pestanaActiva === 'canjes' && estilos.botonPestanaActiva,
             ]}
-            onPress={() => setPestanaActiva('compras')}
+            onPress={() => cambiarPestana('canjes')}
+            disabled={cargando}
           >
             <Text
               style={[
                 estilos.textoPestana,
-                pestanaActiva === 'compras' && estilos.textoPestanaActiva,
+                pestanaActiva === 'canjes' && estilos.textoPestanaActiva,
               ]}
             >
-              Canjes ({canjes.length})
+              Mis Canjes ({vouchers.length})
             </Text>
           </TouchableOpacity>
         </View>
 
         {/* Contenido de Pestañas */}
         {cargando ? (
-          <ActivityIndicator size="large" color={COLORS.botonPrincipal} style={{ marginTop: SPACING.lg }} />
+          <View style={{ alignItems: 'center', marginTop: SPACING.lg, gap: SPACING.xs }}>
+            <ActivityIndicator size="large" color={COLORS.botonPrincipal} />
+            <Text style={{ fontSize: 13, color: COLORS.textoVerdeOscuro, fontWeight: '600' }}>
+              Cargando {pestanaActiva === 'denuncias' ? 'mis reportes' : 'mis canjes'}...
+            </Text>
+          </View>
         ) : (
           <>
-            {/* Lista de Denuncias */}
+            {/* Lista de Reportes Ciudadanos */}
             {pestanaActiva === 'denuncias' && (
               <View style={estilos.contenedorLista}>
-                {denuncias.length === 0 ? (
+                {errorDenuncias ? (
+                  <View style={estilos.errorHistorial}>
+                    <Text style={estilos.textoErrorHistorial}>{errorDenuncias}</Text>
+                    <TouchableOpacity onPress={() => void cargarDatosPerfil(true)}>
+                      <Text style={estilos.enlaceDetalle}>Reintentar</Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : denuncias.length === 0 ? (
                   <View style={estilos.contenedorVacio}>
                     <MaterialCommunityIcons name="clipboard-text-outline" size={48} color={COLORS.textoSecundario} />
                     <Text style={estilos.textoVacio}>Aún no registraste ninguna alerta ambiental.</Text>
@@ -250,53 +367,81 @@ export const ProfileScreen: React.FC = () => {
                 ) : (
                   denuncias.map((denuncia) => (
                     <View key={denuncia.id} style={estilos.tarjetaElemento}>
-                      <View style={estilos.encabezadoTarjeta}>
-                        <Text style={estilos.tituloTarjeta}>{denuncia.titulo}</Text>
-                        <Text style={estilos.fechaTarjeta}>{denuncia.fecha}</Text>
-                      </View>
-
-                      <Text style={estilos.subtextoTarjeta}>📌 Categoría: {denuncia.categoria}</Text>
-                      <Text style={estilos.subtextoTarjeta}>📍 Ubicación: {denuncia.ubicacion}</Text>
-
-                      {denuncia.fotoUrl && (
-                        <Image source={{ uri: denuncia.fotoUrl }} style={estilos.imagenEvidencia} />
-                      )}
-
-                      <Text style={estilos.descripcionTarjeta} numberOfLines={2}>
-                        {denuncia.descripcion}
-                      </Text>
-
-                      {/* Componente dinámico de trazabilidad */}
-                      <BarraEstadoDenuncia estado={denuncia.estado} />
+                      <TouchableOpacity
+                        activeOpacity={0.8}
+                        onPress={() => setDenunciaSeleccionada(denuncia)}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Ver detalle del reporte ${denuncia.codigo}`}
+                      >
+                        <View style={estilos.encabezadoTarjeta}>
+                          <View style={estilos.encabezadoReporte}>
+                            <Text style={estilos.tituloTarjeta}>{denuncia.titulo}</Text>
+                            <Text style={estilos.codigoReporte}>{denuncia.codigo}</Text>
+                          </View>
+                          <Text style={estilos.fechaTarjeta}>
+                            {new Date(denuncia.creadoEn).toLocaleDateString()}
+                          </Text>
+                        </View>
+                        <Text style={estilos.subtextoTarjeta}>
+                          Categoría: {denuncia.categoria}
+                        </Text>
+                        <Text style={estilos.subtextoTarjeta}>
+                          Dirección: {denuncia.direccion}
+                        </Text>
+                        <View style={estilos.filaEstadoPuntos}>
+                          <ReportStatusBadge estado={denuncia.estado} />
+                          <Text style={estilos.puntosReporte}>
+                            +{denuncia.puntosOtorgados ?? 0} pts
+                          </Text>
+                        </View>
+                        <Text style={estilos.enlaceDetalle}>Ver detalle</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[
+                          estilos.botonOcultar,
+                          denuncia.estado === 'PENDIENTE' && estilos.botonOcultarDeshabilitado,
+                        ]}
+                        onPress={() => confirmarOcultamiento(denuncia)}
+                        disabled={denuncia.estado === 'PENDIENTE' || ocultandoReporteId !== null}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Ocultar reporte ${denuncia.codigo} de mi historial`}
+                      >
+                        <Ionicons
+                          name="eye-off-outline"
+                          size={16}
+                          color={
+                            denuncia.estado === 'PENDIENTE'
+                              ? COLORS.textoDesactivado
+                              : COLORS.textoPeligro
+                          }
+                        />
+                        <Text
+                          style={[
+                            estilos.textoBotonOcultar,
+                            denuncia.estado === 'PENDIENTE' &&
+                              estilos.textoBotonOcultarDeshabilitado,
+                          ]}
+                        >
+                          {denuncia.estado === 'PENDIENTE'
+                            ? 'Disponible luego de la evaluación'
+                            : 'Ocultar de mi historial'}
+                        </Text>
+                      </TouchableOpacity>
                     </View>
                   ))
                 )}
               </View>
             )}
 
-            {/* Lista de Compras / Canjes */}
-            {pestanaActiva === 'compras' && (
+            {/* Lista de Vouchers de Canje (Módulo 006) */}
+            {pestanaActiva === 'canjes' && (
               <View style={estilos.contenedorLista}>
-                {canjes.length === 0 ? (
-                  <View style={estilos.contenedorVacio}>
-                    <MaterialCommunityIcons name="cart-off" size={48} color={COLORS.textoSecundario} />
-                    <Text style={estilos.textoVacio}>Aún no realizaste canjes de productos ecológicos.</Text>
-                  </View>
-                ) : (
-                  canjes.map((canje) => (
-                    <View key={canje.id} style={estilos.tarjetaElemento}>
-                      <View style={estilos.encabezadoTarjeta}>
-                        <Text style={estilos.tituloTarjeta}>Código: {canje.codigoRetiro}</Text>
-                        <Text style={estilos.textoPuntosGastados}>-{canje.puntosDescontados} PTS</Text>
-                      </View>
-                      <Text style={estilos.subtextoTarjeta}>Fecha: {canje.fecha}</Text>
-                    </View>
-                  ))
-                )}
+                <CitizenVouchersList vouchers={vouchers} isLoading={false} />
               </View>
             )}
           </>
         )}
+
         <TouchableOpacity
           accessibilityRole="button"
           style={estilos.botonCerrarSesion}
@@ -307,6 +452,126 @@ export const ProfileScreen: React.FC = () => {
           <Text style={estilos.textoCerrarSesion}>Cerrar sesión</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Modal de Detalle de Reporte */}
+      <Modal
+        visible={denunciaSeleccionada !== null}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setDenunciaSeleccionada(null)}
+      >
+        <View style={estilos.fondoModal}>
+          <View style={estilos.contenidoModal}>
+            {denunciaSeleccionada ? (
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={estilos.encabezadoModal}>
+                  <Text style={estilos.tituloModal}>{denunciaSeleccionada.titulo}</Text>
+                  <TouchableOpacity
+                    onPress={() => setDenunciaSeleccionada(null)}
+                    accessibilityRole="button"
+                    accessibilityLabel="Cerrar detalle del reporte"
+                  >
+                    <Ionicons name="close" size={26} color={COLORS.textoVerdeOscuro} />
+                  </TouchableOpacity>
+                </View>
+                <Text style={estilos.codigoReporte}>{denunciaSeleccionada.codigo}</Text>
+                <Text style={estilos.subtextoTarjeta}>
+                  {denunciaSeleccionada.categoria} ·{' '}
+                  {new Date(denunciaSeleccionada.creadoEn).toLocaleDateString()}
+                </Text>
+                <Text style={estilos.descripcionTarjeta}>{denunciaSeleccionada.descripcion}</Text>
+                <Text style={estilos.subtextoTarjeta}>
+                  Dirección: {denunciaSeleccionada.direccion}
+                </Text>
+                <View style={estilos.filaEstadoPuntos}>
+                  <ReportStatusBadge estado={denunciaSeleccionada.estado} />
+                  <Text style={estilos.puntosReporte}>
+                    +{denunciaSeleccionada.puntosOtorgados ?? 0} pts
+                  </Text>
+                </View>
+
+                {denunciaSeleccionada.estado === 'RECHAZADO' ? (
+                  <View style={estilos.seccionDetalle}>
+                    <Text style={estilos.labelDetalle}>Motivo del rechazo</Text>
+                    <Text style={estilos.textoDetalle}>
+                      {denunciaSeleccionada.observacionesAdmin ||
+                        'El municipio aún no agregó observaciones.'}
+                    </Text>
+                  </View>
+                ) : null}
+
+                {denunciaSeleccionada.estado === 'RESUELTO' ? (
+                  <View style={estilos.seccionDetalle}>
+                    <Text style={estilos.labelDetalle}>Antes y después</Text>
+                    {denunciaSeleccionada.imagenUrl ? (
+                      <>
+                        <Text style={estilos.subtituloImagen}>Antes</Text>
+                        <Image
+                          source={{ uri: denunciaSeleccionada.imagenUrl }}
+                          style={estilos.imagenDetalle}
+                        />
+                      </>
+                    ) : null}
+                    {denunciaSeleccionada.fotoSolucionUrl ? (
+                      <>
+                        <Text style={estilos.subtituloImagen}>Después</Text>
+                        <Image
+                          source={{ uri: denunciaSeleccionada.fotoSolucionUrl }}
+                          style={estilos.imagenDetalle}
+                        />
+                      </>
+                    ) : null}
+                    {denunciaSeleccionada.informeSolucion ? (
+                      <Text style={estilos.textoDetalle}>
+                        {denunciaSeleccionada.informeSolucion}
+                      </Text>
+                    ) : null}
+                  </View>
+                ) : null}
+
+                <TouchableOpacity
+                  style={[
+                    estilos.botonOcultar,
+                    estilos.botonOcultarDetalle,
+                    denunciaSeleccionada.estado === 'PENDIENTE' &&
+                      estilos.botonOcultarDeshabilitado,
+                  ]}
+                  onPress={() => confirmarOcultamiento(denunciaSeleccionada)}
+                  disabled={
+                    denunciaSeleccionada.estado === 'PENDIENTE' || ocultandoReporteId !== null
+                  }
+                  accessibilityRole="button"
+                >
+                  {ocultandoReporteId === denunciaSeleccionada.id ? (
+                    <ActivityIndicator size="small" color={COLORS.textoPeligro} />
+                  ) : (
+                    <Ionicons
+                      name="eye-off-outline"
+                      size={18}
+                      color={
+                        denunciaSeleccionada.estado === 'PENDIENTE'
+                          ? COLORS.textoDesactivado
+                          : COLORS.textoPeligro
+                      }
+                    />
+                  )}
+                  <Text
+                    style={[
+                      estilos.textoBotonOcultar,
+                      denunciaSeleccionada.estado === 'PENDIENTE' &&
+                        estilos.textoBotonOcultarDeshabilitado,
+                    ]}
+                  >
+                    {denunciaSeleccionada.estado === 'PENDIENTE'
+                      ? 'Disponible luego de la evaluación'
+                      : 'Ocultar de mi historial'}
+                  </Text>
+                </TouchableOpacity>
+              </ScrollView>
+            ) : null}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -461,6 +726,70 @@ const estilos = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.bordeSuave,
   },
+  encabezadoReporte: {
+    flex: 1,
+    marginRight: SPACING.sm,
+  },
+  codigoReporte: {
+    color: COLORS.textoVerde,
+    fontSize: 12,
+    fontWeight: '700',
+    marginTop: 2,
+  },
+  filaEstadoPuntos: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: SPACING.sm,
+  },
+  puntosReporte: {
+    color: COLORS.textoVerdeOscuro,
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  enlaceDetalle: {
+    color: COLORS.textoVerde,
+    fontSize: 12,
+    fontWeight: '700',
+    marginTop: SPACING.sm,
+  },
+  errorHistorial: {
+    backgroundColor: COLORS.fondoPeligro,
+    borderRadius: BORDER_RADIUS.sm,
+    padding: SPACING.md,
+  },
+  botonOcultar: {
+    minHeight: 42,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.xs,
+    marginTop: SPACING.sm,
+    paddingHorizontal: SPACING.sm,
+    borderWidth: 1,
+    borderColor: COLORS.bordePeligro,
+    borderRadius: BORDER_RADIUS.sm,
+    backgroundColor: COLORS.fondoPeligro,
+  },
+  botonOcultarDetalle: {
+    marginTop: SPACING.lg,
+  },
+  botonOcultarDeshabilitado: {
+    borderColor: COLORS.bordeSuave,
+    backgroundColor: COLORS.fondoTarjeta,
+  },
+  textoBotonOcultar: {
+    color: COLORS.textoPeligro,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  textoBotonOcultarDeshabilitado: {
+    color: COLORS.textoDesactivado,
+  },
+  textoErrorHistorial: {
+    color: COLORS.textoPeligro,
+    fontSize: 13,
+  },
   encabezadoTarjeta: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -497,5 +826,60 @@ const estilos = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: COLORS.textoPeligro,
+  },
+  fondoModal: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: COLORS.superposicionOscura,
+  },
+  contenidoModal: {
+    maxHeight: '88%',
+    backgroundColor: COLORS.superficieTarjeta,
+    borderTopLeftRadius: BORDER_RADIUS.lg,
+    borderTopRightRadius: BORDER_RADIUS.lg,
+    padding: SPACING.lg,
+  },
+  encabezadoModal: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: SPACING.sm,
+  },
+  tituloModal: {
+    flex: 1,
+    color: COLORS.textoVerdeOscuro,
+    fontSize: 20,
+    fontWeight: '800',
+  },
+  seccionDetalle: {
+    marginTop: SPACING.md,
+    paddingTop: SPACING.md,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.bordeSuave,
+  },
+  labelDetalle: {
+    color: COLORS.textoVerdeOscuro,
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: SPACING.xs,
+  },
+  textoDetalle: {
+    color: COLORS.textoSecundario,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  subtituloImagen: {
+    color: COLORS.textoVerde,
+    fontSize: 13,
+    fontWeight: '700',
+    marginTop: SPACING.sm,
+    marginBottom: SPACING.xs,
+  },
+  imagenDetalle: {
+    width: '100%',
+    height: 210,
+    borderRadius: BORDER_RADIUS.sm,
+    backgroundColor: COLORS.fondoTarjeta,
+    marginBottom: SPACING.xs,
   },
 });

@@ -87,9 +87,10 @@ server/
   - Generar código correlativo único con formato `REP-2026-XXX` (consultando el último correlativo o usando secuencia segura).
   - Crear registro en `Denuncia` con `estado: 'PENDIENTE'`, `puntosOtorgados: 0`, `ocultarUsuario: false`.
   - **Importante (RF-REP-05)**: Eliminar cualquier incremento de puntos al usuario en `createDenuncia`. El saldo de `User.puntos` permanece sin cambios hasta la validación del Admin en `004`.
-- **`GET /api/denuncias/ciudadano/:ciudadanoId` (`getDenunciasByCiudadano`)**:
-  - Retornar todas las denuncias donde `ciudadanoId` coincida y `ocultarUsuario === false`, ordenadas por `createdAt DESC`.
-  - Incluir campos de trazabilidad: `codigo`, `estado`, `prioridad`, `observacionesAdmin`, `puntosOtorgados`, `imagenUrl`, `fotoSolucionUrl`, `informeSolucion`, `createdAt`, `fechaResolucion`.
+- **`GET /api/denuncias/mis-denuncias` y `GET /api/denuncias/ciudadano/:ciudadanoId` (`obtenerMisDenuncias`)**:
+  - Retornar todas las denuncias donde `ciudadanoId` coincida (resolviendo por UUID, header `x-user-id` o email) y `ocultarUsuario === false`, ordenadas por `creadoEn DESC`.
+  - Mapear la trazabilidad completa en sus 9 estados: abiertos (`PENDIENTE`, `APROBADO`), en proceso/campo (`EN_VERIFICACION`, `VERIFICADO_PENDIENTE`, `EN_PROCESO`, `EN_SANEAMIENTO`, `RESUELTO_TECNICO`), cerrados resueltos (`RESUELTO` con `puntosOtorgados`), y cerrados desestimados (`RECHAZADO` con `observacionesAdmin`, `CERRADO_INACCESIBLE`).
+  - Incluir campos de trazabilidad: `id`, `codigo`, `titulo`, `categoria`, `descripcion`, `ubicacion`, `estado`, `fecha`, `fotoUrl`, `fotoVerificacionUrl`, `fotoSolucionUrl`, `informeSolucion`, `puntosOtorgados`.
 - **`PATCH /api/denuncias/:id/ocultar` (`hideDenunciaForCitizen`)**:
   - Verificar que la denuncia pertenezca al `ciudadanoId` solicitante.
   - Actualizar exclusivamente `ocultarUsuario: true`. La denuncia sigue apareciendo en `GET /api/denuncias` para `ADMIN` y `AGENT`.

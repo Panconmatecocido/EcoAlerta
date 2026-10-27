@@ -1,21 +1,22 @@
-// src/screens/citizen/HomeScreenPrueba/FotosPuntos.tsx
-import React from 'react';
+// Inicio de Fase 4 (US2): resumen del historial real para ciudadanos autenticados.
+import React, { useCallback, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
+  ActivityIndicator,
   Image,
+  ScrollView,
+  StyleSheet,
+  Text,
   TouchableOpacity,
-  Dimensions,
+  View,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../../utils/theme';
 import { useAuth } from '../../../context/AuthContext';
-
-const { width } = Dimensions.get('window');
-const ANCHO_TARJETA = width * 0.48;
+import { reportRepository } from '../../../repositories/reports';
+import { CitizenReport } from '../../../repositories/reports/IReportRepository';
+import { ReportStatusBadge } from '../../../components/citizen/ReportStatusBadge';
 
 interface FotoDesafio {
   id: string;
@@ -54,86 +55,185 @@ const DESAFIOS_FOTOS: FotoDesafio[] = [
 
 export const FotosPuntos: React.FC = () => {
   const navigation = useNavigation<any>();
-  const { requireAuth } = useAuth();
+  const { user, requireAuth } = useAuth();
+  const { width } = useWindowDimensions();
+  const cardWidth = width * 0.72;
+  const [reports, setReports] = useState<CitizenReport[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const isCitizen = user?.role === 'citizen';
+
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      const loadReports = async () => {
+        if (!isCitizen || !user) {
+          setReports([]);
+          setLoading(false);
+          return;
+        }
+
+        setLoading(true);
+        try {
+          const citizenReports = await reportRepository.getCitizenReports(user.id);
+          if (active) {
+            setReports(citizenReports.slice(0, 5));
+            setError(null);
+          }
+        } catch (loadError) {
+          console.error('Error al cargar reportes recientes del ciudadano:', loadError);
+          if (active) {
+            setError(
+              loadError instanceof Error
+                ? loadError.message
+                : 'No se pudieron cargar los reportes recientes.'
+            );
+          }
+        } finally {
+          if (active) setLoading(false);
+        }
+      };
+
+      void loadReports();
+      return () => {
+        active = false;
+      };
+    }, [isCitizen, user])
+  );
 
   const irACamara = () => {
     if (requireAuth()) {
       navigation.navigate('Camara');
     }
   };
+  const irAPerfil = () => navigation.navigate('Perfil');
 
   return (
     <View style={styles.container}>
-      {/* Título de la sección */}
       <View style={styles.header}>
         <View style={styles.tituloContainer}>
           <Ionicons
-            name="camera-outline"
+            name={isCitizen ? 'document-text-outline' : 'camera-outline'}
             size={ICON_SIZE.lg}
             color={COLORS.iconoPrincipal}
           />
-          <Text style={styles.titulo}>Sumá puntos reportando</Text>
+          <Text style={styles.titulo} numberOfLines={1} ellipsizeMode="tail">
+            {isCitizen ? 'Mis reportes recientes' : 'Sumá puntos reportando'}
+          </Text>
         </View>
 
-        <TouchableOpacity activeOpacity={0.7} onPress={irACamara}>
-          <Text style={styles.verTodo}>Reportar</Text>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={isCitizen ? irAPerfil : irACamara}
+          accessibilityRole="button"
+        >
+          <Text style={styles.verTodo}>{isCitizen ? 'Ver historial' : 'Reportar'}</Text>
         </TouchableOpacity>
       </View>
 
       <Text style={styles.subtituloGeneral}>
-        Sacá una foto de estos problemas urbanos y sumá puntos
+        {isCitizen
+          ? 'Consulta el estado y los puntos de tus reportes.'
+          : 'Sacá una foto de estos problemas urbanos para reportarlos.'}
       </Text>
 
-      {/* 3 Fotos Horizontales */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContainer}
-      >
-        {DESAFIOS_FOTOS.map((desafio) => (
-          <TouchableOpacity
-            key={desafio.id}
-            style={styles.card}
-            activeOpacity={0.85}
-            onPress={irACamara}
+      {isCitizen ? (
+        loading ? (
+          <ActivityIndicator
+            color={COLORS.botonPrincipal}
+            style={styles.loading}
+            accessibilityLabel="Cargando reportes recientes"
+          />
+        ) : error ? (
+          <Text style={styles.errorText}>{error}</Text>
+        ) : reports.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>Todavía no enviaste reportes.</Text>
+            <TouchableOpacity onPress={irACamara} accessibilityRole="button">
+              <Text style={styles.reportLink}>Crear mi primer reporte</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContainer}
           >
-            {/* Imagen del problema ambiental */}
-            <View style={styles.imagenContainer}>
-              <Image
-                source={{ uri: desafio.urlImagen }}
-                style={styles.imagen}
-                resizeMode="cover"
-              />
-
-              {/* Insignia flotante de puntos */}
-              <View style={styles.puntosBadge}>
-                <Ionicons name="leaf" size={13} color="#FFFFFF" />
-                <Text style={styles.puntosTexto}>+{desafio.puntos} pts</Text>
-              </View>
-            </View>
-
-            {/* Información y botón */}
-            <View style={styles.infoContainer}>
-              <Text style={styles.cardTitulo} numberOfLines={1}>
-                {desafio.titulo}
-              </Text>
-              <Text style={styles.cardSubtitulo} numberOfLines={1}>
-                {desafio.subtitulo}
-              </Text>
-
-              {/* Botón Tomar Foto */}
+            {reports.map((report) => (
               <TouchableOpacity
-                style={styles.botonFoto}
-                activeOpacity={0.8}
-                onPress={irACamara}
+                key={report.id}
+                style={[styles.reportCard, { width: cardWidth }]}
+                activeOpacity={0.85}
+                onPress={irAPerfil}
+                accessibilityRole="button"
+                accessibilityLabel={`Reporte ${report.codigo}, estado ${report.estado}`}
               >
-                <Ionicons name="camera" size={14} color="#FFFFFF" />
-                <Text style={styles.botonFotoTexto}>Tomar foto</Text>
+                {report.imagenUrl ? (
+                  <Image
+                    source={{ uri: report.imagenUrl }}
+                    style={styles.reportImage}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View style={[styles.reportImage, styles.placeholderImage]}>
+                    <Ionicons name="image-outline" size={32} color={COLORS.textoDesactivado} />
+                  </View>
+                )}
+                <View style={styles.reportInfo}>
+                  <Text style={styles.reportTitle} numberOfLines={1}>
+                    {report.titulo}
+                  </Text>
+                  <Text style={styles.reportCode}>{report.codigo}</Text>
+                  <View style={styles.reportStatus}>
+                    <ReportStatusBadge estado={report.estado} />
+                  </View>
+                  <Text style={styles.reportPoints}>+{report.puntosOtorgados ?? 0} pts</Text>
+                </View>
               </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+            ))}
+          </ScrollView>
+        )
+      ) : (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContainer}
+        >
+          {DESAFIOS_FOTOS.map((challenge) => (
+            <TouchableOpacity
+              key={challenge.id}
+              style={[styles.challengeCard, { width: cardWidth }]}
+              activeOpacity={0.85}
+              onPress={irACamara}
+              accessibilityRole="button"
+            >
+              <View style={styles.challengeImageContainer}>
+                <Image
+                  source={{ uri: challenge.urlImagen }}
+                  style={styles.challengeImage}
+                  resizeMode="cover"
+                />
+                <View style={styles.pointsBadge}>
+                  <Ionicons name="leaf" size={13} color={COLORS.superficieTarjeta} />
+                  <Text style={styles.pointsText}>+{challenge.puntos} pts</Text>
+                </View>
+              </View>
+              <View style={styles.challengeInfo}>
+                <Text style={styles.reportTitle} numberOfLines={1}>
+                  {challenge.titulo}
+                </Text>
+                <Text style={styles.challengeSubtitle} numberOfLines={1}>
+                  {challenge.subtitulo}
+                </Text>
+                <View style={styles.challengeButton}>
+                  <Ionicons name="camera" size={14} color={COLORS.superficieTarjeta} />
+                  <Text style={styles.challengeButtonText}>Tomar foto</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 };
@@ -145,22 +245,28 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.lg,
   },
   header: {
+    minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.md,
   },
   tituloContainer: {
+    flex: 1,
+    minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.sm,
   },
   titulo: {
+    flexShrink: 1,
+    minWidth: 0,
     fontSize: 17,
     fontWeight: '700',
     color: COLORS.textoVerdeOscuro,
   },
   verTodo: {
+    flexShrink: 0,
     fontSize: 13,
     fontWeight: '600',
     color: COLORS.botonPrincipal,
@@ -177,30 +283,84 @@ const styles = StyleSheet.create({
     gap: SPACING.sm,
     paddingVertical: SPACING.xs,
   },
-  card: {
-    width: ANCHO_TARJETA,
+  reportCard: {
     backgroundColor: COLORS.superficieTarjeta,
     borderRadius: BORDER_RADIUS.md,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
     borderWidth: 1,
     borderColor: COLORS.bordeSuave,
   },
-  imagenContainer: {
+  reportImage: {
+    width: '100%',
+    height: 105,
+    backgroundColor: COLORS.fondoTarjeta,
+  },
+  placeholderImage: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  reportInfo: {
+    padding: SPACING.sm,
+  },
+  reportTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: COLORS.textoVerdeOscuro,
+  },
+  reportCode: {
+    fontSize: 11,
+    color: COLORS.textoSecundario,
+    marginTop: 2,
+  },
+  reportStatus: {
+    marginTop: SPACING.sm,
+  },
+  reportPoints: {
+    fontSize: 12,
+    color: COLORS.textoVerde,
+    fontWeight: '700',
+    marginTop: SPACING.sm,
+  },
+  loading: {
+    padding: SPACING.lg,
+  },
+  emptyState: {
+    alignItems: 'center',
+    padding: SPACING.md,
+    gap: SPACING.xs,
+  },
+  emptyText: {
+    color: COLORS.textoSecundario,
+    fontSize: 13,
+  },
+  reportLink: {
+    color: COLORS.textoVerde,
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  errorText: {
+    color: COLORS.textoPeligro,
+    fontSize: 12,
+    paddingHorizontal: SPACING.md,
+  },
+  challengeCard: {
+    backgroundColor: COLORS.superficieTarjeta,
+    borderRadius: BORDER_RADIUS.md,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: COLORS.bordeSuave,
+  },
+  challengeImageContainer: {
     position: 'relative',
     width: '100%',
     height: 110,
-    backgroundColor: '#E8E8E8',
+    backgroundColor: COLORS.fondoTarjeta,
   },
-  imagen: {
+  challengeImage: {
     width: '100%',
     height: '100%',
   },
-  puntosBadge: {
+  pointsBadge: {
     position: 'absolute',
     top: 6,
     right: 6,
@@ -210,28 +370,23 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: 7,
     paddingVertical: 3,
-    borderRadius: 12,
+    borderRadius: BORDER_RADIUS.lg,
   },
-  puntosTexto: {
-    color: '#FFFFFF',
+  pointsText: {
+    color: COLORS.superficieTarjeta,
     fontSize: 11,
     fontWeight: '700',
   },
-  infoContainer: {
+  challengeInfo: {
     padding: SPACING.sm,
   },
-  cardTitulo: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: COLORS.textoVerdeOscuro,
-  },
-  cardSubtitulo: {
+  challengeSubtitle: {
     fontSize: 11,
     color: COLORS.textoSecundario,
     marginTop: 2,
     marginBottom: SPACING.xs,
   },
-  botonFoto: {
+  challengeButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -241,8 +396,8 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.sm,
     marginTop: 4,
   },
-  botonFotoTexto: {
-    color: '#FFFFFF',
+  challengeButtonText: {
+    color: COLORS.superficieTarjeta,
     fontSize: 11,
     fontWeight: '600',
   },
