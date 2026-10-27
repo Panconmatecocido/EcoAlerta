@@ -1,0 +1,32 @@
+ID,Nombre_de_Tarea,Duracion,Comienzo,Fin,Predecesoras,Nombres_de_los_recursos,Semaforo
+1,Proyecto EcoAlerta - Plan de Testing y Calidad,24 d,26/10/2026,27/11/2026,,Equipo QA & Devs,Verde
+2,FASE 1: Planificacion y Analisis de Requerimientos,4 d,26/10/2026,30/10/2026,,Lead QA,Verde
+3,A: Relevamiento de BACKLOG y HU,2 d,26/10/2026,27/10/2026,,Lead QA,Verde
+4,B: Definicion de Criterios Gherkin BDD,2 d,28/10/2026,29/10/2026,3,Lead QA / PO,Verde
+5,C: Redaccion del Plan Maestro de Testing (IEEE 829),2 d,30/10/2026,02/11/2026,4,Lead QA,Verde
+6,D: Construccion de la Matriz de Trazabilidad RTM,2 d,03/11/2026,04/11/2026,5,Lead QA,Verde
+7,Hito 1: Alcance y RTM Aprobados,0 d,04/11/2026,04/11/2026,6,Todos,Verde
+8,FASE 2: Diseno y Construccion del Testware,5 d,05/11/2026,11/11/2026,,Equipo QA & Devs,Verde
+9,E: Diseno de Casos M1 (Auth & Roles),2 d,05/11/2026,06/11/2026,6,Dev Modulo 1 / QA,Verde
+10,F: Diseno de Casos M2 (Denuncias y Saneamiento),3 d,05/11/2026,09/11/2026,6,Dev Modulo 2 / QA,Verde
+11,G: Diseno de Casos M3 (Tienda Carrito y TTL),3 d,05/11/2026,09/11/2026,6,Dev Modulo 3 / QA,Verde
+12,H: Configuracion de DB y Semillas Prisma,1 d,28/10/2026,28/10/2026,3,Dev Backend & BD,Verde
+13,I: Armado de Coleccion Postman y Fixtures Jest,2 d,10/11/2026,11/11/2026,"9,10,11,12",Lead QA,Verde
+14,Hito 2: Testware y Fixtures Listos,0 d,11/11/2026,11/11/2026,13,Todos,Verde
+15,FASE 3: Ejecucion de Pruebas Backend y Concurrencia,4 d,12/11/2026,17/11/2026,,Equipo QA & Backend,Verde
+16,J: Ejecucion de Suites Unitarias en Jest,2 d,12/11/2026,13/11/2026,13,Lead QA / Devs,Verde
+17,K: Ejecucion de API REST en Postman,2 d,12/11/2026,13/11/2026,13,Lead QA,Verde
+18,L: Pruebas de Toma Concurrente 1 a 1 de Agentes,2 d,16/11/2026,17/11/2026,"16,17",Dev Modulo 2B / QA,Verde
+19,M: Pruebas de Reserva Concurrente TTL en Checkout,2 d,16/11/2026,17/11/2026,"16,17",Dev Modulo 3A / QA,Verde
+20,Hito 3: Backend y Concurrencia Validados,0 d,17/11/2026,17/11/2026,"18,19",Todos,Verde
+21,FASE 4: Ejecucion de Pruebas UI E2E y Experiencia,4 d,18/11/2026,23/11/2026,,Equipo QA & Frontend,Verde
+22,N: Pruebas de Modo Invitado y Auth Gate (< 100 ms),1 d,18/11/2026,18/11/2026,16,Dev Modulo 1 / QA,Verde
+23,O: Pruebas de TransactionLoaderModal y Spinners,1 d,18/11/2026,18/11/2026,16,Dev Frontend Mobile,Verde
+24,P: Recorrido E2E Modulo Denuncias y Saneamiento,2 d,19/11/2026,20/11/2026,"18,22,23",Lead QA,Verde
+25,Q: Recorrido E2E Modulo Tienda y Entrega Retiro,2 d,19/11/2026,20/11/2026,"19,22,23",Lead QA,Verde
+26,FASE 5: Cierre Correccion de Defectos y Entrega,4 d,23/11/2026,27/11/2026,,Equipo Completo,Verde
+27,R: Correccion de Bugs por Dev del Modulo,2 d,23/11/2026,24/11/2026,"24,25",Dev Modulo 2A / 3A,Verde
+28,S: Re-test de Confirmacion y Cierre de Defectos,1 d,25/11/2026,25/11/2026,27,Lead QA,Verde
+29,T: Evaluacion de Checklists ISO 25010 y Peer Review,1 d,26/11/2026,26/11/2026,28,Lead QA / PO,Verde
+30,U: Emision del Testware Final y Planilla Excel,1 d,27/11/2026,27/11/2026,29,Lead QA,Verde
+31,Hito 5: Dictamen de Calidad y Entrega Final,0 d,27/11/2026,27/11/2026,30,Mg. Pedro Brest,Verde
