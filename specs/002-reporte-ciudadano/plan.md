@@ -79,6 +79,10 @@ server/
 
 **Structure Decision**: Se extiende el controlador `denuncias.controller.ts` en `server/` y las pantallas `ReportScreen.tsx` y `ProfileScreen.tsx` en `client/`, añadiendo `client/src/repositories/reports/` para desacoplar las llamadas HTTP y `client/src/utils/imageCompressor.ts` para garantizar `RNF-01` (`< 1.2 MB`).
 
+### Actualización de transporte de evidencia
+
+Las imágenes de reporte se comprimen en el dispositivo y se envían como contenido JPEG compartible, no como una URI `file://` que solo existe en el teléfono del vecino. El límite de recepción JSON del servidor admite una imagen comprimida de menos de 1.2 MB codificada en Base64. Las lecturas administrativas obtienen la foto bajo demanda para no incluir su contenido completo en cada fila de la lista; las referencias locales guardadas en reportes históricos no se pueden resolver desde otros dispositivos.
+
 ## Architecture & Implementation Details
 
 ### 1. Backend (`/server/src/controllers/denuncias.controller.ts`)

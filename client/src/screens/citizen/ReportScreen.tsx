@@ -22,7 +22,11 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { NavigationProp, ParamListBase, useNavigation } from '@react-navigation/native';
 import { Header } from '../../components/Header';
 import { useAuth } from '../../context/AuthContext';
-import { compressImage, CompressedImage } from '../../utils/imageCompressor';
+import {
+  compressImage,
+  CompressedImage,
+  imageUriToDataUri,
+} from '../../utils/imageCompressor';
 import { reportRepository } from '../../repositories/reports';
 import { COLORS, SPACING, BORDER_RADIUS } from '../../utils/theme';
 
@@ -276,7 +280,7 @@ export const ReportScreen: React.FC = () => {
         direccion: address.trim(),
         latitud: coordinates?.latitude ?? null,
         longitud: coordinates?.longitude ?? null,
-        imagenUrl: image.uri,
+        imagenUrl: await imageUriToDataUri(image.uri),
         ciudadanoId: user.id,
         municipioId,
       });

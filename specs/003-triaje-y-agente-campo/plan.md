@@ -127,7 +127,11 @@ server/
 - **Candidatos por Proximidad Haversine (`GET /api/denuncias/:id/agentes-disponibles`)**:
   - Filtra agentes del municipio con `disponible === true` y calcula `distanciaMetros` geodésica entre las coordenadas del foco ambiental y la posición GPS del inspector para sugerir candidatos óptimos.
 - **Geotracking y Alta de Agentes (`PATCH /api/agentes/me/ubicacion`, `POST /api/agentes`)**:
-  - Permite a los agentes de campo reportar su ubicación en tiempo real (`latitudActual`, `longitudActual`, `ubicacionActualizadaEn`) y al Administrador dar de alta nuevos inspectores municipales con credenciales seguras.
+  - Al activar servicio, el cliente obtiene permiso y GPS y envía coordenadas válidas con el cambio de disponibilidad; en servicio transmite cambios de posición, y al desactivarse limpia la ubicación. El panel administrativo refresca periódicamente las coordenadas y permite alternar disponibilidad.
+  - Permite al Administrador dar de alta nuevos inspectores municipales con credenciales seguras.
+- **Resumen y consulta del reporte**:
+  - Las métricas del inicio administrativo navegan a listas prefiltradas, incluyendo el agregado `EN_PROCESO`.
+  - La lista omite el cuerpo de fotos codificadas; un endpoint de detalle autenticado y limitado al municipio devuelve la evidencia solo cuando el Administrador abre el reporte, junto con su descripción, ubicación, categoría y ciudadano.
 
 ## Complexity Tracking
 

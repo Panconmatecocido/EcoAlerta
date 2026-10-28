@@ -15,6 +15,21 @@ export interface CompressedImage {
   size: number;
 }
 
+export const imageUriToDataUri = async (uri: string): Promise<string> => {
+  if (!uri.trim()) {
+    throw new Error('Se requiere la URI de una imagen para compartirla.');
+  }
+
+  if (uri.startsWith('data:image/')) return uri;
+
+  const base64 = await new File(uri).base64();
+  if (!base64) {
+    throw new Error('No se pudo leer el contenido de la imagen seleccionada.');
+  }
+
+  return `data:image/jpeg;base64,${base64}`;
+};
+
 export const compressImage = async (uri: string): Promise<CompressedImage> => {
   if (!uri.trim()) {
     throw new Error('Se requiere la URI de una imagen para comprimirla.');

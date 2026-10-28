@@ -27,7 +27,12 @@ router.patch('/me/disponibilidad', authenticate, requireAgent, cambiarDisponibil
 // PATCH /api/agentes/me/ubicacion -> Reemplazar ubicación GPS actual
 router.patch('/me/ubicacion', authenticate, requireAgent, actualizarUbicacionAgente);
 
-// PATCH /api/agentes/:id/disponibilidad -> Alternar estado (Disponible / Ocupado)
-router.patch('/:id/disponibilidad', authenticate, requireAgent, cambiarDisponibilidadAgente);
+// PATCH /api/agentes/:id/disponibilidad -> Alternar estado (Disponible / Ocupado) por Admin o Agente
+router.patch(
+  '/:id/disponibilidad',
+  authenticate,
+  requireRole(Role.ADMIN, Role.AGENT),
+  cambiarDisponibilidadAgente
+);
 
 export default router;

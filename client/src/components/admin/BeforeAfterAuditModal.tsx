@@ -25,7 +25,7 @@ interface BeforeAfterAuditModalProps {
     categoria: string;
     ubicacion: string;
     prioridad?: PrioridadCaso;
-    imagenUrl?: string;
+    imagenUrl?: string | null;
     fotoVerificacionUrl?: string;
     fotoSolucionUrl?: string;
     informeSolucion?: string;

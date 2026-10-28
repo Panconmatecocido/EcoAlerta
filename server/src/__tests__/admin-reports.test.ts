@@ -8,6 +8,7 @@ jest.mock('@prisma/client', () => {
   const mockPrisma = {
     denuncia: {
       findMany: jest.fn(),
+      findFirst: jest.fn(),
     },
     user: {
       findUnique: jest.fn(),
@@ -23,7 +24,10 @@ jest.mock('@prisma/client', () => {
 
 const prisma = (
   jest.requireMock('@prisma/client') as {
-    __mockPrisma: { denuncia: { findMany: jest.Mock }; user: { findUnique: jest.Mock } };
+    __mockPrisma: {
+      denuncia: { findMany: jest.Mock; findFirst: jest.Mock };
+      user: { findUnique: jest.Mock };
+    };
   }
 ).__mockPrisma;
 
@@ -58,6 +62,7 @@ describe('GET /api/denuncias for administrators', () => {
     jest.clearAllMocks();
     prisma.user.findUnique.mockResolvedValue(admin);
     prisma.denuncia.findMany.mockResolvedValue([]);
+    prisma.denuncia.findFirst.mockResolvedValue(null);
   });
 
   it('returns persisted report fields filtered to the administrator municipality', async () => {
@@ -74,13 +79,14 @@ describe('GET /api/denuncias for administrators', () => {
       prioridad: 'ALTA',
       creadoEn: '2026-10-20T10:00:00.000Z',
       municipioId: 'municipality-1',
+      imagenUrl: 'data:image/jpeg;base64,photo-content',
       agente: { id: 'agent-1', nombre: 'Agente Uno', email: 'agent@example.com' },
     };
     prisma.denuncia.findMany.mockResolvedValue([report]);
 
     const response = await request(createApp())
       .get('/api/denuncias?estado=PENDIENTE')
-      .set('Authorization', `Bearer ${createToken(admin.id)}`)
+      .set('Authorization', ['Bearer', createToken(admin.id)].join(' '))
       .expect(200);
 
     expect(prisma.denuncia.findMany).toHaveBeenCalledWith({
@@ -91,13 +97,45 @@ describe('GET /api/denuncias for administrators', () => {
       },
       orderBy: { creadoEn: 'desc' },
     });
-    expect(response.body).toEqual({ success: true, data: [report] });
+    expect(response.body).toEqual({
+      success: true,
+      data: [{ ...report, imagenUrl: null }],
+    });
+  });
+
+  it('returns the full report and photo for an administrator in the same municipality', async () => {
+    const report = {
+      id: 'report-1',
+      codigo: 'REP-2026-001',
+      titulo: 'Microbasural en la plaza',
+      descripcion: 'Residuos acumulados en la vereda.',
+      categoria: 'Microbasural',
+      direccion: 'Calle 1 y Calle 2',
+      imagenUrl: 'data:image/jpeg;base64,photo-content',
+      municipioId: admin.municipioId,
+      ciudadano: { id: 'citizen-1', nombre: 'Vecino Uno', email: 'vecino@example.com' },
+    };
+    prisma.denuncia.findFirst.mockResolvedValue(report);
+
+    const response = await request(createApp())
+      .get('/api/denuncias/report-1')
+      .set('Authorization', ['Bearer', createToken(admin.id)].join(' '))
+      .expect(200);
+
+    expect(prisma.denuncia.findFirst).toHaveBeenCalledWith({
+      where: { id: 'report-1', municipioId: admin.municipioId },
+      include: {
+        ciudadano: { select: { id: true, nombre: true, email: true } },
+        agente: { select: { id: true, nombre: true, email: true } },
+      },
+    });
+    expect(response.body.data).toEqual(report);
   });
 
   it('preserves text filtering and ignores a client-supplied municipality', async () => {
     await request(createApp())
       .get('/api/denuncias?estado=APROBADO&busqueda=plaza&municipioId=municipality-2')
-      .set('Authorization', `Bearer ${createToken(admin.id)}`)
+      .set('Authorization', ['Bearer', createToken(admin.id)].join(' '))
       .expect(200);
 
     expect(prisma.denuncia.findMany).toHaveBeenCalledWith(
@@ -118,7 +156,7 @@ describe('GET /api/denuncias for administrators', () => {
   it('rejects an invalid state filter instead of returning a server error', async () => {
     await request(createApp())
       .get('/api/denuncias?estado=NO_EXISTE')
-      .set('Authorization', `Bearer ${createToken(admin.id)}`)
+      .set('Authorization', ['Bearer', createToken(admin.id)].join(' '))
       .expect(400);
 
     expect(prisma.denuncia.findMany).not.toHaveBeenCalled();

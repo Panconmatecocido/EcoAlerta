@@ -14,6 +14,9 @@ export interface Agente {
   nombre: string;
   email: string;
   disponible: boolean;
+  latitudActual?: number | null;
+  longitudActual?: number | null;
+  ubicacionActualizadaEn?: string | null;
   casosAsignados: number;
   casoActivoId?: string;
   casoActivoCodigo?: string;
@@ -62,7 +65,7 @@ export interface Denuncia {
   puntosOtorgados?: number;
   agenteAsignadoId?: string;
   agenteAsignadoNombre?: string;
-  imagenUrl?: string;
+  imagenUrl?: string | null;
   fotoVerificacionUrl?: string;
   fotoSolucionUrl?: string;
   informeSolucion?: string;
@@ -90,7 +93,7 @@ export interface DenunciaPersistida {
   observacionesAdmin?: string;
   intentosInaccesible?: number;
   puntosOtorgados?: number;
-  imagenUrl?: string;
+  imagenUrl?: string | null;
   fotoVerificacionUrl?: string;
   fotoSolucionUrl?: string;
   informeSolucion?: string;
@@ -173,6 +176,16 @@ export const adminService = {
     }
 
     return res.data.map(mapDenunciaPersistida);
+  },
+
+  obtenerDetalleDenuncia: async (id: string): Promise<Denuncia> => {
+    const response = await api.get<RespuestaApi<DenunciaPersistida>>(
+      `/api/denuncias/${encodeURIComponent(id)}`
+    );
+    if (!response || response.success !== true || !response.data) {
+      throw new Error(response?.message || 'No se pudo obtener el detalle del reporte');
+    }
+    return mapDenunciaPersistida(response.data);
   },
 
   // Triaje Inicial (FR-001: Aprobar con Prioridad hacia APROBADO, o Rechazar con motivo hacia RECHAZADO)

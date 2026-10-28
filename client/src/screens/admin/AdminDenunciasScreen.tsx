@@ -13,9 +13,11 @@ import {
   ActivityIndicator,
   RefreshControl,
   ScrollView,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRoute, RouteProp } from '@react-navigation/native';
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
 import { adminService, Denuncia, Agente, EstadoDenunciaAdmin } from '../../services/adminService';
 import {
@@ -25,10 +27,12 @@ import {
 import { TransactionLoaderModal } from '../../components/common/TransactionLoaderModal';
 import { PointsScaleModal } from '../../components/admin/PointsScaleModal';
 import { BeforeAfterAuditModal } from '../../components/admin/BeforeAfterAuditModal';
+import { AdminTabParamList } from '../../navigation/AdminNavigator';
 
 type FiltroEstado =
   | 'TODAS'
   | 'PENDIENTE'
+  | 'EN_PROCESO'
   | 'APROBADO'
   | 'EN_VERIFICACION'
   | 'VERIFICADO_PENDIENTE'
@@ -38,9 +42,19 @@ type FiltroEstado =
   | 'RECHAZADO'
   | 'CERRADO_INACCESIBLE';
 
+const ESTADOS_EN_PROCESO: string[] = [
+  'APROBADO',
+  'EN_PROCESO',
+  'EN_VERIFICACION',
+  'VERIFICADO_PENDIENTE',
+  'EN_SANEAMIENTO',
+  'RESUELTO_TECNICO',
+];
+
 const FILTROS_DISPONIBLES: FiltroEstado[] = [
   'TODAS',
   'PENDIENTE',
+  'EN_PROCESO',
   'APROBADO',
   'EN_VERIFICACION',
   'VERIFICADO_PENDIENTE',
@@ -55,16 +69,30 @@ const FILTROS_DISPONIBLES: FiltroEstado[] = [
 const PRIORIDADES: PrioridadCaso[] = ['URGENTE', 'ALTA', 'MEDIA', 'BAJA'];
 
 export const AdminDenunciasScreen: React.FC = () => {
+  const route = useRoute<RouteProp<AdminTabParamList, 'DenunciasAdmin'>>();
   const [denuncias, setDenuncias] = useState<Denuncia[]>([]);
   const [agentes, setAgentes] = useState<Agente[]>([]);
   const [busqueda, setBusqueda] = useState('');
-  const [filtro, setFiltro] = useState<FiltroEstado>('TODAS');
+  const [filtro, setFiltro] = useState<FiltroEstado>(
+    (route.params?.filtro as FiltroEstado) || 'TODAS'
+  );
   const [cargando, setCargando] = useState(true);
   const [refrescando, setRefrescando] = useState(false);
+
+  // Sincronizar filtro cuando cambien los parámetros de navegación
+  useEffect(() => {
+    if (route.params?.filtro) {
+      setFiltro(route.params.filtro as FiltroEstado);
+    }
+  }, [route.params?.filtro]);
 
   // Modal Asignación Directa de Inspector
   const [modalVisible, setModalVisible] = useState(false);
   const [denunciaSeleccionada, setDenunciaSeleccionada] = useState<Denuncia | null>(null);
+  const [detalleVisible, setDetalleVisible] = useState(false);
+  const [cargandoDetalle, setCargandoDetalle] = useState(false);
+  const [denunciaDetalle, setDenunciaDetalle] = useState<Denuncia | null>(null);
+  const [fotoDetalleNoDisponible, setFotoDetalleNoDisponible] = useState(false);
 
   // Modal de Triaje Inicial (T008: Aprobar con Prioridad hacia Bolsa o Rechazar con Motivo Obligatorio)
   const [modalTriajeVisible, setModalTriajeVisible] = useState(false);
@@ -128,7 +156,11 @@ export const AdminDenunciasScreen: React.FC = () => {
           },
         ];
         setDenuncias(
-          filtro === 'TODAS' ? fallback : fallback.filter((item) => item.estado === filtro)
+          filtro === 'TODAS'
+            ? fallback
+            : filtro === 'EN_PROCESO'
+            ? fallback.filter((item) => ESTADOS_EN_PROCESO.includes(item.estado))
+            : fallback.filter((item) => item.estado === filtro)
         );
       } finally {
         setCargando(false);
@@ -170,6 +202,23 @@ export const AdminDenunciasScreen: React.FC = () => {
     setPrioridadSeleccionada(denuncia.prioridad || 'ALTA');
     setMotivoTriaje(denuncia.observacionesAdmin || '');
     setModalTriajeVisible(true);
+  };
+
+  const verDetalleDenuncia = async (denuncia: Denuncia) => {
+    setCargandoDetalle(true);
+    try {
+      const detalle = await adminService.obtenerDetalleDenuncia(denuncia.id);
+      setDenunciaDetalle(detalle);
+      setFotoDetalleNoDisponible(false);
+      setDetalleVisible(true);
+    } catch (error) {
+      Alert.alert(
+        'Error al cargar el reporte',
+        error instanceof Error ? error.message : 'No se pudo obtener el detalle de la denuncia.'
+      );
+    } finally {
+      setCargandoDetalle(false);
+    }
   };
 
   const confirmarTriaje = async () => {
@@ -216,6 +265,8 @@ export const AdminDenunciasScreen: React.FC = () => {
         );
         return filtro === 'TODAS'
           ? actualizadas
+          : filtro === 'EN_PROCESO'
+          ? actualizadas.filter((item) => ESTADOS_EN_PROCESO.includes(item.estado))
           : actualizadas.filter((item) => item.estado === filtro);
       });
       setProcesandoTriaje(false);
@@ -355,9 +406,17 @@ export const AdminDenunciasScreen: React.FC = () => {
     }
   };
 
-  const abrirModalVeracidad = (item: Denuncia) => {
-    setDenunciaParaVeracidad(item);
-    setModalVeracidadVisible(true);
+  const abrirModalVeracidad = async (item: Denuncia) => {
+    try {
+      const detalle = await adminService.obtenerDetalleDenuncia(item.id);
+      setDenunciaParaVeracidad(detalle);
+      setModalVeracidadVisible(true);
+    } catch (error) {
+      Alert.alert(
+        'Error al cargar el reporte',
+        error instanceof Error ? error.message : 'No se pudo obtener el detalle de la denuncia.'
+      );
+    }
   };
 
   const manejarValidarVeracidad = async (payload: {
@@ -390,9 +449,17 @@ export const AdminDenunciasScreen: React.FC = () => {
     }
   };
 
-  const abrirModalCertificar = (item: Denuncia) => {
-    setDenunciaParaCertificar(item);
-    setModalCertificarVisible(true);
+  const abrirModalCertificar = async (item: Denuncia) => {
+    try {
+      const detalle = await adminService.obtenerDetalleDenuncia(item.id);
+      setDenunciaParaCertificar(detalle);
+      setModalCertificarVisible(true);
+    } catch (error) {
+      Alert.alert(
+        'Error al cargar el reporte',
+        error instanceof Error ? error.message : 'No se pudo obtener el detalle de la denuncia.'
+      );
+    }
   };
 
   const manejarCertificarResolucion = async (payload: {
@@ -501,6 +568,27 @@ export const AdminDenunciasScreen: React.FC = () => {
                   Categoría: {item.categoria} • Fecha: {item.fecha}
                 </Text>
                 <Text style={styles.detalleDenuncia}>Ubicación: {item.ubicacion}</Text>
+                {item.descripcion ? (
+                  <Text style={styles.descripcionDenuncia} numberOfLines={3}>
+                    {item.descripcion}
+                  </Text>
+                ) : null}
+                <TouchableOpacity
+                  style={styles.botonVerDetalle}
+                  onPress={() => void verDetalleDenuncia(item)}
+                  disabled={cargandoDetalle}
+                >
+                  {cargandoDetalle ? (
+                    <ActivityIndicator size="small" color={COLORS.botonPrincipal} />
+                  ) : (
+                    <MaterialCommunityIcons
+                      name="image-search-outline"
+                      size={16}
+                      color={COLORS.botonPrincipal}
+                    />
+                  )}
+                  <Text style={styles.textoBotonVerDetalle}>Ver detalle y fotografía</Text>
+                </TouchableOpacity>
 
                 <View style={styles.filaMetadatosEstado}>
                   <View style={styles.badgeEstadoActual}>
@@ -632,6 +720,75 @@ export const AdminDenunciasScreen: React.FC = () => {
             )}
           />
         )}
+
+        <Modal
+          animationType="slide"
+          transparent
+          visible={detalleVisible}
+          onRequestClose={() => setDetalleVisible(false)}
+        >
+          <View style={styles.superposicionModal}>
+            <View style={styles.contenidoModal}>
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <Text style={styles.tituloModal}>Detalle del reporte</Text>
+                <Text style={styles.subtituloModal}>
+                  {denunciaDetalle?.codigo ? `${denunciaDetalle.codigo} • ` : ''}
+                  {denunciaDetalle?.titulo}
+                </Text>
+
+                {denunciaDetalle?.imagenUrl &&
+                !denunciaDetalle.imagenUrl.startsWith('file://') &&
+                !fotoDetalleNoDisponible ? (
+                  <Image
+                    source={{ uri: denunciaDetalle.imagenUrl }}
+                    style={styles.fotoDetalle}
+                    resizeMode="contain"
+                    onError={() => setFotoDetalleNoDisponible(true)}
+                  />
+                ) : (
+                  <View style={styles.fotoDetalleVacia}>
+                    <MaterialCommunityIcons
+                      name="image-off-outline"
+                      size={32}
+                      color={COLORS.textoDesactivado}
+                    />
+                    <Text style={styles.textoFotoDetalleVacia}>
+                      {fotoDetalleNoDisponible
+                        ? 'La fotografía guardada no está disponible desde este dispositivo.'
+                        : denunciaDetalle?.imagenUrl?.startsWith('file://')
+                        ? 'La foto se guardó localmente en el teléfono del vecino y no se puede compartir. Los nuevos reportes sincronizan la imagen para el administrador.'
+                        : 'Este reporte no tiene una fotografía disponible.'}
+                    </Text>
+                  </View>
+                )}
+
+                <Text style={styles.etiquetaDetalle}>Descripción</Text>
+                <Text style={styles.valorDetalle}>
+                  {denunciaDetalle?.descripcion || 'Sin descripción.'}
+                </Text>
+                <Text style={styles.etiquetaDetalle}>Categoría</Text>
+                <Text style={styles.valorDetalle}>{denunciaDetalle?.categoria}</Text>
+                <Text style={styles.etiquetaDetalle}>Ubicación</Text>
+                <Text style={styles.valorDetalle}>
+                  {denunciaDetalle?.ubicacion || denunciaDetalle?.direccion || 'Sin ubicación'}
+                </Text>
+                {denunciaDetalle?.ciudadanoNombre ? (
+                  <>
+                    <Text style={styles.etiquetaDetalle}>Reportado por</Text>
+                    <Text style={styles.valorDetalle}>{denunciaDetalle.ciudadanoNombre}</Text>
+                  </>
+                ) : null}
+              </ScrollView>
+
+              <TouchableOpacity
+                style={styles.botonCerrarDetalle}
+                onPress={() => setDetalleVisible(false)}
+              >
+                <Text style={styles.textoBotonCerrarDetalle}>Cerrar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
 
         {/* Modal de Triaje Inicial (T008: Prioridad o Rechazo con Justificación Obligatoria) */}
         <Modal
@@ -983,6 +1140,74 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.textoSecundario,
     marginBottom: 2,
+  },
+  descripcionDenuncia: {
+    fontSize: 12,
+    color: COLORS.textoVerdeOscuro,
+    marginTop: SPACING.xs,
+    lineHeight: 18,
+  },
+  botonVerDetalle: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: SPACING.xs,
+    marginBottom: SPACING.xs,
+    paddingVertical: 5,
+    paddingHorizontal: SPACING.sm,
+    borderRadius: BORDER_RADIUS.sm,
+    backgroundColor: COLORS.fondoEncabezado,
+  },
+  textoBotonVerDetalle: {
+    color: COLORS.botonPrincipal,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  fotoDetalle: {
+    width: '100%',
+    height: 230,
+    backgroundColor: COLORS.fondoAplicacion,
+    borderRadius: BORDER_RADIUS.sm,
+    marginBottom: SPACING.sm,
+  },
+  fotoDetalleVacia: {
+    minHeight: 110,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: SPACING.md,
+    backgroundColor: COLORS.fondoAplicacion,
+    borderRadius: BORDER_RADIUS.sm,
+    marginBottom: SPACING.sm,
+  },
+  textoFotoDetalleVacia: {
+    marginTop: SPACING.xs,
+    textAlign: 'center',
+    color: COLORS.textoSecundario,
+    fontSize: 12,
+  },
+  etiquetaDetalle: {
+    marginTop: SPACING.xs,
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLORS.textoSecundario,
+  },
+  valorDetalle: {
+    marginTop: 2,
+    color: COLORS.textoVerdeOscuro,
+    fontSize: 13,
+    lineHeight: 19,
+  },
+  botonCerrarDetalle: {
+    alignItems: 'center',
+    marginTop: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: BORDER_RADIUS.sm,
+    backgroundColor: COLORS.fondoAplicacion,
+  },
+  textoBotonCerrarDetalle: {
+    color: COLORS.textoVerdeOscuro,
+    fontWeight: '700',
   },
   filaMetadatosEstado: {
     flexDirection: 'row',

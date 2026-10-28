@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import * as Location from 'expo-location';
 import { useAuth } from '../../context/AuthContext';
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
 import { PrioritySemaphoreBadge, PrioridadCaso } from '../../components/agent/PrioritySemaphoreBadge';
@@ -24,6 +25,7 @@ import {
 import { TechnicalClosureModal } from '../../components/agent/TechnicalClosureModal';
 import { TransactionLoaderModal } from '../../components/common/TransactionLoaderModal';
 import { fieldAgentRepository, CasoCampo } from '../../repositories/agent';
+import { adminService } from '../../services/adminService';
 
 type PestanaAgente = 'BOLSA' | 'ACTIVO';
 type FiltroPrioridadBolsa = 'TODAS' | PrioridadCaso;
@@ -55,7 +57,7 @@ export const AgentHomeScreen: React.FC = () => {
   const { user: usuario, logout: cerrarSesion } = useAuth();
   const agenteId = usuario?.id || 'agent-user-1';
 
-  const [enServicio, setEnServicio] = useState<boolean>(true);
+  const [enServicio, setEnServicio] = useState<boolean>(false);
   const [pestana, setPestana] = useState<PestanaAgente>('BOLSA');
   const [filtroPrioridad, setFiltroPrioridad] = useState<FiltroPrioridadBolsa>('TODAS');
   const [bolsaCasos, setBolsaCasos] = useState<CasoCampo[]>([]);
@@ -99,6 +101,69 @@ export const AgentHomeScreen: React.FC = () => {
     cargarBolsaYActivo(false);
   }, [cargarBolsaYActivo]);
 
+  useEffect(() => {
+    if (!enServicio) return;
+
+    let mounted = true;
+    let actualizacionEnCurso = false;
+    let errorDeSincronizacionNotificado = false;
+    let suscripcion: Location.LocationSubscription | null = null;
+
+    const iniciarSeguimiento = async () => {
+      try {
+        suscripcion = await Location.watchPositionAsync(
+          {
+            accuracy: Location.Accuracy.Balanced,
+            timeInterval: 15000,
+            distanceInterval: 10,
+          },
+          (ubicacion) => {
+            if (actualizacionEnCurso) return;
+            actualizacionEnCurso = true;
+            void adminService
+              .actualizarUbicacionPropia(
+                ubicacion.coords.latitude,
+                ubicacion.coords.longitude
+              )
+              .catch((error: unknown) => {
+                console.error('Error al sincronizar la ubicación del agente:', error);
+                if (!errorDeSincronizacionNotificado && mounted) {
+                  errorDeSincronizacionNotificado = true;
+                  Alert.alert(
+                    'Error de sincronización',
+                    error instanceof Error
+                      ? error.message
+                      : 'No se pudo actualizar tu ubicación en el servidor.'
+                  );
+                }
+              })
+              .finally(() => {
+                actualizacionEnCurso = false;
+              });
+          }
+        );
+
+        if (!mounted) suscripcion.remove();
+      } catch (error) {
+        console.error('Error al iniciar el seguimiento GPS del agente:', error);
+        if (mounted) {
+          Alert.alert(
+            'Error de ubicación',
+            error instanceof Error
+              ? error.message
+              : 'No se pudo iniciar el seguimiento de tu ubicación.'
+          );
+        }
+      }
+    };
+
+    void iniciarSeguimiento();
+    return () => {
+      mounted = false;
+      suscripcion?.remove();
+    };
+  }, [enServicio]);
+
   const cambiarPestana = (nuevaPestana: PestanaAgente) => {
     if (transaccionEnCurso || cargando) return;
     setPestana(nuevaPestana);
@@ -121,9 +186,44 @@ export const AgentHomeScreen: React.FC = () => {
     cargarBolsaYActivo(true);
   };
 
-  const alternarServicio = () => {
+  const alternarServicio = async () => {
     if (transaccionEnCurso) return;
-    setEnServicio((prev) => !prev);
+    const nuevoEstado = !enServicio;
+
+    setMensajeTransaccion(
+      nuevoEstado ? 'Obteniendo ubicación GPS y activando servicio...' : 'Desactivando servicio...'
+    );
+    setTransaccionEnCurso(true);
+    try {
+      if (nuevoEstado) {
+        const permiso = await Location.requestForegroundPermissionsAsync();
+        if (!permiso.granted) {
+          throw new Error(
+            'Para activar el servicio, habilita el permiso de ubicación GPS en tu dispositivo.'
+          );
+        }
+
+        const ubicacion = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
+        await adminService.actualizarDisponibilidadPropia(true, {
+          latitud: ubicacion.coords.latitude,
+          longitud: ubicacion.coords.longitude,
+        });
+      } else {
+        await adminService.actualizarDisponibilidadPropia(false);
+      }
+      setEnServicio(nuevoEstado);
+    } catch (error) {
+      Alert.alert(
+        'Error de sincronización',
+        error instanceof Error
+          ? error.message
+          : 'No se pudo actualizar el estado de servicio en el servidor.'
+      );
+    } finally {
+      setTransaccionEnCurso(false);
+    }
   };
 
   // T009: Abrir navegación GPS en Google Maps / Waze externo

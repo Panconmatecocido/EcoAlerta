@@ -31,7 +31,7 @@ interface PointsScaleModalProps {
     categoria: string;
     ubicacion: string;
     prioridad?: PrioridadCaso;
-    imagenUrl?: string;
+    imagenUrl?: string | null;
     fotoVerificacionUrl?: string;
     observacionesAdmin?: string;
     ciudadanoNombre?: string;

@@ -80,6 +80,7 @@ Una vez que el ciudadano ya recibió los puntos por su denuncia verificada (o el
 ### Edge Cases
 
 - **Fotografías de alta resolución (> 10 MB)**: El sistema redimensiona (máximo 1080px de lado mayor) y comprime automáticamente la imagen antes de transmitirla o guardarla para garantizar que nunca supere `1.2 MB`.
+- **Fotografía local no compartible**: Una URI local del dispositivo del ciudadano no es accesible para el Administrador. El flujo DEBE enviar el contenido de la imagen comprimida para que quede disponible desde otros dispositivos. Los reportes históricos cuya única referencia sea una URI local pueden no tener una foto recuperable.
 - **Pérdida de conectividad al enviar un reporte**: Si el servidor central no está disponible en el momento del envío, el reporte se registra en el repositorio local del dispositivo para no perder la evidencia tomada en la calle.
 - **Intento de ocultar un reporte aún en revisión inicial (`PENDIENTE`)**: El sistema informa al vecino que solo puede archivar reportes que ya hayan sido evaluados o cuyos puntos hayan sido acreditados.
 - **Usuario Invitado (No Logueado) intentando reportar un foco o abrir Perfil**: Si un visitante en Modo Invitado pulsa el botón de Cámara para reportar un foco o intenta abrir la sección de Perfil/Mis Denuncias, el sistema bloquea la acción y le solicita que se registre o inicie sesión.
@@ -133,6 +134,7 @@ Una vez que el ciudadano ya recibió los puntos por su denuncia verificada (o el
 - **FR-013 (RF-REP-10 - GPS Opcional, Mapa y Dirección Editable)**: El sistema DEBE permitir solicitar el permiso GPS, centrar el mapa en la ubicación actual y seleccionar/ajustar un pin con la ubicación en el dispositivo. Sin permiso GPS, el mapa DEBE permitir la selección manual y comenzar centrado en Pilar, Buenos Aires. El sistema DEBE intentar sugerir dirección/localidad mediante geocodificación inversa, permitir editarla y exigir una dirección legible al enviar. La geocodificación no DEBE bloquear el envío ni implicar validación territorial del municipio.
 - **FR-014 (RF-REP-11 - Carga Independiente y Estable de Reportes en Perfil)**: La carga de reportes DEBE ser independiente de la consulta de canjes y terminar de mostrarse cuando sus propios datos estén disponibles. Las actualizaciones del perfil (por ejemplo, puntos) no DEBEN reiniciar repetidamente la consulta ni hacer parpadear la lista.
 - **FR-015 (RNF-12 - Distribución de la Pantalla de Permisos)**: La pantalla inicial de permisos de cámara DEBE mantener el encabezado en la parte superior y separación visual clara entre las acciones de abrir cámara y seleccionar desde galería.
+- **FR-016 (RF-REP-12 - Fotografía Compartida con el Municipio)**: Al crear un reporte, el sistema DEBE transmitir y persistir la fotografía comprimida de forma que el ciudadano y el Administrador puedan verla desde dispositivos distintos. La imagen DEBE respetar el límite de tamaño establecido y su lectura no DEBE requerir acceso al almacenamiento local del teléfono que la capturó.
 
 **Success criteria**:
 
@@ -140,3 +142,4 @@ Una vez que el ciudadano ya recibió los puntos por su denuncia verificada (o el
 - **SC-006**: Un usuario puede enviar un reporte con una dirección manual sin conceder permiso GPS; cuando elige un pin, se guardan las coordenadas asociadas.
 - **SC-007**: En Perfil, los reportes aparecen al finalizar su propia consulta y no desaparecen mientras se cargan canjes o se actualiza el perfil.
 - **SC-008**: La pantalla inicial de permisos presenta el encabezado en la parte superior y controles de cámara y galería claramente separados.
+- **SC-009**: El 100% de los reportes nuevos con foto enviada correctamente permite recuperar la evidencia desde otro dispositivo autenticado del mismo municipio.

@@ -1,7 +1,12 @@
 // Inicio de Fase 6 (Polish & QA): pruebas del límite de compresión y caché local.
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { compressImage, MAX_IMAGE_DIMENSION, MAX_IMAGE_SIZE_BYTES } from '../imageCompressor';
+import {
+  compressImage,
+  imageUriToDataUri,
+  MAX_IMAGE_DIMENSION,
+  MAX_IMAGE_SIZE_BYTES,
+} from '../imageCompressor';
 import { LocalReportRepository } from '../../repositories/reports/LocalReportRepository';
 import { CreateReportDTO } from '../../repositories/reports/IReportRepository';
 
@@ -38,6 +43,10 @@ jest.mock('expo-file-system', () => ({
         .__imageFileSizes;
       const size = sizes?.length ? sizes.shift() : 1_258_290;
       return { exists: true, size };
+    }
+
+    async base64() {
+      return 'compressed-image-content';
     }
 
     delete() {}
@@ -129,6 +138,12 @@ describe('compressImage', () => {
     );
     expect((globalThis as typeof globalThis & { __resizeActions: unknown[] })
       .__resizeActions).toHaveLength(15);
+  });
+
+  it('convierte la imagen comprimida en contenido compartible por otros dispositivos', async () => {
+    await expect(imageUriToDataUri('file:///reporte.jpg')).resolves.toBe(
+      'data:image/jpeg;base64,compressed-image-content'
+    );
   });
 });
 

@@ -5,6 +5,7 @@ import { Role } from '@prisma/client';
 import { createAuthMiddleware, requireRole } from '../middleware/auth';
 import {
   obtenerDenuncias,
+  obtenerDenunciaPorId,
   obtenerMisDenuncias,
   obtenerMetricasAdmin,
   asignarAgenteDenuncia,
@@ -40,6 +41,9 @@ router.get('/metricas', authenticate, requireAdmin, obtenerMetricasAdmin);
 
 // GET /api/denuncias/bolsa -> Bolsa general de casos ordenada por prioridad (Agentes)
 router.get('/bolsa', authenticate, requireAgent, getBolsaCasos);
+
+// GET /api/denuncias/:id -> Obtener detalle del reporte para el administrador
+router.get('/:id', authenticate, requireAdmin, obtenerDenunciaPorId);
 
 // POST /api/denuncias -> Crear nueva denuncia (Ciudadano)
 router.post('/', crearDenuncia);

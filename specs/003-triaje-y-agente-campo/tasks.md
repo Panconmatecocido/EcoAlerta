@@ -116,6 +116,13 @@
 - [X] T018 [US1] Implementar endpoint `POST /api/agentes` para alta administrativa y provisión de nuevos agentes de campo en el municipio en `server/src/controllers/agentes.controller.ts`
 - [X] T019 [US2] Implementar endpoints `PATCH /api/agentes/me/ubicacion` y `PATCH /api/agentes/me/disponibilidad` para geotracking de inspectores en tiempo real en `server/src/controllers/agentes.controller.ts`
 
+## Phase 9: Administrator Review and Live Operations
+
+**Purpose**: Permitir revisar la evidencia ciudadana antes del triaje y mantener la ubicación y el estado de guardia del personal actualizados en el panel administrativo.
+
+- [X] T020 [US1] Añadir navegación desde el resumen de métricas hacia los filtros de denuncias, agrupación `EN_PROCESO` y detalle bajo demanda del reporte (foto, descripción, categoría, ubicación y ciudadano), disponible también para validación y auditoría, con endpoint administrativo aislado por municipio en `client/src/screens/admin/AdminHomeScreen.tsx`, `AdminDenunciasScreen.tsx`, `adminService.ts`, `server/src/controllers/denuncias.controller.ts` y `server/src/routes/denuncias.routes.ts`.
+- [X] T021 [US2] Solicitar GPS válido al activar el servicio, publicar la ubicación inicial y su seguimiento periódico, limpiar coordenadas al desactivar, refrescar el panel de agentes en vivo y permitir que el Administrador cambie disponibilidad en `client/src/screens/agente/AgentHomeScreen.tsx`, `client/src/screens/admin/AdminAgentesScreen.tsx`, `server/src/controllers/agentes.controller.ts` y `server/src/routes/agentes.routes.ts`.
+
 ---
 
 ## Dependencies & Execution Order

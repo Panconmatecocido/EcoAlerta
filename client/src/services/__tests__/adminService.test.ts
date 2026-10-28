@@ -27,6 +27,7 @@ describe('adminService.obtenerDenuncias', () => {
           titulo: 'Microbasural en la plaza',
           descripcion: 'Residuos acumulados en la vereda.',
           categoria: 'Microbasural',
+          descripcion: 'Residuos acumulados en la vereda.',
           direccion: 'Calle 1 y Calle 2',
           latitud: -34.46,
           longitud: -58.91,
@@ -45,6 +46,7 @@ describe('adminService.obtenerDenuncias', () => {
         titulo: 'Microbasural en la plaza',
         descripcion: 'Residuos acumulados en la vereda.',
         categoria: 'Microbasural',
+        descripcion: 'Residuos acumulados en la vereda.',
         direccion: 'Calle 1 y Calle 2',
         latitud: -34.46,
         longitud: -58.91,
@@ -67,6 +69,31 @@ describe('adminService.obtenerDenuncias', () => {
     await expect(adminService.obtenerDenuncias()).rejects.toThrow(
       'La respuesta de reportes del servidor no es válida'
     );
+  });
+
+  it('loads the full report detail and photo on demand', async () => {
+    mockedGet.mockResolvedValueOnce({
+      success: true,
+      data: {
+        id: 'report-1',
+        codigo: 'REP-2026-001',
+        titulo: 'Microbasural en la plaza',
+        descripcion: 'Residuos acumulados en la vereda.',
+        categoria: 'Microbasural',
+        direccion: 'Calle 1 y Calle 2',
+        estado: 'PENDIENTE',
+        prioridad: 'ALTA',
+        creadoEn: '2026-10-20T10:00:00.000Z',
+        imagenUrl: 'data:image/jpeg;base64,photo-content',
+      },
+    });
+
+    await expect(adminService.obtenerDetalleDenuncia('report-1')).resolves.toMatchObject({
+      id: 'report-1',
+      descripcion: 'Residuos acumulados en la vereda.',
+      imagenUrl: 'data:image/jpeg;base64,photo-content',
+    });
+    expect(mockedGet).toHaveBeenCalledWith('/api/denuncias/report-1');
   });
 
   it('requests candidates for a report and propagates candidate lookup failures', async () => {

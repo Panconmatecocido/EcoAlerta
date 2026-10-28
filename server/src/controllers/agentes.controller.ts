@@ -1,7 +1,7 @@
 // server/src/controllers/agentes.controller.ts
 
 import { Request, Response } from 'express';
-import { EstadoDenuncia, PrismaClient, Role } from '@prisma/client';
+import { EstadoDenuncia, Prisma, PrismaClient, Role } from '@prisma/client';
 import { distanceBetweenCoordinates, isValidCoordinatePair } from '../utils/geo';
 
 const prisma = new PrismaClient();
@@ -21,6 +21,9 @@ export const obtenerAgentes = async (req: Request, res: Response): Promise<void>
         nombre: true,
         email: true,
         disponible: true,
+        latitudActual: true,
+        longitudActual: true,
+        ubicacionActualizadaEn: true,
         creadoEn: true,
         denunciasAsignadas: {
           where: {
@@ -45,6 +48,9 @@ export const obtenerAgentes = async (req: Request, res: Response): Promise<void>
       nombre: agente.nombre,
       email: agente.email,
       disponible: agente.disponible,
+      latitudActual: agente.latitudActual,
+      longitudActual: agente.longitudActual,
+      ubicacionActualizadaEn: agente.ubicacionActualizadaEn,
       casosAsignados: agente.denunciasAsignadas.length,
       casoActivoId: agente.denunciasAsignadas[0]?.id,
       casoActivoCodigo: agente.denunciasAsignadas[0]?.codigo,
@@ -71,7 +77,10 @@ export const cambiarDisponibilidadAgente = async (req: Request, res: Response): 
     const id = req.params.id ?? req.auth!.id;
     const { disponible } = req.body;
 
-    if (id !== req.auth!.id) {
+    const esAdmin = req.auth!.rol === Role.ADMIN;
+    const esMismoUsuario = id === req.auth!.id;
+
+    if (!esAdmin && !esMismoUsuario) {
       res.status(403).json({
         success: false,
         message: 'Solo puedes modificar tu propia disponibilidad',
@@ -87,7 +96,10 @@ export const cambiarDisponibilidadAgente = async (req: Request, res: Response): 
       return;
     }
 
-    if (disponible && !isValidCoordinatePair(req.body?.latitud, req.body?.longitud)) {
+    const tieneGpsValido = isValidCoordinatePair(req.body?.latitud, req.body?.longitud);
+
+    // Si el propio agente se pone disponible y manda GPS, lo exigimos sólo si no es admin modificando al agente
+    if (!esAdmin && disponible && !tieneGpsValido) {
       res.status(400).json({
         success: false,
         message: 'Comparte una ubicación GPS válida para activar tu disponibilidad',
@@ -111,21 +123,27 @@ export const cambiarDisponibilidadAgente = async (req: Request, res: Response): 
       }
     }
 
+    const datosActualizacion: Prisma.UserUpdateInput = disponible
+      ? {
+          disponible,
+          ...(tieneGpsValido
+            ? {
+                latitudActual: req.body.latitud,
+                longitudActual: req.body.longitud,
+                ubicacionActualizadaEn: new Date(),
+              }
+            : {}),
+        }
+      : {
+          disponible,
+          latitudActual: null,
+          longitudActual: null,
+          ubicacionActualizadaEn: null,
+        };
+
     const agenteActualizado = await prisma.user.update({
       where: { id },
-      data: disponible
-        ? {
-            disponible,
-            latitudActual: req.body.latitud,
-            longitudActual: req.body.longitud,
-            ubicacionActualizadaEn: new Date(),
-          }
-        : {
-            disponible,
-            latitudActual: null,
-            longitudActual: null,
-            ubicacionActualizadaEn: null,
-          },
+      data: datosActualizacion,
       select: {
         id: true,
         disponible: true,

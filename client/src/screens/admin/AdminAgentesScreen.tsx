@@ -10,6 +10,7 @@ import {
   Alert,
   ActivityIndicator,
   RefreshControl,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -60,6 +61,14 @@ export const AdminAgenteScreen: React.FC = () => {
 
   useEffect(() => {
     cargarAgentes();
+  }, [cargarAgentes]);
+
+  useEffect(() => {
+    const intervalo = setInterval(() => {
+      void cargarAgentes();
+    }, 10000);
+
+    return () => clearInterval(intervalo);
   }, [cargarAgentes]);
 
   const alRefrescar = () => {
@@ -148,6 +157,35 @@ export const AdminAgenteScreen: React.FC = () => {
     );
   };
 
+  // Acordeón/Desplegable para inspeccionar la ubicación del agente
+  const [agenteExpandidoId, setAgenteExpandidoId] = useState<string | null>(null);
+
+  const toggleExpandirUbicacion = (id: string) => {
+    setAgenteExpandidoId((prev) => (prev === id ? null : id));
+  };
+
+  const abrirEnGoogleMaps = async (latitud?: number | null, longitud?: number | null, nombre?: string) => {
+    if (typeof latitud !== 'number' || typeof longitud !== 'number') {
+      Alert.alert(
+        'Ubicación no disponible',
+        `El inspector ${nombre || ''} no tiene coordenadas GPS registradas en este momento.`
+      );
+      return;
+    }
+
+    const url = `https://www.google.com/maps/search/?api=1&query=${latitud},${longitud}`;
+    try {
+      const soportado = await Linking.canOpenURL(url);
+      if (soportado) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert('Coordenadas GPS', `Lat: ${latitud}, Long: ${longitud}`);
+      }
+    } catch {
+      Alert.alert('Coordenadas GPS', `Lat: ${latitud}, Long: ${longitud}`);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <TransactionLoaderModal
@@ -229,7 +267,30 @@ export const AdminAgenteScreen: React.FC = () => {
                   </View>
                 ) : null}
 
-                <View style={styles.accionesAgente}>
+                {/* Fila de Acciones: Botón de Ubicación Desplegable y Alternar Disponibilidad */}
+                <View style={styles.filaAcciones}>
+                  {item.disponible ? (
+                    <TouchableOpacity
+                      style={styles.botonDesplegableUbicacion}
+                      onPress={() => toggleExpandirUbicacion(item.id)}
+                      activeOpacity={0.7}
+                    >
+                      <MaterialCommunityIcons
+                        name="crosshairs-gps"
+                        size={15}
+                        color={COLORS.botonPrincipal}
+                      />
+                      <Text style={styles.textoBotonUbicacion}>
+                        {agenteExpandidoId === item.id ? 'Ocultar GPS' : 'Ver Ubicación'}
+                      </Text>
+                      <MaterialCommunityIcons
+                        name={agenteExpandidoId === item.id ? 'chevron-up' : 'chevron-down'}
+                        size={16}
+                        color={COLORS.botonPrincipal}
+                      />
+                    </TouchableOpacity>
+                  ) : <View style={{ flex: 1 }} />}
+
                   <TouchableOpacity
                     style={[
                       styles.botonEstado,
@@ -255,6 +316,60 @@ export const AdminAgenteScreen: React.FC = () => {
                     </Text>
                   </TouchableOpacity>
                 </View>
+
+                {/* Desplegable de Ubicación en Tiempo Real con Botón Google Maps */}
+                {item.disponible && agenteExpandidoId === item.id ? (
+                  <View style={styles.panelDesplegableUbicacion}>
+                    <View style={styles.cabeceraPanelUbicacion}>
+                      <MaterialCommunityIcons name="map-marker-radius" size={18} color={COLORS.botonPrincipal} />
+                      <Text style={styles.tituloPanelUbicacion}>Posición Satelital del Agente</Text>
+                    </View>
+
+                    {typeof item.latitudActual === 'number' && typeof item.longitudActual === 'number' ? (
+                      <View style={styles.cuerpoPanelUbicacion}>
+                        <View style={styles.filaCoordenadas}>
+                          <Text style={styles.etiquetaCoord}>Latitud:</Text>
+                          <Text style={styles.valorCoord}>{item.latitudActual.toFixed(5)}</Text>
+                        </View>
+                        <View style={styles.filaCoordenadas}>
+                          <Text style={styles.etiquetaCoord}>Longitud:</Text>
+                          <Text style={styles.valorCoord}>{item.longitudActual.toFixed(5)}</Text>
+                        </View>
+                        {item.ubicacionActualizadaEn ? (
+                          <Text style={styles.textoHoraUbicacion}>
+                            Actualizado: {new Date(item.ubicacionActualizadaEn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} hs
+                          </Text>
+                        ) : null}
+
+                        <TouchableOpacity
+                          style={styles.botonGoogleMaps}
+                          onPress={() => abrirEnGoogleMaps(item.latitudActual, item.longitudActual, item.nombre)}
+                          activeOpacity={0.8}
+                        >
+                          <MaterialCommunityIcons name="google-maps" size={18} color={COLORS.superficieTarjeta} />
+                          <Text style={styles.textoBotonGoogleMaps}>Abrir en Google Maps</Text>
+                          <MaterialCommunityIcons name="open-in-new" size={15} color={COLORS.superficieTarjeta} />
+                        </TouchableOpacity>
+                      </View>
+                    ) : (
+                      <View style={styles.sinCoordenadasContainer}>
+                        <MaterialCommunityIcons name="map-marker-off" size={24} color={COLORS.textoDesactivado} />
+                        <Text style={styles.textoSinCoordenadas}>
+                          El agente está en servicio pero aún no transmitió telemetría GPS o está en modo base.
+                        </Text>
+                        <TouchableOpacity
+                          style={[styles.botonGoogleMaps, { backgroundColor: COLORS.fondoEncabezado, marginTop: 8 }]}
+                          onPress={() => abrirEnGoogleMaps(-34.4586, -58.9142, item.nombre)}
+                        >
+                          <MaterialCommunityIcons name="map-search-outline" size={16} color={COLORS.botonPrincipal} />
+                          <Text style={[styles.textoBotonGoogleMaps, { color: COLORS.botonPrincipal }]}>
+                            Buscar Municipio en Maps
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </View>
+                ) : null}
               </View>
             )}
           />
@@ -368,6 +483,26 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: COLORS.textoPeligro,
   },
+  filaAcciones: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 4,
+  },
+  botonDesplegableUbicacion: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: COLORS.fondoTarjeta,
+    paddingVertical: SPACING.xs,
+    paddingHorizontal: SPACING.sm,
+    borderRadius: BORDER_RADIUS.sm,
+  },
+  textoBotonUbicacion: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.botonPrincipal,
+  },
   accionesAgente: {
     alignItems: 'flex-end',
   },
@@ -379,5 +514,75 @@ const styles = StyleSheet.create({
   textoEstado: {
     fontSize: 11,
     fontWeight: 'bold',
+  },
+  panelDesplegableUbicacion: {
+    marginTop: SPACING.sm,
+    backgroundColor: COLORS.fondoAplicacion,
+    borderWidth: 1,
+    borderColor: COLORS.bordeSuave,
+    borderRadius: BORDER_RADIUS.sm,
+    padding: SPACING.sm,
+  },
+  cabeceraPanelUbicacion: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: SPACING.xs,
+  },
+  tituloPanelUbicacion: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLORS.textoVerdeOscuro,
+  },
+  cuerpoPanelUbicacion: {
+    marginTop: 2,
+  },
+  filaCoordenadas: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 2,
+  },
+  etiquetaCoord: {
+    fontSize: 11,
+    color: COLORS.textoSecundario,
+  },
+  valorCoord: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: COLORS.textoVerdeOscuro,
+    fontFamily: 'monospace',
+  },
+  textoHoraUbicacion: {
+    fontSize: 10,
+    color: COLORS.textoSecundario,
+    marginTop: 4,
+    fontStyle: 'italic',
+  },
+  botonGoogleMaps: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: COLORS.botonPrincipal,
+    paddingVertical: 8,
+    paddingHorizontal: SPACING.md,
+    borderRadius: BORDER_RADIUS.sm,
+    marginTop: SPACING.sm,
+  },
+  textoBotonGoogleMaps: {
+    color: COLORS.superficieTarjeta,
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  sinCoordenadasContainer: {
+    alignItems: 'center',
+    paddingVertical: SPACING.xs,
+  },
+  textoSinCoordenadas: {
+    fontSize: 11,
+    color: COLORS.textoSecundario,
+    textAlign: 'center',
+    marginTop: 4,
+    lineHeight: 16,
   },
 });

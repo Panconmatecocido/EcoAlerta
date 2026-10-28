@@ -14,7 +14,7 @@ import { AdminProductosScreen } from '../screens/admin/AdminProductosScreen';
 
 export type AdminTabParamList = {
   InicioAdmin: undefined;
-  DenunciasAdmin: undefined;
+  DenunciasAdmin: { filtro?: string } | undefined;
   AgentesAdmin: undefined;
   ProductosAdmin: undefined;
 };

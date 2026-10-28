@@ -25,6 +25,7 @@ El Administrador Municipal revisa la bandeja de reportes recién enviados por lo
 3. **Given** un Administrador intentando rechazar un reporte, **When** deja vacío el campo de justificación, **Then** el sistema impide confirmar el rechazo hasta que ingrese el motivo.
 4. **Given** un Administrador intentando asignar un caso a un agente y no existen inspectores disponibles en el municipio (`disponible = true`), **When** pulsa "Asignar Inspector", **Then** el sistema impide la asignación y notifica que no hay inspectores disponibles en ese momento.
 5. **Given** un inspector que no se encuentra disponible (`disponible = false`), **When** el Administrador intenta asignarle un caso, **Then** el sistema bloquea la asignación y emite el mensaje: `"Agente no disponible"`.
+6. **Given** un reporte pendiente recibido desde otro dispositivo, **When** el Administrador abre su detalle antes de aprobarlo o rechazarlo, **Then** puede revisar la foto enviada por el vecino, la descripción, categoría, ubicación y autor del reporte.
 
 ---
 
@@ -82,6 +83,8 @@ Si un Agente sufre un imprevisto en la calle y pulsa "Liberar / Abandonar Caso" 
 ### Edge Cases
 
 - **Agente fuera de servicio (`disponible = false`)**: Un agente que desactiva su interruptor de "En Servicio" no puede tomar casos nuevos de la bolsa hasta volver a activarse.
+- **Activación sin permiso o sin señal GPS**: El sistema no activa la disponibilidad si no puede obtener una ubicación GPS válida; comunica el motivo y conserva el estado anterior.
+- **Evidencia histórica en URI local**: Reportes antiguos cuya foto solo contiene una ruta local del teléfono de origen pueden mostrar el detalle sin una imagen recuperable; los reportes nuevos deben transmitir evidencia compartible.
 - **Intento de subir verificación sin fotografía**: El sistema exige obligatoriamente adjuntar la fotografía de contraprueba/aviso antes de confirmar cualquiera de los tres resultados de verificación.
 - **Compresión de fotografías del agente**: Todas las fotos tomadas por el agente en terreno se comprimen a menos de `1.2 MB` antes de enviarse.
 
@@ -101,7 +104,9 @@ Si un Agente sufre un imprevisto en la calle y pulsa "Liberar / Abandonar Caso" 
 - **FR-008 (RF-ADM-03b - Validación de Disponibilidad en Asignación Directa)**: Al asignar un inspector desde el panel de administración, el sistema DEBE impedir la asignación si no existen agentes disponibles en el municipio. Si se intenta asignar a un inspector con `disponible = false`, el sistema (frontend y backend) DEBE rechazar la solicitud retornando el mensaje `"Agente no disponible"`.
 - **FR-009 (RF-ADM-09 - Dashboard de Métricas de Denuncias)**: El sistema DEBE exponer el endpoint `GET /api/denuncias/metricas` que totalice en tiempo real los reportes registrados por cada uno de los 8 estados del ciclo de vida ambiental (`PENDIENTE`, `APROBADO`, `EN_VERIFICACION`, `VERIFICADO_PENDIENTE`, `EN_SANEAMIENTO`, `RESUELTO`, `RECHAZADO`, `CERRADO_INACCESIBLE`).
 - **FR-010 (RF-ADM-10 - Proximidad GPS Haversine y Candidatos Disponibles)**: El sistema DEBE exponer el endpoint `GET /api/denuncias/:id/agentes-disponibles` calculando la distancia geodésica mediante la fórmula de Haversine (`distanciaMetros`) entre las coordenadas del foco ambiental y la posición GPS actual de cada agente en servicio (`disponible = true`), sugiriendo al Administrador los inspectores más cercanos.
-- **FR-011 (RF-AGE-09 - Geotracking en Tiempo Real y Estado de Disponibilidad)**: El sistema DEBE permitir a los agentes de campo reportar periódicamente su geolocalización en vivo (`latitudActual`, `longitudActual`, `ubicacionActualizadaEn`) vía `PATCH /api/agentes/me/ubicacion` y conmutar su estado de guardia en servicio vía `PATCH /api/agentes/me/disponibilidad` y `PATCH /api/agentes/:id/disponibilidad`.
+- **FR-011 (RF-AGE-09 - Geotracking en Tiempo Real y Estado de Disponibilidad)**: Para activar su disponibilidad, el agente DEBE conceder permiso de ubicación y enviar una pareja válida de coordenadas actuales junto con el cambio de estado. Mientras permanezca en servicio, el dispositivo DEBE transmitir nuevas coordenadas cuando cambie la posición (como máximo cada 15 segundos o al desplazarse 10 metros); al desactivar el servicio, el sistema DEBE limpiar las coordenadas vigentes. El panel del Administrador DEBE actualizar la lista de agentes y su última posición, como máximo cada 10 segundos mientras la pantalla esté activa. El Administrador también puede cambiar la disponibilidad desde su panel.
+- **FR-013 (RF-ADM-11 - Revisión del Detalle y Evidencia del Reporte)**: El Administrador DEBE poder abrir el detalle de una denuncia de su municipio y revisar la fotografía inicial, descripción, categoría, ubicación y autor antes de aprobarla, asignarla o rechazarla, y acceder a las evidencias completas en los flujos de validación y auditoría. La fotografía DEBE recuperarse bajo demanda y mostrarse un estado explícito si no está disponible.
+- **FR-014 (RF-ADM-12 - Resumen Operativo y Navegación por Estado)**: El inicio administrativo DEBE presentar métricas de reportes pendientes, en proceso y resueltos, y permitir abrir la lista de denuncias con el filtro correspondiente; la vista de denuncias DEBE agrupar los estados operativos en el filtro `EN_PROCESO`.
 - **FR-012 (RF-AGE-10 - Alta Administrativa de Agentes de Campo)**: El sistema DEBE permitir al Administrador dar de alta y aprovisionar nuevos agentes de campo mediante `POST /api/agentes`, configurando sus datos personales, credenciales seguras y vinculación al municipio.
 
 ### Key Entities
@@ -118,6 +123,8 @@ Si un Agente sufre un imprevisto en la calle y pulsa "Liberar / Abandonar Caso" 
 - **SC-003**: El 100% de los casos que registran su 3.er intento de inaccesibilidad transicionan automáticamente a `CERRADO_INACCESIBLE` sin requerir cálculo manual del inspector.
 - **SC-004**: El 100% de los casos liberados cuando ya estaban en `EN_SANEAMIENTO` conservan dicho estado y no vuelven a la etapa de verificación inicial.
 - **SC-005 (RNF-10)**: El 100% de las mutaciones en BD despliegan `TransactionLoaderModal` en `< 50ms` bloqueando botones repetidos y resolviendo la transición de pantalla + cartel de confirmación o error inmediatamente al finalizar la transacción.
+- **SC-006**: El Administrador puede abrir el detalle de cualquier reporte de su municipio y revisar su fotografía inicial antes de confirmar el triaje; la lista de reportes no descarga el contenido de todas las fotos por adelantado.
+- **SC-007**: Tras activar servicio con GPS válido, la posición del agente queda disponible para el Administrador y se actualiza con una antigüedad máxima de 10 segundos en el panel activo; si no hay permiso o GPS válido, la disponibilidad no cambia.
 
 ## Assumptions
 

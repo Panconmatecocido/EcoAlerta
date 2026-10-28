@@ -29,11 +29,23 @@ export const obtenerDenuncias = async (req: Request, res: Response): Promise<voi
     };
 
     if (estado !== undefined && estado !== 'TODAS') {
-      if (typeof estado !== 'string' || !Object.values(EstadoDenuncia).includes(estado as EstadoDenuncia)) {
+      if (estado === 'EN_PROCESO') {
+        whereCondition.estado = {
+          in: [
+            EstadoDenuncia.APROBADO,
+            EstadoDenuncia.EN_PROCESO,
+            EstadoDenuncia.EN_VERIFICACION,
+            EstadoDenuncia.VERIFICADO_PENDIENTE,
+            EstadoDenuncia.EN_SANEAMIENTO,
+            EstadoDenuncia.RESUELTO_TECNICO,
+          ],
+        };
+      } else if (typeof estado !== 'string' || !Object.values(EstadoDenuncia).includes(estado as EstadoDenuncia)) {
         res.status(400).json({ success: false, message: 'El filtro de estado no es válido' });
         return;
+      } else {
+        whereCondition.estado = estado as EstadoDenuncia;
       }
-      whereCondition.estado = estado as EstadoDenuncia;
     }
 
     if (busqueda) {
@@ -68,13 +80,50 @@ export const obtenerDenuncias = async (req: Request, res: Response): Promise<voi
 
     res.status(200).json({
       success: true,
-      data: denuncias,
+      data: denuncias.map((denuncia) => ({
+        ...denuncia,
+        ...(denuncia.imagenUrl?.startsWith('data:image/')
+          ? { imagenUrl: null }
+          : {}),
+      })),
     });
   } catch (error) {
     console.error('Error al obtener denuncias:', error);
     res.status(500).json({
       success: false,
       message: 'Error al obtener la lista de denuncias',
+    });
+  }
+};
+
+export const obtenerDenunciaPorId = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const denuncia = await prisma.denuncia.findFirst({
+      where: {
+        id: req.params.id,
+        municipioId: req.auth!.municipioId,
+      },
+      include: {
+        ciudadano: {
+          select: { id: true, nombre: true, email: true },
+        },
+        agente: {
+          select: { id: true, nombre: true, email: true },
+        },
+      },
+    });
+
+    if (!denuncia) {
+      res.status(404).json({ success: false, message: 'Reporte no encontrado' });
+      return;
+    }
+
+    res.status(200).json({ success: true, data: denuncia });
+  } catch (error) {
+    console.error('Error al obtener el detalle de la denuncia:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener el detalle del reporte',
     });
   }
 };

@@ -83,7 +83,11 @@ export const AdminHomeScreen: React.FC = () => {
           <ActivityIndicator size="large" color={COLORS.botonPrincipal} style={{ marginVertical: 20 }} />
         ) : (
           <View style={styles.redMetricas}>
-            <View style={[styles.tarjetaMetrica, { backgroundColor: COLORS.fondoAdvertencia }]}>
+            <TouchableOpacity
+              style={[styles.tarjetaMetrica, { backgroundColor: COLORS.fondoAdvertencia }]}
+              onPress={() => navigation.navigate('DenunciasAdmin', { filtro: 'PENDIENTE' })}
+              activeOpacity={0.7}
+            >
               <MaterialCommunityIcons
                 name="clock-alert-outline"
                 size={ICON_SIZE.lg}
@@ -93,9 +97,13 @@ export const AdminHomeScreen: React.FC = () => {
                 {metricas?.denunciasPendientes ?? 0}
               </Text>
               <Text style={styles.etiquetaMetrica}>Pendientes</Text>
-            </View>
+            </TouchableOpacity>
 
-            <View style={[styles.tarjetaMetrica, { backgroundColor: COLORS.fondoTarjeta }]}>
+            <TouchableOpacity
+              style={[styles.tarjetaMetrica, { backgroundColor: COLORS.fondoTarjeta }]}
+              onPress={() => navigation.navigate('DenunciasAdmin', { filtro: 'EN_PROCESO' })}
+              activeOpacity={0.7}
+            >
               <MaterialCommunityIcons
                 name="progress-wrench"
                 size={ICON_SIZE.lg}
@@ -105,9 +113,13 @@ export const AdminHomeScreen: React.FC = () => {
                 {metricas?.denunciasEnProceso ?? 0}
               </Text>
               <Text style={styles.etiquetaMetrica}>En Proceso</Text>
-            </View>
+            </TouchableOpacity>
 
-            <View style={[styles.tarjetaMetrica, { backgroundColor: COLORS.fondoTarjeta }]}>
+            <TouchableOpacity
+              style={[styles.tarjetaMetrica, { backgroundColor: COLORS.fondoTarjeta }]}
+              onPress={() => navigation.navigate('DenunciasAdmin', { filtro: 'RESUELTO' })}
+              activeOpacity={0.7}
+            >
               <MaterialCommunityIcons
                 name="check-circle-outline"
                 size={ICON_SIZE.lg}
@@ -117,9 +129,13 @@ export const AdminHomeScreen: React.FC = () => {
                 {metricas?.denunciasResueltas ?? 0}
               </Text>
               <Text style={styles.etiquetaMetrica}>Resueltas</Text>
-            </View>
+            </TouchableOpacity>
 
-            <View style={[styles.tarjetaMetrica, { backgroundColor: COLORS.superficieTarjeta }]}>
+            <TouchableOpacity
+              style={[styles.tarjetaMetrica, { backgroundColor: COLORS.superficieTarjeta }]}
+              onPress={() => navigation.navigate('AgentesAdmin')}
+              activeOpacity={0.7}
+            >
               <MaterialCommunityIcons
                 name="account-hard-hat"
                 size={ICON_SIZE.lg}
@@ -129,7 +145,7 @@ export const AdminHomeScreen: React.FC = () => {
                 {metricas?.totalAgentesActivos ?? 0}
               </Text>
               <Text style={styles.etiquetaMetrica}>Agentes Activos</Text>
-            </View>
+            </TouchableOpacity>
           </View>
         )}
 

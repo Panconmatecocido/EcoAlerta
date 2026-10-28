@@ -45,7 +45,7 @@ interface MockPrisma {
 const prisma = (jest.requireMock('@prisma/client') as { __mockPrisma: MockPrisma })
   .__mockPrisma;
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: '2mb' }));
 app.use('/api/denuncias', denunciasRoutes);
 
 const reportBase = {
@@ -111,6 +111,22 @@ describe('Citizen report endpoints', () => {
 
     expect(response.status).toBe(201);
     expect(response.body.data.codigo).toBe(`REP-${new Date().getFullYear()}-008`);
+  });
+
+  it('persists shared compressed photo data sent by the citizen', async () => {
+    const imageData = `data:image/jpeg;base64,${'a'.repeat(160_000)}`;
+    prisma.denuncia.create.mockImplementation(async ({ data }) => ({
+      id: 'report-with-photo',
+      ...data,
+      creadoEn: new Date().toISOString(),
+    }));
+
+    const response = await request(app)
+      .post('/api/denuncias')
+      .send({ ...reportBase, imagenUrl: imageData })
+      .expect(201);
+
+    expect(response.body.data.imagenUrl).toBe(imageData);
   });
 
   it('lista solo reportes visibles del ciudadano y los ordena por fecha reciente', async () => {
