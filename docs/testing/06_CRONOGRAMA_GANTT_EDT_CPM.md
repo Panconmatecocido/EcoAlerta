@@ -15,7 +15,7 @@
 
 ```mermaid
 gantt
-    title Roadmap 4 Fases EcoAlerta - Estado de Ejecución (Inicio: 19/10)
+    title Roadmap 4 Fases EcoAlerta - Estado de Ejecución (Inicio 19/10)
     dateFormat  YYYY-MM-DD
     axisFormat  %d/%m
     section Fase 1 (100% Completado)
@@ -30,33 +30,33 @@ gantt
 
 ```mermaid
 gantt
-    title Desglose Diario de Ejecución (Inicio: 19/10/2026 - Barras Pintadas = Realizado)
+    title Desglose Diario de Ejecución (Inicio 19/10/2026 - Barras Pintadas = Realizado)
     dateFormat  YYYY-MM-DD
     axisFormat  %d/%m
-    section Fase 1: Planificación, HU & BDD (19/10 - 23/10)
-    D1 (19/10) - Relevamiento de Backlog y HU de EcoAlerta       :done, d1, 2026-10-19, 1d
-    D2 (20/10) - Mapeo Criterios BDD Gherkin (Dado/Cuando/Entonces) :done, d2, after d1, 1d
-    D3 (21/10) - Redacción Plan Maestro Testing (IEEE 829)      :done, d3, after d2, 1d
-    D4 (22/10) - Estructuración Inicial Matriz de Trazabilidad RTM :done, d4, after d3, 1d
-    D5 (23/10) - Setup Ambiente Testing, DB & Semillas Prisma   :done, d5, after d4, 1d
-    section Fase 2: Testware, RTM & Fixtures (26/10 - 30/10)
-    D6 (26/10) - Diseño Casos M1: Auth, Modo Invitado & Roles   :done, d6, 2026-10-26, 1d
-    D7 (27/10) - Diseño Casos M2: Reportes, Triaje y Visitas     :done, d7, after d6, 1d
-    D8 (28/10) - Diseño Casos M3: Tienda, Carrito & TTL 5m      :done, d8, after d7, 1d
-    D9 (29/10) - Colección Postman y Fixtures Jest / Supertest   :done, d9, after d8, 1d
-    D10 (30/10) - Validación RTM Bidireccional & Cierre Fase 2   :done, d10, after d9, 1d
-    section Fase 3: Pruebas Backend & Concurrencia (02/11 - 06/11)
-    D11 (02/11) - Ejecución Suites Jest (Validadores, Carrito, Puntos):active, d11, 2026-11-02, 1d
-    D12 (03/11) - Ejecución API REST en Postman (22 Endpoints)    :d12, after d11, 1d
-    D13 (04/11) - Concurrencia: Toma 1 a 1 de Agentes (Prisma Lock):d13, after d12, 1d
-    D14 (05/11) - Concurrencia: Reserva de Stock TTL 5m en Checkout:d14, after d13, 1d
-    D15 (06/11) - Depuración y Fix BUG-101 y BUG-102              :d15, after d14, 1d
-    section Fase 4: UI Móvil, E2E & Certificación ISO (09/11 - 13/11)
-    D16 (09/11) - Modo Invitado & Auth Gate (< 100 ms) en React Native:d16, 2026-11-09, 1d
-    D17 (10/11) - TransactionLoaderModal (RNF-10) & Spinners Listas:d17, after d16, 1d
-    D18 (11/11) - Recorrido E2E Reportes -> Triaje -> Saneamiento :d18, after d17, 1d
-    D19 (12/11) - Recorrido E2E Tienda -> Checkout -> Entrega Presencial:d19, after d18, 1d
-    D20 (13/11) - Evaluación ISO/IEC 25010, Excel Maestro & Entrega:d20, after d19, 1d
+    section Fase 1 - Planificación, HU & BDD (19/10 - 23/10)
+    D1 (19/10) - Relevamiento de Backlog y HU de EcoAlerta           :done, d1, 2026-10-19, 1d
+    D2 (20/10) - Mapeo Criterios BDD Gherkin (Dado/Cuando/Entonces)  :done, d2, after d1, 1d
+    D3 (21/10) - Redacción Plan Maestro Testing (IEEE 829)           :done, d3, after d2, 1d
+    D4 (22/10) - Estructuración Inicial Matriz de Trazabilidad RTM   :done, d4, after d3, 1d
+    D5 (23/10) - Setup Ambiente Testing, DB & Semillas Prisma        :done, d5, after d4, 1d
+    section Fase 2 - Testware, RTM & Fixtures (26/10 - 30/10)
+    D6 (26/10) - Diseño Casos M1 - Auth, Modo Invitado & Roles       :done, d6, 2026-10-26, 1d
+    D7 (27/10) - Diseño Casos M2 - Reportes, Triaje y Visitas        :done, d7, after d6, 1d
+    D8 (28/10) - Diseño Casos M3 - Tienda, Carrito & TTL 5m         :done, d8, after d7, 1d
+    D9 (29/10) - Colección Postman y Fixtures Jest Supertest         :done, d9, after d8, 1d
+    D10 (30/10) - Validación RTM Bidireccional & Cierre Fase 2       :done, d10, after d9, 1d
+    section Fase 3 - Pruebas Backend & Concurrencia (02/11 - 06/11)
+    D11 (02/11) - Ejecución Suites Jest (Validadores y Puntos)       :active, d11, 2026-11-02, 1d
+    D12 (03/11) - Ejecución API REST en Postman (22 Endpoints)       :d12, after d11, 1d
+    D13 (04/11) - Concurrencia - Toma 1 a 1 de Agentes Prisma Lock   :d13, after d12, 1d
+    D14 (05/11) - Concurrencia - Reserva Stock TTL 5m en Checkout    :d14, after d13, 1d
+    D15 (06/11) - Depuración y Fix BUG-101 y BUG-102                 :d15, after d14, 1d
+    section Fase 4 - UI Móvil, E2E & Certificación ISO (09/11 - 13/11)
+    D16 (09/11) - Modo Invitado & Auth Gate (sub-100ms) React Native :d16, 2026-11-09, 1d
+    D17 (10/11) - TransactionLoaderModal (RNF-10) & Spinners Listas  :d17, after d16, 1d
+    D18 (11/11) - Recorrido E2E Reportes a Triaje y Saneamiento      :d18, after d17, 1d
+    D19 (12/11) - Recorrido E2E Tienda a Checkout y Retiro Presencial :d19, after d18, 1d
+    D20 (13/11) - Evaluación ISO 25010, Excel Maestro & Entrega      :d20, after d19, 1d
 ```
 
 ### 📊 Tablero de Control de Avance: "¿Cómo vamos?"
