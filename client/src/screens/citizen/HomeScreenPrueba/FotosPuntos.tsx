@@ -118,7 +118,7 @@ export const FotosPuntos: React.FC = () => {
             color={COLORS.iconoPrincipal}
           />
           <Text style={styles.titulo} numberOfLines={1} ellipsizeMode="tail">
-            {isCitizen ? 'Mis reportes recientes' : 'Sumá puntos reportando'}
+            {isCitizen ? 'Mis reportes recientes' : 'Sumá EcoPuntos reportando'}
           </Text>
         </View>
 
@@ -133,7 +133,7 @@ export const FotosPuntos: React.FC = () => {
 
       <Text style={styles.subtituloGeneral}>
         {isCitizen
-          ? 'Consulta el estado y los puntos de tus reportes.'
+          ? 'Consulta el estado y los EcoPuntos de tus reportes.'
           : 'Sacá una foto de estos problemas urbanos para reportarlos.'}
       </Text>
 
@@ -187,7 +187,7 @@ export const FotosPuntos: React.FC = () => {
                   <View style={styles.reportStatus}>
                     <ReportStatusBadge estado={report.estado} />
                   </View>
-                  <Text style={styles.reportPoints}>+{report.puntosOtorgados ?? 0} pts</Text>
+                  <Text style={styles.reportPoints}>+{report.puntosOtorgados ?? 0} EcoPuntos</Text>
                 </View>
               </TouchableOpacity>
             ))}
@@ -215,7 +215,7 @@ export const FotosPuntos: React.FC = () => {
                 />
                 <View style={styles.pointsBadge}>
                   <Ionicons name="leaf" size={13} color={COLORS.superficieTarjeta} />
-                  <Text style={styles.pointsText}>+{challenge.puntos} pts</Text>
+                  <Text style={styles.pointsText}>+{challenge.puntos} EcoPuntos</Text>
                 </View>
               </View>
               <View style={styles.challengeInfo}>
@@ -240,9 +240,12 @@ export const FotosPuntos: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
     marginTop: SPACING.lg,
     marginBottom: SPACING.lg,
+    marginHorizontal: SPACING.sm,
+    paddingVertical: SPACING.md,
+    backgroundColor: COLORS.fondoSeccion,
+    borderRadius: BORDER_RADIUS.lg,
   },
   header: {
     minWidth: 0,

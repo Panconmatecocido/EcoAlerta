@@ -287,7 +287,7 @@ export const ReportScreen: React.FC = () => {
 
       Alert.alert(
         'Reporte recibido',
-        `Tu reporte quedó registrado con el código ${report.codigo} en estado PENDIENTE. Los puntos quedan en revisión hasta la verificación en terreno.`,
+        `Tu reporte quedó registrado con el código ${report.codigo} en estado PENDIENTE. Los EcoPuntos quedan en revisión hasta la verificación en terreno.`,
         [{ text: 'Entendido' }]
       );
       setImage(null);
@@ -583,7 +583,7 @@ export const ReportScreen: React.FC = () => {
           )}
         </TouchableOpacity>
         <Text style={styles.pointsNote}>
-          Los puntos se acreditan después de la verificación municipal en terreno.
+          Los EcoPuntos se acreditan después de la verificación municipal en terreno.
         </Text>
       </ScrollView>
     </KeyboardAvoidingView>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../../context/AuthContext';
@@ -41,7 +41,15 @@ export default function Bienvenidapuntos () {
     <View style={styles.welcomeCard}>
       <View style={styles.userRow}>
         <View style={styles.avatar}>
-          <Text>👤</Text>
+          {user.fotoPerfilUri ? (
+            <Image
+              source={{ uri: user.fotoPerfilUri }}
+              style={guestStyles.profileImage}
+              accessibilityLabel="Foto de perfil"
+            />
+          ) : (
+            <Text>👤</Text>
+          )}
         </View>
         <View style={styles.userInfo}>
           <Text style={styles.texto_usuario}>¡Bienvenido!</Text>
@@ -52,14 +60,7 @@ export default function Bienvenidapuntos () {
             Juntos hacemos una ciudad más limpia 🌿
           </Text>
         </View>
-      </View>
 
-      <View style={styles.pointsSection}>
-        <Text style={styles.texto_puntos}>Mis puntos</Text>
-        <View style={styles.pointsValue}>
-          <Text style={styles.pointsIcon}>🌿</Text>
-          <Text style={styles.punto}>{(user.points ?? 0).toLocaleString('es-AR')}</Text>
-        </View>
       </View>
     </View>
   );
@@ -96,5 +97,10 @@ const guestStyles = StyleSheet.create({
     color: COLORS.botonPrincipal,
     fontSize: 14,
     fontWeight: '700',
+  },
+  profileImage: {
+    width: 55,
+    height: 55,
+    borderRadius: 28,
   },
 });

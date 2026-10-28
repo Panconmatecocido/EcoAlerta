@@ -7,6 +7,7 @@ export interface User {
   name: string;
   role: UserRole;
   points: number; // Puntos verdes acumulados
+  fotoPerfilUri?: string | null;
   municipio?: string;
   municipioId?: string;
   createdAt?: string;

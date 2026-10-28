@@ -96,7 +96,7 @@ export const AdminProductosScreen: React.FC = () => {
     const stockNum = Number(formStock);
 
     if (isNaN(puntosNum) || puntosNum < 0 || isNaN(stockNum) || stockNum < 0) {
-      Alert.alert('Valores inválidos', 'Costo en puntos y stock deben ser números positivos o cero.');
+      Alert.alert('Valores inválidos', 'El costo en EcoPuntos y el stock deben ser números positivos o cero.');
       return;
     }
 
@@ -362,7 +362,7 @@ export const AdminProductosScreen: React.FC = () => {
                       </Text>
 
                       <View style={styles.filaPuntosStock}>
-                        <Text style={styles.puntosItem}>⭐ {prod.costoPuntos} PTS</Text>
+                        <Text style={styles.puntosItem}>⭐ {prod.costoPuntos} EcoPuntos</Text>
                         <Text style={styles.stockItem}>📦 Stock: {prod.stock}</Text>
                       </View>
                     </View>
@@ -515,7 +515,7 @@ export const AdminProductosScreen: React.FC = () => {
 
               <View style={styles.filaDosColumnas}>
                 <View style={{ flex: 1, marginRight: SPACING.xs }}>
-                  <Text style={styles.labelInput}>Costo en Puntos *</Text>
+                  <Text style={styles.labelInput}>Costo en EcoPuntos *</Text>
                   <TextInput
                     style={styles.inputForm}
                     placeholder="Ej. 100"

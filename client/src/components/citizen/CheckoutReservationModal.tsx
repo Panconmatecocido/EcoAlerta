@@ -145,9 +145,9 @@ export const CheckoutReservationModal: React.FC<CheckoutReservationModalProps> =
                 </View>
 
                 <View style={styles.filaBalancePuntos}>
-                  <Text style={styles.puntosDescontados}>-{totalPuntos.toLocaleString()} PTS</Text>
+                  <Text style={styles.puntosDescontados}>-{totalPuntos.toLocaleString()} EcoPuntos</Text>
                   <Text style={styles.nuevoSaldoTexto}>
-                    Nuevo saldo: {comprobante.nuevoSaldoPuntos.toLocaleString()} PTS
+                    Nuevo saldo: {comprobante.nuevoSaldoPuntos.toLocaleString()} EcoPuntos
                   </Text>
                 </View>
               </View>
@@ -254,7 +254,7 @@ export const CheckoutReservationModal: React.FC<CheckoutReservationModalProps> =
               {/* Resumen de Total */}
               <View style={styles.filaResumen}>
                 <Text style={styles.etiquetaResumen}>Total a descontar:</Text>
-                <Text style={styles.valorResumen}>{totalPuntos.toLocaleString()} PTS</Text>
+                <Text style={styles.valorResumen}>{totalPuntos.toLocaleString()} EcoPuntos</Text>
               </View>
 
               {/* Botón de Confirmación */}

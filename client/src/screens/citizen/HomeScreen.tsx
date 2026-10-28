@@ -1,6 +1,6 @@
 // src/screens/citizen/HomeScreen.tsx
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, useWindowDimensions, Image } from 'react-native';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { Header } from '../../components/Header';
@@ -48,7 +48,15 @@ export const HomeScreen: React.FC = () => {
         <View style={styles.welcomeCard}>
           <View style={styles.userHeaderRow}>
             <View style={styles.avatarCircle}>
-              <Feather name="user" size={32} color={COLORS.botonPrincipal} />
+              {user?.fotoPerfilUri ? (
+                <Image
+                  source={{ uri: user.fotoPerfilUri }}
+                  style={styles.avatarImage}
+                  accessibilityLabel="Foto de perfil"
+                />
+              ) : (
+                <Feather name="user" size={32} color={COLORS.botonPrincipal} />
+              )}
             </View>
             <View style={styles.userInfo}>
               <Text style={styles.welcomeLabel}>¡Bienvenido!</Text>
@@ -59,7 +67,7 @@ export const HomeScreen: React.FC = () => {
           </View>
 
           <View style={styles.pointsSection}>
-            <Text style={styles.pointsTitle}>Mis puntos</Text>
+            <Text style={styles.pointsTitle}>Mis EcoPuntos</Text>
             <View style={styles.pointsValue}>
               <MaterialCommunityIcons name="leaf-circle" size={28} color={COLORS.botonPrincipal} />
               <Text style={styles.pointsNumber}>{user?.points ?? 0}</Text>
@@ -149,6 +157,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
   },
   userInfo: {
     flex: 1,

@@ -313,7 +313,7 @@ export const CollaboratorHomeScreen: React.FC = () => {
                     👤 {ent.ciudadano?.nombre || 'Vecino'}
                   </Text>
                   <Text style={styles.itemsEntregaReciente}>
-                    📦 {ent.items.length} {ent.items.length === 1 ? 'producto' : 'productos'} • {ent.totalPuntos} PTS
+                    📦 {ent.items.length} {ent.items.length === 1 ? 'producto' : 'productos'} • {ent.totalPuntos} EcoPuntos
                   </Text>
                 </View>
               ))

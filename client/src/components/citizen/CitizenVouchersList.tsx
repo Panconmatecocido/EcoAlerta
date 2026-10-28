@@ -51,7 +51,7 @@ export const CitizenVouchersList: React.FC<CitizenVouchersListProps> = ({
         <MaterialCommunityIcons name="ticket-outline" size={56} color={COLORS.textoDesactivado} />
         <Text style={styles.emptyTitle}>No tienes vouchers de canje</Text>
         <Text style={styles.emptySubtitle}>
-          Cuando canjees tus puntos por productos ecológicos en la Tienda, tus códigos de retiro aparecerán aquí.
+          Cuando canjees tus EcoPuntos por productos ecológicos en la Tienda, tus códigos de retiro aparecerán aquí.
         </Text>
       </View>
     );
@@ -114,7 +114,7 @@ export const CitizenVouchersList: React.FC<CitizenVouchersListProps> = ({
                 <View style={styles.alertaTextos}>
                   <Text style={styles.alertaTitulo}>Voucher Expirado (superó los 30 días)</Text>
                   <Text style={styles.alertaDescripcion}>
-                    Las unidades no retiradas se reintegraron al stock municipal. Los puntos no tienen reembolso según las normas del programa.
+                    Las unidades no retiradas se reintegraron al stock municipal. Los EcoPuntos no tienen reembolso según las normas del programa.
                   </Text>
                 </View>
               </View>
@@ -157,7 +157,7 @@ export const CitizenVouchersList: React.FC<CitizenVouchersListProps> = ({
                     <Text style={styles.itemCantidad}>{it.cantidad}x</Text>
                     <Text style={styles.itemNombre}>{it.producto?.titulo || 'Insumo Ecológico'}</Text>
                     <Text style={styles.itemPuntos}>
-                      {it.puntosUnit ? `${it.cantidad * it.puntosUnit} PTS` : ''}
+                      {it.puntosUnit ? `${it.cantidad * it.puntosUnit} EcoPuntos` : ''}
                     </Text>
                   </View>
                 ))}
@@ -166,8 +166,8 @@ export const CitizenVouchersList: React.FC<CitizenVouchersListProps> = ({
 
             {/* Footer con Puntos Totales */}
             <View style={styles.footerRow}>
-              <Text style={styles.footerLabel}>Total Puntos:</Text>
-              <Text style={styles.footerPuntos}>-{voucher.totalPuntos} PTS</Text>
+              <Text style={styles.footerLabel}>Total EcoPuntos:</Text>
+              <Text style={styles.footerPuntos}>-{voucher.totalPuntos} EcoPuntos</Text>
             </View>
           </View>
         );

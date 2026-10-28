@@ -43,5 +43,9 @@
 
 ## UX regression checklist (pending device verification)
 
-- [ ] As a guest, tap **Más** and verify that the shared register/login modal opens immediately without navigating to the options screen.
-- [ ] As an authenticated user, tap **Más** and verify that the options screen opens normally.
+- [x] As a guest, tap **Más** and verify that the shared register/login modal opens immediately without navigating to the options screen.
+- [x] As an authenticated user, tap **Más** and verify that the options screen opens normally.
+- [x] As a citizen, tap the Home notification bell and verify that current report statuses and redemption availability are listed, including the two-business-day pickup rule.
+- [ ] As a citizen, verify that the Home header shows the EcoPuntos balance instead of the settings gear, and that the balance is not duplicated in the welcome card.
+- [ ] Verify that the Home displays a full-width `Anuncios` banner slot between the redemption carousel and recent reports, with slightly less height than the welcome card.
+- [ ] Verify that the redemption carousel and recent reports have a soft green section background and that their white cards remain legible.

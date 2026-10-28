@@ -115,7 +115,7 @@ export const VoucherDetailCard: React.FC<VoucherDetailCardProps> = ({
             <Text style={styles.alertaTitulo}>Canje Expirado (+30 días corridos)</Text>
             <Text style={styles.alertaDescripcion}>
               El plazo para retirar este premio ha vencido. Las unidades han sido restituidas al stock
-              municipal y los puntos no tienen reembolso. La entrega está bloqueada.
+              municipal y los EcoPuntos no tienen reembolso. La entrega está bloqueada.
             </Text>
           </View>
         </View>
@@ -187,7 +187,7 @@ export const VoucherDetailCard: React.FC<VoucherDetailCardProps> = ({
               <Text style={styles.itemTitulo}>{item.producto?.titulo || 'Insumo Ecológico'}</Text>
               {item.producto?.costoPuntos ? (
                 <Text style={styles.itemPuntosUnit}>
-                  {item.producto.costoPuntos} PTS c/u • Total: {item.cantidad * item.producto.costoPuntos} PTS
+                  {item.producto.costoPuntos} EcoPuntos c/u • Total: {item.cantidad * item.producto.costoPuntos} EcoPuntos
                 </Text>
               ) : null}
             </View>
@@ -195,8 +195,8 @@ export const VoucherDetailCard: React.FC<VoucherDetailCardProps> = ({
         ))}
 
         <View style={styles.totalPuntosFila}>
-          <Text style={styles.totalPuntosLabel}>Total Puntos Canjeados:</Text>
-          <Text style={styles.totalPuntosValor}>{voucher.totalPuntos} PTS</Text>
+          <Text style={styles.totalPuntosLabel}>Total EcoPuntos canjeados:</Text>
+          <Text style={styles.totalPuntosValor}>{voucher.totalPuntos} EcoPuntos</Text>
         </View>
       </View>
 

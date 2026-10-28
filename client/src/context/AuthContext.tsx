@@ -15,6 +15,7 @@ interface AuthContextType {
   requireAuth: () => boolean;
   dismissAuthGate: () => void;
   updateUserPoints?: (nuevosPuntos: number) => void;
+  actualizarFotoPerfil: (fotoPerfilUri: string | null) => Promise<void>;
   recargarPerfilUsuario?: () => Promise<void>;
 }
 
@@ -56,6 +57,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (!user) return;
 
     const updatedUser = { ...user, points: nuevosPuntos };
+    await authRepository.saveSession(updatedUser);
+    setUser(updatedUser);
+  };
+
+  const actualizarFotoPerfil = async (fotoPerfilUri: string | null) => {
+    if (!user) {
+      throw new Error('Debes iniciar sesión para cambiar tu foto de perfil.');
+    }
+
+    const updatedUser = { ...user, fotoPerfilUri };
     await authRepository.saveSession(updatedUser);
     setUser(updatedUser);
   };
@@ -201,6 +212,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         requireAuth,
         dismissAuthGate,
         updateUserPoints,
+        actualizarFotoPerfil,
         recargarPerfilUsuario,
       }}
     >

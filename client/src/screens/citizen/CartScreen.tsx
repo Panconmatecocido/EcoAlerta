@@ -76,7 +76,7 @@ export const CartScreen: React.FC = ({ navigation }: any) => {
     if (!user) {
       Alert.alert(
         'Inicio de Sesión Requerido',
-        'Debes identificarte como vecino para canjear tus puntos ecológicos.',
+        'Debes identificarte como vecino para canjear tus EcoPuntos.',
         [
           { text: 'Cancelar', style: 'cancel' },
           { text: 'Iniciar Sesión', onPress: () => navigation.navigate('Login') },
@@ -97,8 +97,8 @@ export const CartScreen: React.FC = ({ navigation }: any) => {
 
     if (saldoInsuficiente) {
       Alert.alert(
-        'Puntos insuficientes',
-        `Tenés ${userPoints.toLocaleString()} PTS y necesitás ${totalPuntos.toLocaleString()} PTS para este canje. ¡Seguí reportando alertas para sumar puntos!`
+        'EcoPuntos insuficientes',
+        `Tenés ${userPoints.toLocaleString()} EcoPuntos y necesitás ${totalPuntos.toLocaleString()} EcoPuntos para este canje. ¡Seguí reportando alertas para sumar EcoPuntos!`
       );
       return;
     }
@@ -202,11 +202,11 @@ export const CartScreen: React.FC = ({ navigation }: any) => {
             </View>
             <View>
               <Text style={styles.welcomeText}>¡Hola, {user?.name || 'Vecino'}!</Text>
-              <Text style={styles.subWelcomeText}>Canjes 100% en puntos sustentables 🍃</Text>
+              <Text style={styles.subWelcomeText}>Canjes 100% con EcoPuntos 🍃</Text>
             </View>
           </View>
           <View style={styles.pointsBadge}>
-            <Text style={styles.pointsLabel}>⭐ Mis puntos</Text>
+            <Text style={styles.pointsLabel}>⭐ Mis EcoPuntos</Text>
             <Text style={styles.pointsValue}>{userPoints.toLocaleString()}</Text>
           </View>
         </View>
@@ -240,7 +240,7 @@ export const CartScreen: React.FC = ({ navigation }: any) => {
                     {producto.titulo}
                   </Text>
                   <View style={styles.pointsTag}>
-                    <Text style={styles.pointsText}>⭐ {producto.costoPuntos.toLocaleString()} pts c/u</Text>
+                    <Text style={styles.pointsText}>⭐ {producto.costoPuntos.toLocaleString()} EcoPuntos c/u</Text>
                   </View>
                   <Text style={styles.stockDisponibleTexto}>Stock disponible: {producto.stock}</Text>
                   {superaStock && (
@@ -292,7 +292,7 @@ export const CartScreen: React.FC = ({ navigation }: any) => {
             <View style={styles.summaryCard}>
               <View style={styles.summaryRow}>
                 <Text style={styles.summaryLabel}>Subtotal Insumos:</Text>
-                <Text style={styles.summaryValue}>{subtotalPuntos.toLocaleString()} PTS</Text>
+                <Text style={styles.summaryValue}>{subtotalPuntos.toLocaleString()} EcoPuntos</Text>
               </View>
 
               <View style={styles.summaryRow}>
@@ -304,18 +304,18 @@ export const CartScreen: React.FC = ({ navigation }: any) => {
 
               <View style={styles.summaryRow}>
                 <Text style={styles.totalLabel}>TOTAL A CANJEAR:</Text>
-                <Text style={styles.totalValue}>{totalPuntos.toLocaleString()} PTS</Text>
+                <Text style={styles.totalValue}>{totalPuntos.toLocaleString()} EcoPuntos</Text>
               </View>
 
               {/* Comparativa Saldo Actual vs Total */}
               <View style={styles.comparativaBox}>
                 <Text style={styles.textoComparativa}>
-                  Tu saldo actual: <Text style={{ fontWeight: 'bold' }}>{userPoints.toLocaleString()} PTS</Text>
+                  Tu saldo actual: <Text style={{ fontWeight: 'bold' }}>{userPoints.toLocaleString()} EcoPuntos</Text>
                 </Text>
                 <Text style={[styles.textoComparativaRestante, saldoInsuficiente && styles.textoComparativaAlerta]}>
                   {saldoInsuficiente
-                    ? `Faltan: ${(totalPuntos - userPoints).toLocaleString()} PTS`
-                    : `Saldo posterior: ${(userPoints - totalPuntos).toLocaleString()} PTS`}
+                    ? `Faltan: ${(totalPuntos - userPoints).toLocaleString()} EcoPuntos`
+                    : `Saldo posterior: ${(userPoints - totalPuntos).toLocaleString()} EcoPuntos`}
                 </Text>
               </View>
             </View>
@@ -324,7 +324,7 @@ export const CartScreen: React.FC = ({ navigation }: any) => {
               <View style={styles.insufficientBox}>
                 <MaterialCommunityIcons name="alert-circle-outline" size={20} color={COLORS.textoPeligro} />
                 <Text style={styles.insufficientText}>
-                  Puntos insuficientes. Te faltan {(totalPuntos - userPoints).toLocaleString()} PTS para completar este canje.
+                  EcoPuntos insuficientes. Te faltan {(totalPuntos - userPoints).toLocaleString()} EcoPuntos para completar este canje.
                 </Text>
               </View>
             ) : (
@@ -343,7 +343,7 @@ export const CartScreen: React.FC = ({ navigation }: any) => {
               activeOpacity={0.8}
             >
               <Text style={styles.checkoutButtonText}>
-                {saldoInsuficiente ? 'PUNTOS INSUFICIENTES' : 'CONTINUAR AL CANJE (RESERVA 5 MIN) 🛒'}
+                {saldoInsuficiente ? 'ECOPUNTOS INSUFICIENTES' : 'CONTINUAR AL CANJE (RESERVA 5 MIN) 🛒'}
               </Text>
             </TouchableOpacity>
           </>

@@ -276,7 +276,7 @@ export const AdminDenunciasScreen: React.FC = () => {
         modoTriaje === 'APROBAR' ? 'Aprobado a Bolsa General' : 'Reporte Rechazado',
         modoTriaje === 'APROBAR'
           ? `La denuncia pasó a estado APROBADO con prioridad ${prioridadSeleccionada} y ya está disponible en la bolsa de agentes.`
-          : 'La denuncia fue rechazada con justificación y 0 puntos otorgados.'
+          : 'La denuncia fue rechazada con justificación y sin EcoPuntos otorgados.'
       );
     } catch (error: any) {
       // Transacción negativa: ocultar spinner y permitir reintentar
@@ -430,7 +430,7 @@ export const AdminDenunciasScreen: React.FC = () => {
     setProcesandoTriaje(true);
     setMensajeTransaccion(
       payload.decision === 'APROBAR_VERACIDAD'
-        ? `Acreditando ${payload.puntos} puntos y avanzando a saneamiento...`
+        ? `Acreditando ${payload.puntos} EcoPuntos y avanzando a saneamiento...`
         : 'Registrando rechazo por falsedad...'
     );
     try {
@@ -441,8 +441,8 @@ export const AdminDenunciasScreen: React.FC = () => {
       Alert.alert(
         'Operación Exitosa',
         payload.decision === 'APROBAR_VERACIDAD'
-          ? `Se acreditaron ${payload.puntos} puntos al ciudadano y el reporte avanzó a etapa de Saneamiento.`
-          : 'Reporte cerrado como falso en terreno con 0 puntos otorgados.'
+          ? `Se acreditaron ${payload.puntos} EcoPuntos al ciudadano y el reporte avanzó a etapa de Saneamiento.`
+          : 'Reporte cerrado como falso en terreno sin EcoPuntos otorgados.'
       );
     } catch (error: any) {
       Alert.alert('Error', error?.message || 'No se pudo procesar la validación de veracidad.');
@@ -681,7 +681,7 @@ export const AdminDenunciasScreen: React.FC = () => {
                         size={16}
                         color={COLORS.superficieTarjeta}
                       />
-                      <Text style={styles.textoBotonAccion}>Validar Veracidad y Puntos</Text>
+                      <Text style={styles.textoBotonAccion}>Validar Veracidad y EcoPuntos</Text>
                     </TouchableOpacity>
                   )}
 
@@ -843,7 +843,7 @@ export const AdminDenunciasScreen: React.FC = () => {
                       modoTriaje === 'RECHAZAR' && styles.textoTabModoActivo,
                     ]}
                   >
-                    Rechazar (0 pts)
+                    Rechazar (0 EcoPuntos)
                   </Text>
                 </TouchableOpacity>
               </View>

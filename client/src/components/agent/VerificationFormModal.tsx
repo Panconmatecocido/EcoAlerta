@@ -176,7 +176,7 @@ export const VerificationFormModal: React.FC<VerificationFormModalProps> = ({
               <View style={styles.textosOpcion}>
                 <Text style={styles.tituloOpcion}>Caso A: Es Real (Confirmar Foco)</Text>
                 <Text style={styles.descripcionOpcion}>
-                  Sube foto de contraprueba. Pasa a auditoría del Admin para acreditar puntos al vecino.
+                  Sube foto de contraprueba. Pasa a auditoría del Admin para acreditar EcoPuntos al vecino.
                 </Text>
               </View>
             </TouchableOpacity>
@@ -196,7 +196,7 @@ export const VerificationFormModal: React.FC<VerificationFormModalProps> = ({
               <View style={styles.textosOpcion}>
                 <Text style={styles.tituloOpcion}>Caso B: Es Falso en Terreno</Text>
                 <Text style={styles.descripcionOpcion}>
-                  Sube foto de descargo del lugar limpio. Se cierra como improcedente con 0 puntos.
+                  Sube foto de descargo del lugar limpio. Se cierra como improcedente sin acreditar EcoPuntos.
                 </Text>
               </View>
             </TouchableOpacity>

@@ -42,29 +42,4 @@ export const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.textoVerdeOscuro,
   },
-  pointsSection: {
-    marginTop: 12,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.textoLogo,
-  },
-  texto_puntos: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: COLORS.textoLogo,
-  },
-  pointsValue: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-    gap: 8,
-  },
-  pointsIcon: {
-    fontSize: 20,
-  },
-  punto: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: COLORS.textoVerdeOscuro,
-  },
 });

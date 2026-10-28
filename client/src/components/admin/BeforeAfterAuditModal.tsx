@@ -118,7 +118,7 @@ export const BeforeAfterAuditModal: React.FC<BeforeAfterAuditModalProps> = ({
               {typeof denuncia.puntosOtorgados === 'number' && denuncia.puntosOtorgados > 0 ? (
                 <View style={styles.metaRow}>
                   <Ionicons name="gift-outline" size={ICON_SIZE.sm} color={COLORS.iconoPrincipal} />
-                  <Text style={styles.metaText}>Puntos ya acreditados al vecino: {denuncia.puntosOtorgados} pts</Text>
+                  <Text style={styles.metaText}>EcoPuntos ya acreditados al vecino: {denuncia.puntosOtorgados}</Text>
                 </View>
               ) : null}
             </View>
@@ -219,7 +219,7 @@ export const BeforeAfterAuditModal: React.FC<BeforeAfterAuditModalProps> = ({
               <View style={styles.observarInfoCard}>
                 <Ionicons name="information-circle-outline" size={ICON_SIZE.sm} color={COLORS.textoAdvertencia} />
                 <Text style={styles.observarInfoTexto}>
-                  El caso regresará a la etapa de EN_SANEAMIENTO con tus notas técnicas para que la cuadrilla repase la limpieza. No se descuentan los puntos al vecino.
+                  El caso regresará a la etapa de EN_SANEAMIENTO con tus notas técnicas para que la cuadrilla repase la limpieza. No se descuentan los EcoPuntos al vecino.
                 </Text>
               </View>
             ) : null}

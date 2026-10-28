@@ -4,6 +4,7 @@ export const COLORS = {
   fondoEncabezado: '#DAEAB9',
   fondoAplicacion: '#F7FDF1',
   fondoTarjeta: '#F4FAEC',
+  fondoSeccion: '#E8F1D9',
   superficieTarjeta: '#FFFFFF',
 
   // Texto y Marca

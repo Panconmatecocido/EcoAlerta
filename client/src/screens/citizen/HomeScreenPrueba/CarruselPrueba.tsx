@@ -154,7 +154,7 @@ export const CarruselTienda = () => {
         </Text>
 
         <Text style={styles.puntos}>
-          {item.costoPuntos} puntos
+          {item.costoPuntos} EcoPuntos
         </Text>
       </TouchableOpacity>
     );
@@ -174,7 +174,7 @@ export const CarruselTienda = () => {
           />
 
           <Text style={styles.titulo} numberOfLines={1} ellipsizeMode="tail">
-            Canjeá tus puntos
+            Canjeá tus EcoPuntos
           </Text>
         </View>
 
@@ -259,8 +259,11 @@ export const CarruselTienda = () => {
 const styles = StyleSheet.create({
 
   container: {
-    width: '100%',
     marginTop: SPACING.lg,
+    marginHorizontal: SPACING.sm,
+    paddingVertical: SPACING.md,
+    backgroundColor: COLORS.fondoSeccion,
+    borderRadius: BORDER_RADIUS.lg,
   },
 
   header: {

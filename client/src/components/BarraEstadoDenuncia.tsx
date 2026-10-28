@@ -61,14 +61,14 @@ export const BarraEstadoDenuncia: React.FC<Props> = ({ estado, puntosOtorgados =
       case 'VERIFICADO_PENDIENTE':
         return { indice: 1, subtexto: 'Evidencia Verificada en Terreno' };
       case 'EN_SANEAMIENTO':
-        return { indice: 2, subtexto: 'Cuadrilla Municipal en Saneamiento (+Puntos)' };
+        return { indice: 2, subtexto: 'Cuadrilla Municipal en Saneamiento (+EcoPuntos)' };
       case 'RESUELTO_TECNICO':
         return { indice: 2, subtexto: 'Cierre Técnico Registrado (Por Certificar)' };
       case 'RESUELTO':
         return {
           indice: 3,
           subtexto: puntosOtorgados > 0
-            ? `¡Saneado y Certificado! (+${puntosOtorgados} PTS acreditados)`
+            ? `¡Saneado y Certificado! (+${puntosOtorgados} EcoPuntos acreditados)`
             : 'Saneado y Certificado por el Municipio',
         };
       default:

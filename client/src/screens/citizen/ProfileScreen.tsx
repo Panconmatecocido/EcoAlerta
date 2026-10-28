@@ -27,7 +27,12 @@ import { CitizenReport } from '../../repositories/reports/IReportRepository';
 import { ReportStatusBadge } from '../../components/citizen/ReportStatusBadge';
 
 export const ProfileScreen: React.FC = () => {
-  const { user: usuario, logout, recargarPerfilUsuario } = useAuth();
+  const {
+    user: usuario,
+    logout,
+    recargarPerfilUsuario,
+    actualizarFotoPerfil,
+  } = useAuth();
   const usuarioId = usuario?.id;
   const esCiudadano = usuario?.role === 'citizen';
   const recargarPerfilRef = useRef(recargarPerfilUsuario);
@@ -44,8 +49,7 @@ export const ProfileScreen: React.FC = () => {
   const [denunciaSeleccionada, setDenunciaSeleccionada] = useState<CitizenReport | null>(null);
   const [ocultandoReporteId, setOcultandoReporteId] = useState<string | null>(null);
 
-  // Foto de perfil local o del usuario
-  const [fotoPerfilUri, setFotoPerfilUri] = useState<string | null>(null);
+  const fotoPerfilUri = usuario?.fotoPerfilUri ?? null;
 
   const cargarDatosPerfil = useCallback(
     async (refrescar = false, sigueActivo: () => boolean = () => true) => {
@@ -207,7 +211,15 @@ export const ProfileScreen: React.FC = () => {
     });
 
     if (!resultado.canceled && resultado.assets[0].uri) {
-      setFotoPerfilUri(resultado.assets[0].uri);
+      try {
+        await actualizarFotoPerfil(resultado.assets[0].uri);
+      } catch (error) {
+        console.error('Error al guardar la foto de perfil:', error);
+        Alert.alert(
+          'No se pudo guardar la foto',
+          error instanceof Error ? error.message : 'Intenta nuevamente.'
+        );
+      }
     }
   };
 
@@ -229,7 +241,15 @@ export const ProfileScreen: React.FC = () => {
     });
 
     if (!resultado.canceled && resultado.assets[0].uri) {
-      setFotoPerfilUri(resultado.assets[0].uri);
+      try {
+        await actualizarFotoPerfil(resultado.assets[0].uri);
+      } catch (error) {
+        console.error('Error al guardar la foto de perfil:', error);
+        Alert.alert(
+          'No se pudo guardar la foto',
+          error instanceof Error ? error.message : 'Intenta nuevamente.'
+        );
+      }
     }
   };
 
@@ -301,12 +321,12 @@ export const ProfileScreen: React.FC = () => {
           <Text style={estilos.correoUsuario}>{usuario?.email || 'sin-email@ecoalerta.com'}</Text>
         </View>
 
-        {/* Tarjeta de Resumen de Puntos */}
+        {/* Tarjeta de resumen de EcoPuntos */}
         <View style={estilos.contenedorPuntos}>
           <View style={estilos.tarjetaPunto}>
             <MaterialCommunityIcons name="leaf" size={ICON_SIZE.md} color={COLORS.botonPrincipal} />
             <Text style={estilos.valorPunto}>{usuario?.points ?? 0}</Text>
-            <Text style={estilos.etiquetaPunto}>Puntos Disponibles</Text>
+            <Text style={estilos.etiquetaPunto}>EcoPuntos disponibles</Text>
           </View>
           <View style={estilos.divisorPuntos} />
           <View style={estilos.tarjetaPunto}>
@@ -314,7 +334,7 @@ export const ProfileScreen: React.FC = () => {
             <Text style={[estilos.valorPunto, { color: COLORS.textoSecundario }]}>
               {totalPuntosGastados}
             </Text>
-            <Text style={estilos.etiquetaPunto}>Puntos Usados</Text>
+            <Text style={estilos.etiquetaPunto}>EcoPuntos usados</Text>
           </View>
         </View>
 
@@ -407,7 +427,7 @@ export const ProfileScreen: React.FC = () => {
                         <View style={estilos.filaEstadoPuntos}>
                           <ReportStatusBadge estado={denuncia.estado} />
                           <Text style={estilos.puntosReporte}>
-                            +{denuncia.puntosOtorgados ?? 0} pts
+                            +{denuncia.puntosOtorgados ?? 0} EcoPuntos
                           </Text>
                         </View>
                         <Text style={estilos.enlaceDetalle}>Ver detalle</Text>
@@ -502,7 +522,7 @@ export const ProfileScreen: React.FC = () => {
                 <View style={estilos.filaEstadoPuntos}>
                   <ReportStatusBadge estado={denunciaSeleccionada.estado} />
                   <Text style={estilos.puntosReporte}>
-                    +{denunciaSeleccionada.puntosOtorgados ?? 0} pts
+                    +{denunciaSeleccionada.puntosOtorgados ?? 0} EcoPuntos
                   </Text>
                 </View>
 

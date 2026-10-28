@@ -1,8 +1,10 @@
 import Bienvenidapuntos from './Bienvenidapuntos';
 
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
 
 import Header from '../../../components/Header';
+import { CitizenNotificationsModal } from '../../../components/citizen/CitizenNotificationsModal';
 import { CarruselTienda } from './CarruselPrueba';
 import { FotosPuntos } from './FotosPuntos';
 import { useAuth } from '../../../context/AuthContext';
@@ -21,17 +23,47 @@ const GUEST_STEPS = [
   },
   {
     number: '3',
-    title: 'Suma puntos y canjea premios ecológicos',
-    description: 'Cuando tu reporte se resuelve, ganas puntos para canjear en la tienda.',
+    title: 'Suma EcoPuntos y canjea premios ecológicos',
+    description: 'Cuando tu reporte se resuelve, ganas EcoPuntos para canjear en la tienda.',
   },
 ];
 
 export default function InicioHome() {
   const { user } = useAuth();
+  const [notificacionesVisibles, setNotificacionesVisibles] = useState(false);
+  const [notificacionesSinLeer, setNotificacionesSinLeer] = useState(true);
+
+  const abrirNotificaciones = () => {
+    setNotificacionesSinLeer(false);
+    setNotificacionesVisibles(true);
+  };
 
   return (
     <View style={screenStyles.container}>
-      <Header />
+      <Header
+        onPressNotifications={abrirNotificaciones}
+        unreadNotifications={notificacionesSinLeer}
+        rightContent={
+          user?.role === 'citizen' ? (
+            <View
+              style={screenStyles.headerPoints}
+              accessibilityLabel={`${(user.points ?? 0).toLocaleString('es-AR')} EcoPuntos`}
+            >
+              <Text style={screenStyles.headerPointsLabel}>EcoPuntos</Text>
+              <Text style={screenStyles.headerPointsValue}>
+                {(user.points ?? 0).toLocaleString('es-AR')}
+              </Text>
+            </View>
+          ) : (
+            <View style={screenStyles.headerPointsSpacer} />
+          )
+        }
+      />
+      <CitizenNotificationsModal
+        visible={notificacionesVisibles}
+        ciudadanoId={user?.role === 'citizen' ? user.id : undefined}
+        onClose={() => setNotificacionesVisibles(false)}
+      />
       <ScrollView
         contentContainerStyle={screenStyles.content}
         showsVerticalScrollIndicator={false}
@@ -54,6 +86,13 @@ export default function InicioHome() {
           </View>
         )}
         <CarruselTienda />
+        <View
+          style={screenStyles.announcementsBanner}
+          accessibilityRole="image"
+          accessibilityLabel="Espacio reservado para anuncios"
+        >
+          <Text style={screenStyles.announcementsTitle}>Anuncios</Text>
+        </View>
         <FotosPuntos />
       </ScrollView>
     </View>
@@ -67,6 +106,40 @@ const screenStyles = StyleSheet.create({
   },
   content: {
     paddingBottom: SPACING.xl,
+  },
+  announcementsBanner: {
+    height: 72,
+    marginHorizontal: 10,
+    marginTop: SPACING.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.superficieTarjeta,
+    borderRadius: BORDER_RADIUS.lg,
+    borderWidth: 1,
+    borderColor: COLORS.bordeSuave,
+    borderStyle: 'dashed',
+  },
+  announcementsTitle: {
+    color: COLORS.textoSecundario,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  headerPoints: {
+    minWidth: 76,
+    alignItems: 'flex-end',
+  },
+  headerPointsSpacer: {
+    width: 76,
+  },
+  headerPointsLabel: {
+    color: COLORS.textoVerdeOscuro,
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  headerPointsValue: {
+    color: COLORS.textoVerdeOscuro,
+    fontSize: 16,
+    fontWeight: '800',
   },
   explainerCard: {
     marginHorizontal: SPACING.md,

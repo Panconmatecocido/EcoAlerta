@@ -79,7 +79,7 @@ export const StoreScreen: React.FC = () => {
       }
       Alert.alert(
         'Inicio de Sesión Requerido',
-        'Para agregar productos al carrito y canjear tus puntos ecológicos, debes iniciar sesión o registrarte como vecino.',
+        'Para agregar productos al carrito y canjear tus EcoPuntos, debes iniciar sesión o registrarte como vecino.',
         [
           { text: 'Cancelar', style: 'cancel' },
           {
@@ -146,12 +146,12 @@ export const StoreScreen: React.FC = () => {
       <View style={estilos.tarjetaPuntos}>
         <View style={estilos.puntosIzquierda}>
           <Text style={estilos.tituloPuntos}>
-            {user ? 'Tus Puntos Canjeables' : 'Modo Invitado'}
+            {user ? 'Tus EcoPuntos' : 'Modo Invitado'}
           </Text>
           <View style={estilos.contenedorValorPuntos}>
             <Ionicons name="star" size={ICON_SIZE.lg} color={COLORS.iconoPrincipal} />
             <Text style={estilos.valorPuntos}>
-              {user ? `${userPuntos.toLocaleString()} PTS` : '0 PTS'}
+              {user ? `${userPuntos.toLocaleString()} EcoPuntos` : '0 EcoPuntos'}
             </Text>
           </View>
         </View>
@@ -164,7 +164,7 @@ export const StoreScreen: React.FC = () => {
           <View style={estilos.contenedorValorPuntos}>
             <Ionicons name="cart" size={ICON_SIZE.md} color={COLORS.iconoPrincipal} />
             <Text style={estilos.subValorPuntos}>
-              {user ? ` Mis puntos: ${userPuntos}` : ' Iniciar sesión'}
+              {user ? ` Mis EcoPuntos: ${userPuntos}` : ' Iniciar sesión'}
             </Text>
           </View>
           <Text style={estilos.enlaceHistorial}>Ver Carrito &gt;</Text>
@@ -248,7 +248,7 @@ export const StoreScreen: React.FC = () => {
                 <View style={estilos.filaBadges}>
                   <View style={estilos.insigniaPrecio}>
                     <Ionicons name="star" size={ICON_SIZE.sm} color={COLORS.iconoPrincipal} />
-                    <Text style={estilos.puntosProducto}>{item.costoPuntos} PTS</Text>
+                    <Text style={estilos.puntosProducto}>{item.costoPuntos} EcoPuntos</Text>
                   </View>
                   {sinStock ? (
                     <View style={estilos.badgeSinStock}>
@@ -285,7 +285,7 @@ export const StoreScreen: React.FC = () => {
       {cantidadItems > 0 && (
         <View style={estilos.pieCarrito}>
           <Text style={estilos.resumenCarrito}>
-            {cantidadItems} {cantidadItems === 1 ? 'ítem' : 'ítems'} | {totalPuntosCarrito} PTS
+            {cantidadItems} {cantidadItems === 1 ? 'ítem' : 'ítems'} | {totalPuntosCarrito} EcoPuntos
           </Text>
           <TouchableOpacity
             style={estilos.botonPagar}

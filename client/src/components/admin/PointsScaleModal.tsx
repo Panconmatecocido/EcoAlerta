@@ -77,7 +77,7 @@ export const PointsScaleModal: React.FC<PointsScaleModalProps> = ({
     if (!esValido) {
       Alert.alert(
         'Puntaje inválido',
-        `El puntaje para prioridad ${prioridad} debe encontrarse entre ${baremo.min} y ${baremo.max} puntos.`
+        `La cantidad de EcoPuntos para prioridad ${prioridad} debe encontrarse entre ${baremo.min} y ${baremo.max}.`
       );
       return;
     }
@@ -208,7 +208,7 @@ export const PointsScaleModal: React.FC<PointsScaleModalProps> = ({
                 <Text
                   style={[styles.tabModoTexto, modoRechazo && styles.tabModoTextoActivo]}
                 >
-                  Declarar Falso (0 pts)
+                  Declarar Falso (0 EcoPuntos)
                 </Text>
               </TouchableOpacity>
             </View>
@@ -219,7 +219,7 @@ export const PointsScaleModal: React.FC<PointsScaleModalProps> = ({
                 <View style={styles.baremoHeader}>
                   <Text style={styles.baremoTitulo}>Baremo Oficial por Prioridad {prioridad}</Text>
                   <Text style={styles.baremoRangoTexto}>
-                    Rango permitido: {baremo.min} a {baremo.max} pts
+                    Rango permitido: {baremo.min} a {baremo.max} EcoPuntos
                   </Text>
                 </View>
 
@@ -264,7 +264,7 @@ export const PointsScaleModal: React.FC<PointsScaleModalProps> = ({
 
                   <View style={styles.puntosDisplay}>
                     <Text style={styles.puntosValorText}>{puntos}</Text>
-                    <Text style={styles.puntosSubtexto}>puntos ecológicos</Text>
+                    <Text style={styles.puntosSubtexto}>EcoPuntos</Text>
                   </View>
 
                   <TouchableOpacity
@@ -277,12 +277,12 @@ export const PointsScaleModal: React.FC<PointsScaleModalProps> = ({
 
                 {!esValido && (
                   <Text style={styles.errorBaremoText}>
-                    ⚠️ El puntaje debe estar entre {baremo.min} y {baremo.max} pts.
+                    ⚠️ La cantidad debe estar entre {baremo.min} y {baremo.max} EcoPuntos.
                   </Text>
                 )}
 
                 <Text style={styles.infoAcreditacion}>
-                  ℹ️ Los puntos se acreditarán atómicamente a la cuenta del vecino y el caso pasará a la etapa de Saneamiento.
+                  ℹ️ Los EcoPuntos se acreditarán atómicamente a la cuenta del vecino y el caso pasará a la etapa de Saneamiento.
                 </Text>
               </View>
             ) : (
@@ -291,7 +291,7 @@ export const PointsScaleModal: React.FC<PointsScaleModalProps> = ({
                 <Ionicons name="alert-circle" size={ICON_SIZE.md} color={COLORS.textoPeligro} />
                 <Text style={styles.rechazoTitulo}>Atención: Desestimación por Falsedad</Text>
                 <Text style={styles.rechazoDescripcion}>
-                  El reporte será cerrado definitivamente como RECHAZADO con 0 puntos otorgados al vecino. El agente asignado quedará liberado inmediatamente.
+                  El reporte será cerrado definitivamente como RECHAZADO sin acreditar EcoPuntos al vecino. El agente asignado quedará liberado inmediatamente.
                 </Text>
               </View>
             )}
@@ -336,7 +336,7 @@ export const PointsScaleModal: React.FC<PointsScaleModalProps> = ({
                 ) : (
                   <>
                     <Ionicons name="checkmark-sharp" size={ICON_SIZE.sm} color={COLORS.blanco} />
-                    <Text style={styles.submitButtonText}>Aprobar y Acreditar ({puntos} pts)</Text>
+                    <Text style={styles.submitButtonText}>Aprobar y Acreditar ({puntos} EcoPuntos)</Text>
                   </>
                 )}
               </TouchableOpacity>

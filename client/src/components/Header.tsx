@@ -10,13 +10,15 @@ interface HeaderProps {
   onPressNotifications?: () => void;
   onPressSettings?: () => void;
   unreadNotifications?: boolean;
+  rightContent?: React.ReactNode;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   showActions = true,
   onPressNotifications,
   onPressSettings,
-  unreadNotifications = true,
+  unreadNotifications = false,
+  rightContent,
 }) => {
   const insets = useSafeAreaInsets();
 
@@ -48,15 +50,18 @@ export const Header: React.FC<HeaderProps> = ({
           <Text style={styles.logoText}>ECO ALERTA</Text>
         </View>
 
-        {/* Ajustes / Configuración (Derecha) */}
         {showActions ? (
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={onPressSettings}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="settings-outline" size={26} color={COLORS.textoVerdeOscuro} />
-          </TouchableOpacity>
+          rightContent !== undefined ? (
+            rightContent
+          ) : (
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={onPressSettings}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="settings-outline" size={26} color={COLORS.textoVerdeOscuro} />
+            </TouchableOpacity>
+          )
         ) : (
           <View style={styles.actionButton} />
         )}
