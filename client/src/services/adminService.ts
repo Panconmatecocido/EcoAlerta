@@ -264,6 +264,14 @@ export const adminService = {
     });
   },
 
+  obtenerDisponibilidadPropia: async (): Promise<RespuestaApi<{ disponible: boolean }>> => {
+    const response = await api.get<RespuestaApi<{ disponible: boolean }>>('/api/agentes/me/estado');
+    if (!response || response.success !== true || typeof response.data?.disponible !== 'boolean') {
+      throw new Error(response?.message || 'La respuesta del estado del agente no es válida');
+    }
+    return response;
+  },
+
   actualizarDisponibilidadPropia: async (
     disponible: boolean,
     ubicacion?: { latitud: number; longitud: number }

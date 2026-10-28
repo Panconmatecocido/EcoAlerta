@@ -146,6 +146,63 @@ describe('PATCH /api/denuncias/:id/asignar', () => {
     });
   });
 
+  it('reassigns an occupied sanitation report without resetting its state', async () => {
+    const assignedSanitationReport = {
+      ...approvedReport,
+      estado: EstadoDenuncia.EN_SANEAMIENTO,
+      agenteId: 'agent-current',
+    };
+    prisma.denuncia.findFirst
+      .mockResolvedValueOnce(assignedSanitationReport)
+      .mockResolvedValueOnce({
+        ...assignedSanitationReport,
+        agenteId: eligibleAgent.id,
+        agente: { id: eligibleAgent.id, nombre: 'Agente Uno' },
+      });
+
+    const response = await request(createApp())
+      .patch('/api/denuncias/report-1/asignar')
+      .set('Authorization', `Bearer ${createToken(admin.id)}`)
+      .send({ agenteId: eligibleAgent.id })
+      .expect(200);
+
+    expect(prisma.denuncia.updateMany).toHaveBeenCalledWith({
+      where: {
+        id: 'report-1',
+        municipioId: admin.municipioId,
+        estado: EstadoDenuncia.EN_SANEAMIENTO,
+        agenteId: 'agent-current',
+      },
+      data: {
+        agenteId: eligibleAgent.id,
+        estado: EstadoDenuncia.EN_SANEAMIENTO,
+      },
+    });
+    expect(response.body.data).toMatchObject({
+      agenteId: eligibleAgent.id,
+      estado: EstadoDenuncia.EN_SANEAMIENTO,
+    });
+    expect(response.body.message).toBe('Agente asignado al saneamiento');
+  });
+
+  it('does not assign another active sanitation case to an already occupied agent', async () => {
+    prisma.denuncia.findFirst.mockResolvedValueOnce({
+      ...approvedReport,
+      estado: EstadoDenuncia.EN_SANEAMIENTO,
+      agenteId: 'agent-current',
+    });
+    prisma.denuncia.count.mockResolvedValueOnce(1);
+
+    const response = await request(createApp())
+      .patch('/api/denuncias/report-1/asignar')
+      .set('Authorization', `Bearer ${createToken(admin.id)}`)
+      .send({ agenteId: eligibleAgent.id })
+      .expect(409);
+
+    expect(response.body.message).toBe('El agente ya tiene un caso activo');
+    expect(prisma.denuncia.updateMany).not.toHaveBeenCalled();
+  });
+
   it('rejects assigning a report that has not completed triage', async () => {
     prisma.denuncia.findFirst.mockResolvedValue({
       ...approvedReport,

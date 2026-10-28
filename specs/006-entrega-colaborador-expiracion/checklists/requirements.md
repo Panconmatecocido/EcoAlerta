@@ -18,6 +18,7 @@
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
 - [x] All acceptance scenarios are defined
+- [x] La confirmación de entrega está aislada del procesamiento masivo de expiraciones
 - [x] Edge cases are identified
 - [x] Scope is clearly bounded
 - [x] Dependencies and assumptions identified
@@ -31,5 +32,5 @@
 
 ## Notes
 
-- All 16 quality criteria passed on first validation pass.
+- Checklist ampliado para cubrir el aislamiento de la transacción de entrega respecto del barrido de expiraciones.
 - Ready for `/speckit.plan`.

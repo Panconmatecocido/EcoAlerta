@@ -73,6 +73,21 @@ describe('agent current location endpoints', () => {
     prisma.denuncia.count.mockResolvedValue(0);
   });
 
+  it('returns the authenticated agent connection state', async () => {
+    prisma.user.findFirst.mockResolvedValue({ disponible: true });
+
+    const response = await request(createApp())
+      .get('/api/agentes/me/estado')
+      .set('Authorization', `Bearer ${createToken(agent.id)}`)
+      .expect(200);
+
+    expect(prisma.user.findFirst).toHaveBeenCalledWith({
+      where: { id: agent.id, rol: Role.AGENT },
+      select: { disponible: true },
+    });
+    expect(response.body.data).toEqual({ disponible: true });
+  });
+
   it('requires a valid coordinate pair before enabling availability', async () => {
     const token = createToken(agent.id);
 
@@ -109,12 +124,7 @@ describe('agent current location endpoints', () => {
       .send({ disponible: true, latitud: -34.46, longitud: -58.91 })
       .expect(200);
 
-    expect(prisma.denuncia.count).toHaveBeenCalledWith({
-      where: {
-        agenteId: agent.id,
-        estado: { in: ['EN_VERIFICACION', 'EN_SANEAMIENTO'] },
-      },
-    });
+    expect(prisma.denuncia.count).not.toHaveBeenCalled();
     expect(prisma.user.update).toHaveBeenCalledWith({
       where: { id: agent.id },
       data: {
@@ -133,16 +143,29 @@ describe('agent current location endpoints', () => {
     expect(JSON.stringify(response.body)).not.toContain('-34.46');
   });
 
-  it('rejects availability when the agent has an active case', async () => {
+  it('keeps the agent connected and updates GPS while the agent has an active case', async () => {
     prisma.denuncia.count.mockResolvedValue(1);
+    prisma.user.update.mockResolvedValue({
+      id: agent.id,
+      disponible: true,
+      ubicacionActualizadaEn: new Date('2026-10-21T10:00:00.000Z'),
+    });
 
     await request(createApp())
       .patch('/api/agentes/me/disponibilidad')
       .set('Authorization', `Bearer ${createToken(agent.id)}`)
       .send({ disponible: true, latitud: -34.46, longitud: -58.91 })
-      .expect(409);
+      .expect(200);
 
-    expect(prisma.user.update).not.toHaveBeenCalled();
+    expect(prisma.user.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          disponible: true,
+          latitudActual: -34.46,
+          longitudActual: -58.91,
+        }),
+      })
+    );
   });
 
   it('replaces the current GPS pair when location is refreshed while available', async () => {

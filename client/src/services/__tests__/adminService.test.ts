@@ -17,6 +17,30 @@ describe('adminService.obtenerDenuncias', () => {
     jest.clearAllMocks();
   });
 
+  describe('adminService.obtenerDisponibilidadPropia', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('loads the persisted agent connection state', async () => {
+      mockedGet.mockResolvedValueOnce({ success: true, data: { disponible: true } });
+
+      await expect(adminService.obtenerDisponibilidadPropia()).resolves.toEqual({
+        success: true,
+        data: { disponible: true },
+      });
+      expect(mockedGet).toHaveBeenCalledWith('/api/agentes/me/estado');
+    });
+
+    it('rejects an invalid connection state response', async () => {
+      mockedGet.mockResolvedValueOnce({ success: true, data: { disponible: 'yes' } });
+
+      await expect(adminService.obtenerDisponibilidadPropia()).rejects.toThrow(
+        'La respuesta del estado del agente no es válida'
+      );
+    });
+  });
+
   it('maps the persisted report contract to typed administrator records', async () => {
     mockedGet.mockResolvedValue({
       success: true,

@@ -5,6 +5,7 @@ import { Role } from '@prisma/client';
 import { createAuthMiddleware, requireRole } from '../middleware/auth';
 import {
   obtenerAgentes,
+  obtenerEstadoPropioAgente,
   cambiarDisponibilidadAgente,
   actualizarUbicacionAgente,
   crearAgente,
@@ -18,6 +19,9 @@ const requireAgent = requireRole(Role.AGENT);
 // GET /api/agentes -> Obtener lista de agentes con su número de casos activos
 router.get('/', authenticate, requireAdmin, obtenerAgentes);
 
+// GET /api/agentes/me/estado -> Estado de conexión del agente autenticado
+router.get('/me/estado', authenticate, requireAgent, obtenerEstadoPropioAgente);
+
 // POST /api/agentes -> Alta de un nuevo agente de campo
 router.post('/', authenticate, requireAdmin, crearAgente);
 
@@ -27,7 +31,7 @@ router.patch('/me/disponibilidad', authenticate, requireAgent, cambiarDisponibil
 // PATCH /api/agentes/me/ubicacion -> Reemplazar ubicación GPS actual
 router.patch('/me/ubicacion', authenticate, requireAgent, actualizarUbicacionAgente);
 
-// PATCH /api/agentes/:id/disponibilidad -> Alternar estado (Disponible / Ocupado) por Admin o Agente
+// PATCH /api/agentes/:id/disponibilidad -> Alternar conexión por Admin o Agente
 router.patch(
   '/:id/disponibilidad',
   authenticate,

@@ -295,9 +295,11 @@ export const AdminAgenteScreen: React.FC = () => {
                     style={[
                       styles.botonEstado,
                       {
-                        backgroundColor: item.disponible
-                          ? COLORS.fondoTarjeta
-                          : COLORS.fondoPeligro,
+                        backgroundColor: item.disponible && item.casosAsignados > 0
+                          ? COLORS.fondoAdvertencia
+                          : item.disponible
+                            ? COLORS.fondoTarjeta
+                            : COLORS.fondoPeligro,
                       },
                     ]}
                     onPress={() => alternarDisponibilidad(item.id, item.disponible)}
@@ -306,13 +308,19 @@ export const AdminAgenteScreen: React.FC = () => {
                       style={[
                         styles.textoEstado,
                         {
-                          color: item.disponible
-                            ? COLORS.textoVerdeOscuro
-                            : COLORS.textoPeligro,
+                          color: item.disponible && item.casosAsignados > 0
+                            ? COLORS.textoAdvertencia
+                            : item.disponible
+                              ? COLORS.textoVerdeOscuro
+                              : COLORS.textoPeligro,
                         },
                       ]}
                     >
-                      {item.disponible ? 'Disponible' : 'Ocupado / Franco'}
+                    {item.disponible
+                      ? item.casosAsignados > 0
+                        ? 'Conectado · Ocupado'
+                        : 'Conectado · Disponible'
+                      : 'Fuera de servicio'}
                     </Text>
                   </TouchableOpacity>
                 </View>

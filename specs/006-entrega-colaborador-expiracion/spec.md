@@ -75,6 +75,7 @@ El vecino consulta desde la pestaña "Canjes" en su Perfil (o desde el enlace "V
   - Canje histórico entregado `ECO-2026-ENTR` (`ENTREGADO`, con `fechaEntrega` registrada).
   - Canje vencido `ECO-2026-EXPD` (`fechaExpiracion` en el pasado, > 30 días de antigüedad), para comprobar la transición atómica a `CANCELADO`, la restitución física de stock y el bloqueo de entrega.
 - **FR-008 (RF-COL-02 - Procesamiento Masivo Forzado de Expiraciones)**: El sistema DEBE proveer el endpoint `POST /api/canjes/procesar-expirados` para ejecutar bajo demanda o por tareas programadas el barrido de vouchers en `PENDIENTE_RETIRO` con más de 30 días transcurridos (`fechaExpiracion < now`), cancelándolos y reponiendo el stock de productos en inventario sin devolución de puntos.
+- **FR-009 (RF-COL-04 - Confirmación de entrega aislada de la limpieza masiva)**: La confirmación de entrega DEBE realizar únicamente la validación y actualización del voucher seleccionado dentro de su operación atómica. El procesamiento general de canjes vencidos DEBE ejecutarse durante la búsqueda/listado o mediante su operación masiva, sin incluirse en la transacción de entrega, para evitar que una limpieza extensa retrase o invalide la confirmación.
 
 ### Key Entities
 
@@ -89,10 +90,10 @@ El vecino consulta desde la pestaña "Canjes" en su Perfil (o desde el enlace "V
 - **SC-002**: El 100% de los intentos de entregar por segunda vez un código ya `ENTREGADO` o un código `CANCELADO` (expirado) son bloqueados por el sistema en la Base de Datos.
 - **SC-003**: El 100% de los canjes que superan los 30 días sin retiro restituyen la totalidad de sus unidades físicas al stock del catálogo municipal y retienen el 100% de los puntos utilizados (0% de reembolso de puntos).
 - **SC-004**: Los datos desplegados en el panel del Colaborador y en el perfil del Ciudadano provienen 100% de la Base de Datos PostgreSQL sin intervención de almacenamiento simulado local.
+- **SC-005**: Confirmar una entrega no ejecuta la limpieza de otros canjes vencidos dentro de la misma transacción; la actualización del voucher y `fechaEntrega` se completa independientemente del volumen de expiraciones pendientes.
 
 ## Assumptions
 
 - El vecino presenta su documento o pantalla de la aplicación con el `codigoRetiro` en la sucursal municipal elegida a partir de las 48 horas hábiles de realizado el canje.
 - La evaluación de vencimiento de 30 días se verifica de forma automática al consultar los canjes o buscar un código de retiro, asegurando que ninguna orden vencida pueda ser entregada aunque no haya corrido un proceso programado externo.
 - La base de datos PostgreSQL en Supabase se encuentra inicializada y poblada con los canjes semilla correspondientes.
-

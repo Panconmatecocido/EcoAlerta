@@ -654,10 +654,8 @@ export const confirmarEntregaCanje = async (req: Request, res: Response): Promis
     const codigoNormalizado = codigoRetiro.trim().toUpperCase();
 
     const resultado = await prisma.$transaction(async (tx) => {
-      // 1. Procesar expirados
-      await procesarCanjesExpirados30Dias(tx);
-
-      // 2. Buscar canje
+      // La limpieza general de vencimientos se realiza al buscar el código;
+      // la transacción de entrega debe limitarse al voucher confirmado.
       const canje = await tx.canje.findFirst({
         where: {
           OR: [
@@ -846,4 +844,3 @@ export const obtenerCanjePorId = async (req: Request, res: Response): Promise<vo
     });
   }
 };
-

@@ -40,8 +40,10 @@ describe('Módulo 006: Validación de Entrega por Colaborador y Expiración a lo
   let mockProductos: Record<string, any> = {};
   let mockSucursales: Record<string, any> = {};
   let mockCanjes: Record<string, any> = {};
+  let transactionCalls = 0;
 
   beforeEach(() => {
+    transactionCalls = 0;
     mockUsers = {
       'user-vecino': {
         id: 'user-vecino',
@@ -243,6 +245,7 @@ describe('Módulo 006: Validación de Entrega por Colaborador y Expiración a lo
     };
 
     (prisma as any).$transaction = async (callback: any) => {
+      transactionCalls += 1;
       return await callback(txMock);
     };
 
@@ -298,6 +301,7 @@ describe('Módulo 006: Validación de Entrega por Colaborador y Expiración a lo
     assert.equal(res.body.data.estado, 'ENTREGADO');
     assert.ok(res.body.data.fechaEntrega instanceof Date || typeof res.body.data.fechaEntrega === 'string');
     assert.equal(mockCanjes['canje-vigente'].estado, 'ENTREGADO');
+    assert.equal(transactionCalls, 1);
   });
 
   it('US1: Bloqueo de doble entrega - rechaza con 409 Conflict si el canje ya fue entregado', async () => {

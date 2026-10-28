@@ -347,11 +347,13 @@ export const AdminDenunciasScreen: React.FC = () => {
 
   const abrirModalAsignacion = (denuncia: Denuncia) => {
     if (procesandoTriaje) return;
-    const agentesDisponibles = agentes.filter((a) => a.disponible);
+    const agentesDisponibles = agentes.filter(
+      (a) => a.disponible && a.casosAsignados === 0 && a.id !== denuncia.agenteAsignadoId
+    );
     if (agentesDisponibles.length === 0) {
       Alert.alert(
         'Agente no disponible',
-        'No hay agentes disponibles para asignar en este momento. Todos los inspectores se encuentran fuera de servicio o con casos activos.'
+        'No hay inspectores disponibles y sin casos activos para recibir este reporte. Cada agente puede tener como máximo un caso activo.'
       );
       return;
     }
@@ -938,7 +940,9 @@ export const AdminDenunciasScreen: React.FC = () => {
                   </View>
                 }
                 renderItem={({ item }) => {
-                  const estaDisponible = item.disponible;
+                  const esAgenteActual = item.id === denunciaSeleccionada?.agenteAsignadoId;
+                  const estaDisponible =
+                    item.disponible && item.casosAsignados === 0 && !esAgenteActual;
                   return (
                     <TouchableOpacity
                       style={[
@@ -955,10 +959,19 @@ export const AdminDenunciasScreen: React.FC = () => {
                             !estaDisponible && { color: COLORS.textoDesactivado },
                           ]}
                         >
-                          {item.nombre} {!estaDisponible ? '(No disponible)' : ''}
+                          {item.nombre}{' '}
+                          {esAgenteActual
+                            ? '(Asignado actualmente)'
+                            : !item.disponible
+                            ? '(Fuera de servicio)'
+                            : item.casosAsignados > 0
+                            ? '(Ya tiene un caso activo)'
+                            : ''}
                         </Text>
                         <Text style={styles.emailAgenteModal}>
-                          {estaDisponible ? 'Disponible' : 'Franco/Ocupado'} • {item.casosAsignados} caso(s)
+                          {estaDisponible
+                            ? 'Disponible para recibir un caso'
+                            : `${item.casosAsignados} caso(s) activo(s)`}
                         </Text>
                       </View>
                       <Text

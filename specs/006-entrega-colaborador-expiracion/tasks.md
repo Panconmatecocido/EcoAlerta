@@ -95,6 +95,7 @@
 - [x] T011 Suprimir el fallback local en `client/src/repositories/store/index.ts` haciendo que `storeRepository` consuma exclusivamente `RemoteStoreRepository` y propague los errores del servidor a la interfaz de usuario.
 - [x] T012 Sembrar directamente en PostgreSQL (`server/prisma/seed.ts`) las órdenes de prueba `ECO-7894-K` (vigente), `ECO-2026-ENTR` (entregado) y `ECO-2026-EXPD` (expirado > 30 días) asociadas al ciudadano `ejemplo@email.com` y sucursales municipales, ejecutando la siembra en la BD.
 - [x] T013 [US2] Implementar endpoint POST /api/canjes/procesar-expirados para barrido y ejecución masiva de cancelaciones por expiración de 30 días en `server/src/controllers/canjes.controller.ts`
+- [x] T014 [US1] Mantener la transacción de confirmación de entrega acotada al voucher seleccionado, sin ejecutar en ella la limpieza masiva de vencimientos; conservar la limpieza en búsqueda/listado y en el endpoint masivo. Cubrir que la confirmación usa una única transacción en `server/src/controllers/canjes.controller.ts` y `server/src/__tests__/canjes.collaborator.test.ts`.
 
 ---
 
@@ -105,4 +106,3 @@
 - **Phase 5 (US3 - Mis Canjes en Perfil)** puede implementarse en paralelo tras Phase 2.
 - **Phase 6 (Testing)** cierra la verificación integral del proyecto.
 - **Phase 7 (Phase 2 Alignment)** elimina fallbacks simulados y asegura la siembra en PostgreSQL.
-

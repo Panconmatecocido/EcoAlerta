@@ -102,6 +102,30 @@ export const AgentHomeScreen: React.FC = () => {
   }, [cargarBolsaYActivo]);
 
   useEffect(() => {
+    let mounted = true;
+    void adminService
+      .obtenerDisponibilidadPropia()
+      .then((response) => {
+        if (mounted) setEnServicio(response.data.disponible);
+      })
+      .catch((error: unknown) => {
+        console.error('Error al consultar el estado de servicio del agente:', error);
+        if (mounted) {
+          Alert.alert(
+            'Error de conexión',
+            error instanceof Error
+              ? error.message
+              : 'No se pudo consultar tu estado de servicio.'
+          );
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!enServicio) return;
 
     let mounted = true;
@@ -481,7 +505,13 @@ onPress={() => {
                 ]}
               />
               <Text style={estilos.textoEstado}>
-                {enServicio ? 'En Servicio - Habilitado para Bolsa' : 'Fuera de Servicio'}
+                {enServicio
+                  ? casoActivo
+                    ? 'Conectado · Ocupado'
+                    : 'Conectado · Disponible'
+                  : casoActivo
+                    ? 'Fuera de servicio · Ocupado'
+                    : 'Fuera de Servicio'}
               </Text>
             </View>
             <Switch

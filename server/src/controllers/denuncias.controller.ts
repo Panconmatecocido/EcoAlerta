@@ -357,8 +357,13 @@ export const asignarAgenteDenuncia = async (req: Request, res: Response): Promis
           select: { id: true, estado: true, agenteId: true, latitud: true, longitud: true },
         });
         if (!report) return { status: 404 as const, message: 'Denuncia no encontrada' };
-        if (report.estado !== EstadoDenuncia.APROBADO || report.agenteId !== null) {
+        const esCasoNuevo = report.estado === EstadoDenuncia.APROBADO && report.agenteId === null;
+        const esReasignacionDeSaneamiento = report.estado === EstadoDenuncia.EN_SANEAMIENTO;
+        if (!esCasoNuevo && !esReasignacionDeSaneamiento) {
           return { status: 409 as const, message: 'El reporte ya no está disponible para asignación' };
+        }
+        if (esReasignacionDeSaneamiento && report.agenteId === agenteId) {
+          return { status: 409 as const, message: 'El agente ya está asignado a este reporte' };
         }
         if (
           typeof report.latitud !== 'number' ||
@@ -412,6 +417,7 @@ export const asignarAgenteDenuncia = async (req: Request, res: Response): Promis
         const activeCases = await transaction.denuncia.count({
           where: {
             agenteId: agent.id,
+            id: { not: id },
             estado: {
               in: [EstadoDenuncia.EN_VERIFICACION, EstadoDenuncia.EN_SANEAMIENTO],
             },
@@ -425,12 +431,12 @@ export const asignarAgenteDenuncia = async (req: Request, res: Response): Promis
           where: {
             id,
             ...(req.auth?.municipioId ? { municipioId: req.auth.municipioId } : {}),
-            estado: EstadoDenuncia.APROBADO,
-            agenteId: null,
+            estado: report.estado,
+            agenteId: report.agenteId,
           },
           data: {
             agenteId: agent.id,
-            estado: EstadoDenuncia.EN_VERIFICACION,
+            estado: esCasoNuevo ? EstadoDenuncia.EN_VERIFICACION : EstadoDenuncia.EN_SANEAMIENTO,
           },
         });
         if (updated.count === 0) {
@@ -453,7 +459,10 @@ export const asignarAgenteDenuncia = async (req: Request, res: Response): Promis
     res.status(200).json({
       success: true,
       data: result.data,
-      message: 'Agente asignado y reporte reservado para verificación',
+      message:
+        result.data?.estado === EstadoDenuncia.EN_SANEAMIENTO
+          ? 'Agente asignado al saneamiento'
+          : 'Agente asignado y reporte reservado para verificación',
     });
   } catch (error) {
     if (

@@ -71,7 +71,32 @@ export const obtenerAgentes = async (req: Request, res: Response): Promise<void>
   }
 };
 
-// 2. Alternar o modificar disponibilidad de un agente (Disponible vs Franco/Ocupado)
+export const obtenerEstadoPropioAgente = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const agente = await prisma.user.findFirst({
+      where: { id: req.auth!.id, rol: Role.AGENT },
+      select: { disponible: true },
+    });
+
+    if (!agente) {
+      res.status(404).json({
+        success: false,
+        message: 'Agente no encontrado',
+      });
+      return;
+    }
+
+    res.status(200).json({ success: true, data: agente });
+  } catch (error) {
+    console.error('Error al consultar el estado del agente:', error);
+    res.status(500).json({
+      success: false,
+      message: 'No se pudo consultar el estado del agente',
+    });
+  }
+};
+
+// 2. Alternar conexión y ubicación de un agente
 export const cambiarDisponibilidadAgente = async (req: Request, res: Response): Promise<void> => {
   try {
     const id = req.params.id ?? req.auth!.id;
@@ -105,22 +130,6 @@ export const cambiarDisponibilidadAgente = async (req: Request, res: Response): 
         message: 'Comparte una ubicación GPS válida para activar tu disponibilidad',
       });
       return;
-    }
-
-    if (disponible) {
-      const casosActivos = await prisma.denuncia.count({
-        where: {
-          agenteId: id,
-          estado: { in: [EstadoDenuncia.EN_VERIFICACION, EstadoDenuncia.EN_SANEAMIENTO] },
-        },
-      });
-      if (casosActivos > 0) {
-        res.status(409).json({
-          success: false,
-          message: 'No puedes estar disponible mientras tienes un caso activo',
-        });
-        return;
-      }
     }
 
     const datosActualizacion: Prisma.UserUpdateInput = disponible

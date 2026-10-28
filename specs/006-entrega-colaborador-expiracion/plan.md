@@ -100,6 +100,7 @@ server/
   - Si `estado === 'ENTREGADO'`, retorna `409 Conflict` (`"Este premio ya fue entregado anteriormente"`).
   - Si `estado === 'CANCELADO'` o `fechaExpiracion < new Date()`, retorna `409 Conflict` (`"El código de retiro ha expirado (plazo de 30 días vencido)"`).
   - Actualiza `estado = 'ENTREGADO'` y `fechaEntrega = new Date()`.
+  - Mantiene esta transacción acotada al voucher que se confirma; no ejecuta el barrido general de expiraciones. El barrido se realiza durante la búsqueda/listado o mediante `POST /api/canjes/procesar-expirados`, evitando que una limpieza extensa mantenga abierta o invalide la transacción de entrega.
 
 ### 3. Pantallas (`CollaboratorHomeScreen.tsx` y `ProfileScreen.tsx`)
 - **`CollaboratorHomeScreen.tsx`**:
