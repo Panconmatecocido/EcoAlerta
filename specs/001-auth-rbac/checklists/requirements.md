@@ -32,6 +32,7 @@
 ## Notes
 
 - Updated on 2026-10-15 with Guest Mode (`HU-INV-01` to `HU-INV-03`, `RF-AUT-06` to `RF-AUT-08`, `RNF-09`).
+- Updated on 2026-10-28 with removal of visible demo login credentials, administrator profile editing, staff account deletion and its report-preservation rules, and the six-destination administrator navigation. Automated tests passed; the device-only navigation and deletion flows remain pending manual verification below.
 - All 16 quality criteria passed. Ready for `/speckit.plan`.
 
 ## Feature verification
@@ -59,3 +60,4 @@
 - [ ] Sign out as a collaborator and verify the app opens Login directly instead of the guest Home; verify a session-clear failure displays an error.
 - [ ] As an administrator, create Agent and Collaborator accounts from Personal and verify successful login for both roles; confirm invalid/duplicate inputs are rejected and a non-administrator cannot create accounts.
 - [ ] As an administrator, open Cuentas de personal, confirm accounts from other municipalities are absent, delete an Agent with active and historical reports and a Collaborator, and verify login is revoked, reports and historical states remain, and active cases return to the unassigned pool.
+- [ ] Verify the administrator navigation shows exactly Inicio, Denuncias, Agentes, Catálogo, Personal and Colaboradores, with no blank final slot; open Cuentas de personal from Inicio and return to the dashboard.

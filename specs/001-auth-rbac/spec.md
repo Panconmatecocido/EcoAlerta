@@ -149,7 +149,7 @@ El administrador actualiza su nombre y foto desde la bienvenida del panel, sin c
 
 ### User Story 10 - Eliminación de Cuentas de Personal (Priority: P2)
 
-El administrador municipal consulta las cuentas de Agentes y Colaboradores desde una pantalla de gestión y puede eliminar una cuenta que ya no debe tener acceso. Los reportes se conservan; los casos activos del Agente eliminado regresan a la bolsa de trabajo y los reportes históricos conservan su estado sin el vínculo con esa cuenta.
+El administrador municipal accede desde Inicio a una pantalla de gestión de cuentas de Agentes y Colaboradores y puede eliminar una cuenta que ya no debe tener acceso. Esta función no agrega una opción a la navegación principal del administrador. Los reportes se conservan; los casos activos del Agente eliminado regresan a la bolsa de trabajo y los reportes históricos conservan su estado sin el vínculo con esa cuenta.
 
 **Independent Test**: Desde la pantalla de cuentas de personal, eliminar una cuenta de Agente con reportes asignados y una cuenta de Colaborador; verificar que no puedan volver a iniciar sesión, que los reportes permanezcan y que los asignados al Agente queden sin asignación.
 
@@ -160,6 +160,7 @@ El administrador municipal consulta las cuentas de Agentes y Colaboradores desde
 3. **Given** una cuenta de Agente con casos activos e históricos asignados, **When** el administrador confirma su eliminación, **Then** la cuenta se elimina, los reportes se conservan, los casos activos vuelven a quedar sin asignación y los históricos conservan su estado sin el vínculo con la cuenta.
 4. **Given** un administrador que intenta eliminar una cuenta inexistente, de otro municipio o que no sea Agente ni Colaborador, **When** confirma la operación, **Then** el sistema rechaza la solicitud sin modificar datos.
 5. **Given** un usuario que no tiene rol Administrador, **When** intenta eliminar una cuenta de personal, **Then** el sistema rechaza la solicitud.
+6. **Given** el panel de administración, **When** el administrador navega entre sus pantallas, **Then** la barra principal muestra únicamente Inicio, Denuncias, Agentes, Catálogo, Personal y Colaboradores; la gestión de cuentas se abre desde Inicio como pantalla secundaria.
 
 ---
 
@@ -244,6 +245,7 @@ El administrador municipal consulta las cuentas de Agentes y Colaboradores desde
 - **FR-026 (RF-AUT-23 - Gestión de Colaboradores)**: El administrador DEBE poder consultar una pantalla con todos los Colaboradores asociados a su municipio, sus fotos de perfil y su estado de servicio, y cambiar dicho estado. El listado y las actualizaciones DEBEN estar restringidos al municipio autenticado.
 - **FR-027 (RF-AUT-24 - Edición del Perfil del Administrador)**: El administrador autenticado DEBE poder actualizar su propio nombre y foto de perfil. El sistema DEBE validar y persistir ambos cambios, y reflejarlos en la sesión activa. Los cambios de perfil NO DEBEN permitir modificar otros usuarios ni credenciales.
 - **FR-028 (RF-AUT-25 - Eliminación de Cuentas de Personal)**: El administrador autenticado DEBE poder consultar y eliminar cuentas `AGENT` y `COLLABORATOR` de su municipio desde una pantalla de gestión, con confirmación explícita. La operación DEBE revocar el acceso al eliminar la cuenta y preservar los reportes; los casos activos del Agente eliminado DEBEN quedar sin asignación, mientras que los reportes históricos DEBEN conservar su estado aunque pierdan el vínculo con la cuenta eliminada. No DEBE permitir eliminar ciudadanos, administradores ni cuentas de otro municipio.
+- **FR-029 (RF-AUT-26 - Navegación administrativa)**: El panel administrativo DEBE presentar únicamente seis destinos principales: Inicio, Denuncias, Agentes, Catálogo, Personal y Colaboradores. La gestión de eliminación de cuentas DEBE ser accesible desde Inicio como pantalla secundaria, sin añadir un destino a la navegación principal ni dejar espacios vacíos en ella.
 - **SC-007**: El 100% de las pulsaciones de invitados sobre **Más** abre el modal de autenticación; el 100% de las pulsaciones de usuarios autenticados mantiene el acceso a la pantalla de opciones.
 - **SC-008**: Después de elegir o tomar una foto en Perfil, el 100% de las visitas a Inicio dentro de la sesión muestra esa misma imagen sin reiniciar la aplicación.
 - **SC-009**: El botón de notificaciones abre la bandeja y lista los estados actuales de todos los reportes y canjes del ciudadano; cada canje pendiente se identifica correctamente como disponible o pendiente según hayan transcurrido dos días hábiles.
@@ -257,3 +259,5 @@ El administrador municipal consulta las cuentas de Agentes y Colaboradores desde
 - **SC-017**: El 100% de las pantallas navegables de los cuatro roles y del flujo invitado muestra el logo institucional en su encabezado, sin duplicados y sin quedar oculto por la zona segura del dispositivo.
 - **SC-018**: En todas las pantallas de la aplicación, los indicadores de hora, batería, señal y notificaciones de la barra de estado se muestran oscuros y legibles sobre el fondo claro.
 - **SC-019**: El 100% de las cuentas de Agente y Colaborador creadas desde Personal quedan en el municipio correcto, guardan contraseña protegida y pueden iniciar sesión en el panel de su rol; los usuarios no administradores no pueden crear estas cuentas.
+- **SC-020**: En todas las pantallas principales del Administrador, la navegación muestra exactamente seis opciones (Inicio, Denuncias, Agentes, Catálogo, Personal y Colaboradores); la gestión de cuentas es accesible desde Inicio y no produce un espacio vacío ni una opción adicional en la navegación.
+- **SC-021**: Tras confirmar la eliminación, el 100% de las cuentas de personal eliminadas deja de poder iniciar sesión; todos sus reportes permanecen, los casos activos del Agente quedan sin asignación y los históricos conservan su estado.

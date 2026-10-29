@@ -96,7 +96,7 @@ server/
 ### 1. Backend (`/server`) y Base de Datos
 - **Migración y Seed (`server/prisma/`)**:
   - Verificar sincronización de `schema.prisma` (`Role.COLLABORATOR` y `puntos @default(0)`).
-  - Actualizar `server/prisma/seed.ts` para incluir al menos 1 cuenta por cada uno de los 4 roles (`ciudadano@ecoalerta.com`, `agente1@ecoalerta.com`, `admin@ecoalerta.com`, `colaborador@ecoalerta.com`) asociadas al municipio `PILAR-BA`.
+  - Mantener cuentas semilla para los 4 roles asociadas al municipio `PILAR-BA`; existen cuentas de prueba `admin@ecoalerta.com` y una cuenta general `admin@ecoalerta.gob.ar`.
 - **Controlador `server/src/controllers/auth.controller.ts`**:
   - `register`: Validar presencia de `nombre`, `email`, `password` (`>= 6` caracteres) y formato de email. Verificar en Prisma si `email` existe (retornar `409 Conflict` con mensaje claro). Obtener el municipio por defecto (`PILAR-BA`) y crear el usuario con `rol: 'CITIZEN'`, `puntos: 0` y contraseña derivada con scrypt.
   - `login`: Buscar usuario por `email` o nombre (case-insensitive `trim().toLowerCase()`), validar contraseña y retornar `{ token, user: { id, nombre, email, rol, puntos, municipioId } }`. Emitir token firmado HS256 por una hora con `AUTH_TOKEN_SECRET`; migrar al formato scrypt las contraseñas semilla heredadas al iniciar sesión.
@@ -128,6 +128,12 @@ server/
   - Si `user.rol === 'AGENT'`: Muestra `AgentNavigator`.
   - Si `user.rol === 'ADMIN'`: Muestra `AdminNavigator`.
   - Si `user.rol === 'COLLABORATOR'`: Muestra `CollaboratorNavigator`.
+
+### 5. Navegación del panel administrativo
+
+- La navegación principal del Administrador ofrece seis destinos: Inicio, Denuncias, Agentes, Catálogo, Personal y Colaboradores.
+- La gestión de eliminación de cuentas se abre desde el acceso rápido de Inicio como pantalla secundaria, sin registrarse como pestaña ni reservar espacio en la barra inferior.
+- La pantalla secundaria permite volver al panel y conserva el encabezado institucional.
 
 ## Complexity Tracking
 
