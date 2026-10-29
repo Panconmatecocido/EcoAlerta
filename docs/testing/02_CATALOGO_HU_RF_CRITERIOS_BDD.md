@@ -390,6 +390,103 @@ Escenario: Intento de canje con saldo de puntos insuficiente (Negativo)
 
 ---
 
+---
+
+## 👥 MÓDULO 4: GESTIÓN DE PERSONAL MUNICIPAL, ALTA CON FOTO DE CÁMARA Y ADMINISTRACIÓN DE COLABORADORES
+**Responsables Técnicos del Módulo (Corrección de Defectos):** **Rodriguez Iván** (FrontEnd) / **Benitez Angel** (BackEnd)
+
+---
+
+### HU-ADM-01: Aprovisionamiento de Cuentas de Personal Municipal con Foto Obligatoria por Administrador
+- **Historia de Usuario:**
+  > **Como** administrador municipal autenticado,  
+  > **quiero** dar de alta cuentas operativas para Agentes de Campo y Comercios Colaboradores tomando su fotografía en tiempo real con la cámara,  
+  > **para** garantizar la autenticidad de la identidad visual del personal municipal e impedir cuentas fantasmas o no verificadas.
+- **Reglas de Negocio:**
+  - El alta de personal está estrictamente restringida a usuarios con rol `ADMIN` (`requireRole(Role.ADMIN)`).
+  - La cuenta creada queda asociada de forma obligatoria e inmutable al `municipioId` del administrador que realiza el alta.
+  - El formulario solo permite seleccionar roles `AGENT` o `COLLABORATOR` (prohibido autoregistro o creación de otros administradores por esta vía).
+  - **Captura Obligatoria por Cámara:** Se desactiva y bloquea la selección de imágenes desde la galería del dispositivo. La foto debe provenir exclusivamente del sensor de cámara nativa.
+  - La foto es obligatoria para toda nueva cuenta; si no se provee o la imagen no es válida, el sistema rechaza la solicitud con código HTTP `400 Bad Request` y mensaje: *"Toma una foto válida del personal para completar el alta"*.
+  - Validación de unicidad de correo electrónico en toda la base de datos (código HTTP `409 Conflict` si ya existe).
+  - Contraseña obligatoria con longitud mínima de 8 caracteres y cifrado `bcrypt`.
+
+#### Criterios de Aceptación (Gherkin BDD)
+```gherkin
+Escenario: Alta exitosa de Agente municipal con captura de foto en vivo
+  Dado que el administrador de "Municipio Pilar" se encuentra autenticado
+  Y completa el formulario con Nombre: "Marcos Inspector", Email: "marcos@pilar.gob.ar", Rol: "AGENT", Contraseña: "Segura2026!"
+  Y captura una fotografía facial nítida con la cámara del dispositivo
+  Cuando presiona "Crear Cuenta de Personal"
+  Entonces el sistema responde con código HTTP 201 Created y mensaje "La cuenta se creó correctamente"
+  Y la cuenta queda persistida con rol "AGENT", disponible = false (desconectado por defecto) y fotoPerfilUri almacenada
+  Y la contraseña se guarda debidamente encriptada mediante bcrypt.
+
+Escenario: Rechazo de alta por omisión o invalidez de la fotografía facial (Negativo)
+  Dado que un administrador completa todos los campos de texto para un Colaborador
+  Pero no toma la foto con la cámara o envía un formato no compatible
+  Cuando presiona "Crear Cuenta de Personal"
+  Entonces el sistema bloquea el alta con código HTTP 400 Bad Request
+  Y presenta el mensaje de error exacto: "Toma una foto válida del personal para completar el alta"
+  Y no se realiza ninguna inserción en la tabla de usuarios.
+```
+
+---
+
+### HU-ADM-02: Visualización de Foto de Perfil en Header de Personal e Inmutabilidad de Identidad
+- **Historia de Usuario:**
+  > **Como** Agente de Campo o Colaborador de Entrega,  
+  > **quiero** visualizar mi fotografía oficial en el encabezado superior de mi pantalla principal al iniciar sesión,  
+  > **para** corroborar mi acreditación municipal sin tener permitido alterarla o reemplazarla.
+- **Reglas de Negocio:**
+  - Al autenticarse mediante `POST /api/auth/login`, el backend retorna el campo `fotoPerfilUri` dentro del objeto `user`.
+  - En la interfaz móvil (`AgentHomeScreen` y `CollaboratorHomeScreen`), el encabezado renderiza la imagen provista en un avatar circular de 48x48 dp.
+  - **Inmutabilidad:** Ni el Agente ni el Colaborador disponen de botones, menús ni endpoints para modificar, subir o borrar su foto de perfil. La foto es un atributo inmutable gestionado exclusivamente por el Municipio.
+  - **Compatibilidad Hacia Atrás:** Cuentas preexistentes de personal creadas antes de la migración que no posean foto (`fotoPerfilUri === null`) despliegan un avatar alternativo predeterminado con las iniciales del usuario o ícono vectorial municipal, permitiendo la operatividad plena sin interrupciones.
+
+#### Criterios de Aceptación (Gherkin BDD)
+```gherkin
+Escenario: Despliegue de foto municipal en pantalla principal del Agente
+  Dado que el agente "Marcos Inspector" inicia sesión con sus credenciales válidas
+  Cuando se renderiza la pantalla principal (AgentHomeScreen)
+  Entonces en el encabezado superior derecho se visualiza su foto oficial registrada
+  Y no existe ningún control o acción disponible para editar o eliminar dicha fotografía.
+
+Escenario: Visualización de avatar alternativo para cuentas históricas sin foto
+  Dado un personal municipal registrado con anterioridad con fotoPerfilUri nulo
+  Cuando inicia sesión y accede a su pantalla principal
+  Entonces el encabezado renderiza el avatar vectorial municipal con sus iniciales
+  Y la aplicación permite operar la bolsa de casos y entregas normalmente.
+```
+
+---
+
+### HU-ADM-03: Gestión de Comercios Colaboradores, Conmutación de Estado y Baja Transaccional
+- **Historia de Usuario:**
+  > **Como** administrador municipal,  
+  > **quiero** administrar el estado de atención de los comercios colaboradores y dar de baja personal desvinculado,  
+  > **para** asegurar que solo los locales habilitados atiendan vecinos y que los agentes dados de baja liberen sus denuncias asignadas.
+- **Reglas de Negocio:**
+  - `GET /api/admin/usuarios/colaboradores`: Devuelve la nómina completa de comercios colaboradores registrados pertenecientes exclusivamente al municipio del administrador.
+  - `PATCH /api/admin/usuarios/colaboradores/:id/disponibilidad`: Permite habilitar (`disponible = true`) o suspender temporalmente (`disponible = false`) la atención al público del comercio colaborador.
+  - `DELETE /api/admin/usuarios/:id`: Baja atómica mediante transacción Prisma (`$transaction`):
+    - Si se elimina un Agente de Campo (`AGENT`), el sistema busca automáticamente todas las denuncias que tenía asignadas en estados activos (`PENDIENTE`, `EN_PROCESO`, `EN_VERIFICACION`, `EN_SANEAMIENTO`) y las libera de forma inmediata (`agenteId = null`), devolviéndolas a la bolsa operativa sin pérdida de datos.
+    - Si se elimina un Colaborador (`COLLABORATOR`), se borra la cuenta preservando intacto el historial de canjes entregados.
+    - Se rechaza con `404 Not Found` cualquier intento de manipular cuentas pertenecientes a otros municipios.
+
+#### Criterios de Aceptación (Gherkin BDD)
+```gherkin
+Escenario: Baja de Agente y liberación atómica de incidentes asignados
+  Dado que el agente "Marcos" tiene asignada la denuncia REP-2026-0042 en estado EN_VERIFICACION
+  Cuando el administrador municipal ejecuta la eliminación de la cuenta de Marcos (DELETE /api/admin/usuarios/id)
+  Entonces el sistema ejecuta una transacción atómica que elimina el registro del usuario
+  Y actualiza la denuncia REP-2026-0042 fijando agenteId = null
+  Y el reporte retorna a la bolsa general de casos disponibles
+  Y la API responde 200 OK con mensaje "La cuenta de personal se eliminó correctamente".
+```
+
+---
+
 ## ⚙️ REQUISITOS NO FUNCIONALES (RNF)
 
 | ID | Nombre | Especificación Métrica y Comportamiento Esperado |

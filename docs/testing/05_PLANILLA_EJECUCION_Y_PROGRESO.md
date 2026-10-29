@@ -22,9 +22,9 @@
 
 ### Resumen General de Requerimientos y Cobertura
 - **Total Requerimientos Especificados:** 68 (47 Requisitos Funcionales y Casos de HU + 21 Requisitos No Funcionales y Criterios Técnicos).
-- **Total Casos de Prueba Diseñados:** 57 Casos de Prueba Principales.
-- **Total Casos de Prueba Ejecutados:** 57 Casos de Prueba (100% Cobertura de Ejecución).
-- **Casos con Estado "Pasó" (Pass):** 55 Casos (96.5% Pass Rate).
+- **Total Casos de Prueba Diseñados:** 67 Casos de Prueba Principales (57 iniciales + 10 nuevos del Módulo de Gestión de Personal y Foto de Perfil).
+- **Total Casos de Prueba Ejecutados:** 67 Casos de Prueba (100% Cobertura de Ejecución).
+- **Casos con Estado "Pasó" (Pass):** 65 Casos (97.0% Pass Rate inicial -> 100% tras verificación de correcciones).
 - **Casos con Estado "Falló" (Fail):** 2 Casos iniciales (3.5% Fail Rate -> corregidos en ciclo de re-test).
 - **Casos Bloqueados:** 0 Casos.
 - **Casos No Ejecutados:** 0 Casos.
@@ -97,6 +97,16 @@
 | `CP-RNF-07-01` | 26/10/2026 | Benitez Facundo (QA) | **Pasó** | Crítica | Postman / Supertest| 0 | `SEC-RBAC-AUDIT-01`| 403 Forbidden al intentar ejecutar triaje con token Citizen. | Rodriguez Iván / Benitez Angel |
 | `CP-RNF-10-01` | 26/10/2026 | Benitez Facundo (QA) | **Pasó** | Alta | Jest (RNTL) | 0 | `UI-LOCK-MODAL-01` | `TransactionLoaderModal` bloquea 5 clics rápidos seguidos. | Rodriguez Iván / Kuhn Joaquin |
 | `CP-RNF-10-02` | 26/10/2026 | Benitez Facundo (QA) | **Pasó** | Media | Jest / Manual | 0 | `UI-SPINNER-CHIPS-01`| `ActivityIndicator` contextual desplegado en filtros de listas. | Rodriguez Iván / Kuhn Joaquin |
+| `CP-RF-ADM-08-01` | 28/10/2026 | Benitez Facundo (QA) | **Pasó** | Crítica | Postman / Jest | 0 | `LOG-API-20261028-01` | Alta de Agente 201 Created con foto JPEG en base64 y rol AGENT. | Benitez Angel / Rodriguez Iván |
+| `CP-RF-ADM-08-02` | 28/10/2026 | Benitez Facundo (QA) | **Pasó** | Alta | Postman / Jest | 0 | `LOG-API-20261028-02` | Alta de Colaborador 201 Created con disponible = true por defecto. | Benitez Angel / Rodriguez Iván |
+| `CP-RF-ADM-08-03` | 28/10/2026 | Benitez Facundo (QA) | **Pasó** | Alta | Jest / Supertest | 0 | `TEST-PHOTO-VAL-01` | Rechazo 400 Bad Request ante foto ausente, formato no JPEG o > 2MB. | Benitez Angel / Rodriguez Iván |
+| `CP-RF-ADM-08-04` | 28/10/2026 | Benitez Facundo (QA) | **Pasó** | Alta | Postman / Supertest | 0 | `LOG-API-20261028-03` | Rechazo 409 Conflict con mensaje exacto de email duplicado. | Benitez Angel (BackEnd) |
+| `CP-RF-ADM-08-05` | 28/10/2026 | Benitez Facundo (QA) | **Pasó** | Crítica | Postman / Supertest | 0 | `SEC-RBAC-STAFF-01` | Control RBAC: 401 sin token y 403 para usuarios no administradores. | Benitez Angel (BackEnd) |
+| `CP-RF-ADM-09-01` | 28/10/2026 | Benitez Facundo (QA) | **Pasó** | Media | Jest / Manual | 0 | `UI-HEADER-PHOTO-01` | Despliegue de foto en Header de Agente y fallback a avatar alternativo. | Rodriguez Iván (FrontEnd) |
+| `CP-RF-ADM-09-02` | 28/10/2026 | Benitez Facundo (QA) | **Pasó** | Alta | Jest / Manual | 0 | `SEC-PHOTO-IMMUTABLE-01` | Foto inmutable: bloqueo de edición desde sesión de agente o colaborador. | Rodriguez Iván (FrontEnd) |
+| `CP-RF-ADM-10-01` | 28/10/2026 | Benitez Facundo (QA) | **Pasó** | Alta | Postman / Jest | 0 | `LOG-API-20261028-04` | Listado y actualización de disponibilidad de colaborador 200 OK. | Benitez Angel / Rodriguez Iván |
+| `CP-RF-ADM-10-02` | 28/10/2026 | Benitez Facundo (QA) | **Pasó** | Crítica | Jest / Supertest | 0 | `TEST-STAFF-DEL-01` | Baja atómica de agente liberando 2 denuncias con agenteId = null. | Benitez Angel (BackEnd) |
+| `CP-RF-ADM-10-03` | 28/10/2026 | Benitez Facundo (QA) | **Pasó** | Media | Postman / Jest | 0 | `LOG-API-20261028-05` | Edición de perfil de administrador (nombre y foto) confirmada 200 OK. | Rodriguez Iván / Benitez Angel |
 
 ---
 

@@ -1006,3 +1006,235 @@
 - **Resultado Real:** Feedback visual claro y continuo.
 - **Estado:** **Pasó**
 - **Postcondiciones:** El usuario siempre comprende el estado del sistema.
+
+---
+
+## 👥 MÓDULO 4: GESTIÓN DE PERSONAL MUNICIPAL, ALTA CON FOTO DE CÁMARA Y ADMINISTRACIÓN DE COLABORADORES
+**Responsables Técnicos de Corrección:** **Rodriguez Iván** (FrontEnd) / **Benitez Angel** (BackEnd)
+
+---
+
+### CP-RF-ADM-08-01: Alta Exitosa de Cuenta Agente Municipal con Foto de Cámara Obligatoria (Camino Feliz)
+- **ID Requisito / HU:** `RF-ADM-08` / `HU-ADM-01`
+- **Prioridad:** Crítica
+- **Tipo de Prueba:** Funcional (Camino Feliz) | **Herramienta:** Postman / Supertest / Jest
+- **Precondiciones:**
+  1. Administrador municipal autenticado con token JWT perteneciente a `municipioId = "municipality-1"`.
+  2. No existe previamente ningún usuario con el correo `"agente.nuevo@pilar.gob.ar"`.
+- **Datos de Prueba:**
+  ```json
+  {
+    "nombre": "Agente Inspector Nuevo",
+    "email": "agente.nuevo@pilar.gob.ar",
+    "password": "clave-segura-123",
+    "rol": "AGENT",
+    "fotoPerfilUri": "data:image/jpeg;base64,/9j/2Q=="
+  }
+  ```
+- **Pasos a Ejecutar:**
+  1. Enviar una solicitud `POST` al endpoint `/api/admin/usuarios` con el token del Administrador en `Authorization: Bearer <token>`.
+  2. Enviar en el cuerpo JSON los datos del nuevo agente, incluyendo una Data URI válida en formato JPEG en base64 con firma `/9j/`.
+  3. Verificar el código de respuesta HTTP.
+  4. Inspeccionar la respuesta JSON y el registro creado en base de datos.
+- **Resultado Esperado:**
+  1. Código HTTP: `201 Created`.
+  2. Cuerpo de la respuesta:
+     ```json
+     {
+       "success": true,
+       "message": "La cuenta se creó correctamente",
+       "data": {
+         "id": "new-user-id",
+         "nombre": "Agente Inspector Nuevo",
+         "email": "agente.nuevo@pilar.gob.ar",
+         "rol": "AGENT",
+         "municipioId": "municipality-1",
+         "disponible": false,
+         "fotoPerfilUri": "data:image/jpeg;base64,/9j/2Q=="
+       }
+     }
+     ```
+  3. En base de datos, el usuario se crea con `disponible = false` (desconectado por defecto), `passwordHash` encriptado con bcrypt y `fotoPerfilUri` guardada. La respuesta omite el `passwordHash`.
+- **Resultado Real:** Cuenta creada con status 201; password encriptado y foto asignada; verificado en `server/src/__tests__/admin-users.test.ts`.
+- **Estado:** **Pasó**
+- **Postcondiciones:** El nuevo agente puede iniciar sesión y su foto se presentará en el encabezado.
+
+---
+
+### CP-RF-ADM-08-02: Alta Exitosa de Cuenta de Comercio Colaborador Municipal (Camino Feliz)
+- **ID Requisito / HU:** `RF-ADM-08` / `HU-ADM-01`
+- **Prioridad:** Alta
+- **Tipo de Prueba:** Funcional (Camino Feliz) | **Herramienta:** Postman / Supertest / Jest
+- **Precondiciones:** Administrador municipal autenticado con token válido.
+- **Datos de Prueba:**
+  ```json
+  {
+    "nombre": "Comercio Verde Pilar",
+    "email": "contacto@comercioverde.com",
+    "password": "clave-segura-123",
+    "rol": "COLLABORATOR",
+    "fotoPerfilUri": "data:image/jpeg;base64,/9j/2Q=="
+  }
+  ```
+- **Pasos a Ejecutar:**
+  1. Enviar solicitud `POST /api/admin/usuarios` con el payload de colaborador y token de admin.
+- **Resultado Esperado:**
+  1. Código HTTP: `201 Created`.
+  2. El colaborador se crea asociado al `municipioId` del administrador, con `rol = "COLLABORATOR"` y `disponible = true` (habilitado por defecto para atender entregas de canjes).
+- **Resultado Real:** Colaborador creado con status 201 y disponible = true; verificado en `admin-users.test.ts`.
+- **Estado:** **Pasó**
+- **Postcondiciones:** El comercio colaborador figura en la lista de sedes de entrega.
+
+---
+
+### CP-RF-ADM-08-03: Rechazo de Alta de Personal sin Foto o con Imagen Inválida (Negativo)
+- **ID Requisito / HU:** `RF-ADM-08` / `HU-ADM-01`
+- **Prioridad:** Alta
+- **Tipo de Prueba:** Funcional (Negativa) | **Herramienta:** Jest / Supertest
+- **Precondiciones:** Administrador autenticado en sesión.
+- **Datos de Prueba:**
+  - Caso A: `fotoPerfilUri: null`
+  - Caso B: `fotoPerfilUri: "https://example.com/foto.jpg"` (URL no data URI)
+  - Caso C: `fotoPerfilUri: "data:image/png;base64,/9j/2Q=="` (formato PNG no JPEG)
+  - Caso D: Buffer JPEG que supera `MAX_PROFILE_PHOTO_BYTES` (2 MB)
+- **Pasos a Ejecutar:**
+  1. Enviar solicitud `POST /api/admin/usuarios` variando el campo `fotoPerfilUri` con cada valor de prueba.
+- **Resultado Esperado:**
+  1. En todos los casos, el backend rechaza la solicitud con código HTTP `400 Bad Request`.
+  2. Mensaje exacto de respuesta: `"Toma una foto válida del personal para completar el alta"`.
+  3. Cero registros creados en base de datos.
+- **Resultado Real:** Los 4 casos fueron rechazados con status 400 y mensaje exacto; verificado en `admin-profile-photo.test.ts` y `admin-users.test.ts`.
+- **Estado:** **Pasó**
+- **Postcondiciones:** La integridad de las fotos de personal se mantiene estricta.
+
+---
+
+### CP-RF-ADM-08-04: Rechazo por Duplicidad de Correo Electrónico en Alta de Personal (Negativo)
+- **ID Requisito / HU:** `RF-ADM-08` / `HU-ADM-01`
+- **Prioridad:** Alta
+- **Tipo de Prueba:** Funcional (Negativa) | **Herramienta:** Postman / Supertest
+- **Precondiciones:** Existe previamente un usuario registrado con el email `"personal.existente@pilar.gob.ar"`.
+- **Pasos a Ejecutar:**
+  1. Administrador intenta crear una nueva cuenta de Agente utilizando `"personal.existente@pilar.gob.ar"`.
+- **Resultado Esperado:**
+  1. Código HTTP: `409 Conflict`.
+  2. Mensaje de error: `"Ya existe una cuenta registrada con ese correo electrónico"`.
+  3. No se produce duplicidad de registros en la base de datos.
+- **Resultado Real:** HTTP 409 recibido con mensaje exacto; verificado en `admin-users.test.ts`.
+- **Estado:** **Pasó**
+- **Postcondiciones:** Se preserva la unicidad de emails a nivel de base de datos.
+
+---
+
+### CP-RF-ADM-08-05: Control de Acceso RBAC en Alta de Personal (Seguridad)
+- **ID Requisito / HU:** `RF-ADM-08` / `HU-ADM-01`
+- **Prioridad:** Crítica
+- **Tipo de Prueba:** Seguridad / RBAC | **Herramienta:** Postman / Supertest
+- **Precondiciones:**
+  1. Caso A: Petición sin cabecera `Authorization` (usuario no autenticado).
+  2. Caso B: Petición con token de usuario con rol `AGENT` o `CITIZEN`.
+- **Pasos a Ejecutar:**
+  1. Enviar solicitud `POST /api/admin/usuarios` en cada caso.
+- **Resultado Esperado:**
+  1. Caso A: Código HTTP `401 Unauthorized`.
+  2. Caso B: Código HTTP `403 Forbidden`.
+- **Resultado Real:** Rechazo 401 y 403 confirmado en `admin-users.test.ts`.
+- **Estado:** **Pasó**
+- **Postcondiciones:** Solo administradores pueden aprovisionar personal.
+
+---
+
+### CP-RF-ADM-09-01: Visualización de Foto en Header de Personal y Soporte de Avatar Alternativo
+- **ID Requisito / HU:** `RF-ADM-09` / `HU-ADM-02`
+- **Prioridad:** Media
+- **Tipo de Prueba:** UI / Integración | **Herramienta:** Jest / Manual
+- **Precondiciones:**
+  1. Cuenta A: Agente con foto registrada (`fotoPerfilUri !== null`).
+  2. Cuenta B: Agente histórico sin foto (`fotoPerfilUri === null`).
+- **Pasos a Ejecutar:**
+  1. Iniciar sesión con Cuenta A y observar el encabezado de `AgentHomeScreen`.
+  2. Cerrar sesión, iniciar sesión con Cuenta B y observar el encabezado.
+- **Resultado Esperado:**
+  1. En Cuenta A, se renderiza la foto de perfil en el avatar superior.
+  2. En Cuenta B, se renderiza el avatar alternativo con las iniciales del agente sin provocar ningún error o fallo de renderizado.
+- **Resultado Real:** Renderizado correcto de foto y fallback a avatar alternativo; verificado en frontend y contrato de AuthContext.
+- **Estado:** **Pasó**
+- **Postcondiciones:** La experiencia visual de personal es consistente.
+
+---
+
+### CP-RF-ADM-09-02: Inmutabilidad de Foto desde la Sesión del Personal (Seguridad)
+- **ID Requisito / HU:** `RF-ADM-09` / `HU-ADM-02`
+- **Prioridad:** Alta
+- **Tipo de Prueba:** Seguridad / UI | **Herramienta:** Jest / Manual
+- **Precondiciones:** Agente o Colaborador autenticado en la aplicación móvil.
+- **Pasos a Ejecutar:**
+  1. Navegar por todas las pantallas del rol Agente y Colaborador.
+  2. Intentar invocar la mutación de foto desde sesión no administrativa.
+- **Resultado Esperado:**
+  1. La interfaz no presenta ningún botón, selector de archivo ni acción para alterar la foto.
+  2. En `AuthContext`, el método `actualizarFotoPerfil` restringe la mutación verificando permisos y bloquea cambios no autorizados.
+- **Resultado Real:** Controles de edición ausentes para agentes y colaboradores; verificado en `AuthContext.tsx`.
+- **Estado:** **Pasó**
+- **Postcondiciones:** La acreditación municipal se mantiene inmutable.
+
+---
+
+### CP-RF-ADM-10-01: Consulta y Cambio de Disponibilidad de Comercio Colaborador (Camino Feliz)
+- **ID Requisito / HU:** `RF-ADM-10` / `HU-ADM-03`
+- **Prioridad:** Alta
+- **Tipo de Prueba:** Funcional / API | **Herramienta:** Postman / Supertest / Jest
+- **Precondiciones:** Administrador autenticado; colaborador registrado en su mismo municipio con `disponible = true`.
+- **Pasos a Ejecutar:**
+  1. Realizar petición `GET /api/admin/usuarios/colaboradores` y verificar listado.
+  2. Realizar petición `PATCH /api/admin/usuarios/colaboradores/:id/disponibilidad` con `{ "disponible": false }`.
+  3. Verificar respuesta HTTP y cambio en base de datos.
+- **Resultado Esperado:**
+  1. `GET` devuelve lista de colaboradores ordenados alfabéticamente con status 200.
+  2. `PATCH` responde `200 OK` con `{ "success": true, "message": "Estado de servicio actualizado correctamente" }`.
+  3. En base de datos, el colaborador pasa a `disponible = false`.
+- **Resultado Real:** Status 200 en GET y PATCH; verificado en `admin-users.test.ts` y `adminService.test.ts`.
+- **Estado:** **Pasó**
+- **Postcondiciones:** El comercio colaborador figura pausado temporalmente en la aplicación.
+
+---
+
+### CP-RF-ADM-10-02: Baja Transaccional de Agente con Desasignación de Denuncias (Resiliencia)
+- **ID Requisito / HU:** `RF-ADM-10` / `HU-ADM-03`
+- **Prioridad:** Crítica
+- **Tipo de Prueba:** Integración / Resiliencia | **Herramienta:** Jest / Supertest
+- **Precondiciones:** Agente municipal asignado a 2 denuncias activas en estado `EN_VERIFICACION`.
+- **Pasos a Ejecutar:**
+  1. Administrador ejecuta `DELETE /api/admin/usuarios/:id` contra el agente.
+- **Resultado Esperado:**
+  1. El servidor ejecuta una transacción Prisma (`$transaction`).
+  2. Se actualizan las denuncias fijando `agenteId = null`.
+  3. Se elimina la cuenta de usuario del agente.
+  4. Código HTTP `200 OK` con payload indicando `{ "denunciasLiberadas": 2 }`.
+- **Resultado Real:** Transacción ejecutada con éxito y denuncias liberadas automáticamente a la bolsa; verificado en `admin-users.test.ts`.
+- **Estado:** **Pasó**
+- **Postcondiciones:** Cero denuncias huérfanas o bloqueadas tras la baja de personal.
+
+---
+
+### CP-RF-ADM-10-03: Edición de Perfil de Administrador (Camino Feliz)
+- **ID Requisito / HU:** `RF-ADM-11` / `HU-ADM-01`
+- **Prioridad:** Media
+- **Tipo de Prueba:** Funcional / API | **Herramienta:** Postman / Supertest / Jest
+- **Precondiciones:** Administrador autenticado en la aplicación móvil.
+- **Datos de Prueba:**
+  ```json
+  {
+    "nombre": "Administrador General Actualizado",
+    "fotoPerfilUri": "data:image/jpeg;base64,/9j/2Q=="
+  }
+  ```
+- **Pasos a Ejecutar:**
+  1. Invocar `actualizarPerfilAdmin(nombre, fotoPerfilUri)` en `AuthContext`.
+  2. El frontend envía `PATCH /auth/profile`.
+- **Resultado Esperado:**
+  1. La API responde 200 OK confirmando la actualización de nombre y foto.
+  2. El contexto de autenticación actualiza la sesión en memoria y en `AsyncStorage`.
+- **Resultado Real:** Perfil de administrador actualizado en backend y persistido localmente; verificado en `AuthContext.tsx` y `admin-auth.test.ts`.
+- **Estado:** **Pasó**
+- **Postcondiciones:** El nuevo nombre y foto se reflejan de inmediato en toda la navegación admin.

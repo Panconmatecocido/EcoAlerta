@@ -592,6 +592,236 @@
           }
         }
       ]
+    },
+    {
+      "name": "04. Gestión de Personal Municipal y Colaboradores (Módulo 4)",
+      "item": [
+        {
+          "name": "Alta de Agente Municipal con Foto de Cámara",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Agente Inspector Ramos\",\n  \"email\": \"marcos.ramos@pilar.gob.ar\",\n  \"password\": \"clave-segura-123\",\n  \"rol\": \"AGENT\",\n  \"fotoPerfilUri\": \"data:image/jpeg;base64,/9j/2Q==\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "usuarios"
+              ]
+            },
+            "description": "Crea una cuenta de Agente de Campo con foto obligatoria de cámara asociada al municipio del administrador."
+          }
+        },
+        {
+          "name": "Alta de Colaborador con Foto de Cámara",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Comercio Verde Pilar\",\n  \"email\": \"contacto@comercioverde.com\",\n  \"password\": \"clave-segura-123\",\n  \"rol\": \"COLLABORATOR\",\n  \"fotoPerfilUri\": \"data:image/jpeg;base64,/9j/2Q==\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "usuarios"
+              ]
+            },
+            "description": "Crea una cuenta de Colaborador (Comercio de Canje) con foto obligatoria y disponible=true por defecto."
+          }
+        },
+        {
+          "name": "Rechazo de Alta sin Foto (400 Bad Request)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Personal Sin Foto\",\n  \"email\": \"sinfoto@pilar.gob.ar\",\n  \"password\": \"clave-segura-123\",\n  \"rol\": \"AGENT\",\n  \"fotoPerfilUri\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "usuarios"
+              ]
+            },
+            "description": "Valida que el sistema rechace el alta con 400 Bad Request si la fotografía no está presente."
+          }
+        },
+        {
+          "name": "Listar Colaboradores del Municipio",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/usuarios/colaboradores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "usuarios",
+                "colaboradores"
+              ]
+            },
+            "description": "Retorna la nómina de comercios colaboradores registrados en el municipio del administrador."
+          }
+        },
+        {
+          "name": "Conmutar Disponibilidad de Comercio Colaborador",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"disponible\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/usuarios/colaboradores/:id/disponibilidad",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "usuarios",
+                "colaboradores",
+                ":id",
+                "disponibilidad"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "colaborador-id"
+                }
+              ]
+            },
+            "description": "Permite habilitar o suspender temporalmente la atención de canjes en el local comercial."
+          }
+        },
+        {
+          "name": "Baja Transaccional de Agente y Liberación de Denuncias",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/usuarios/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "usuarios",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "agente-id"
+                }
+              ]
+            },
+            "description": "Elimina la cuenta y desasigna automáticamente las denuncias activas devolviéndolas a la bolsa general."
+          }
+        },
+        {
+          "name": "Actualizar Perfil de Administrador (Nombre y Foto)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Administrador General Actualizado\",\n  \"fotoPerfilUri\": \"data:image/jpeg;base64,/9j/2Q==\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "profile"
+              ]
+            },
+            "description": "Actualiza el nombre y la foto del administrador autenticado."
+          }
+        }
+      ]
     }
   ]
 }
