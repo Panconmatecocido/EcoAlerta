@@ -36,7 +36,7 @@ gantt
     section Fase 5 (Fase Actual - En Ejecucion)
     Ejecucion de Pruebas E2E, Regresion y Aceptacion :active, f5, 2026-10-28, 2026-10-31
     section Fase 6 (Hito de Entrega - 02/11)
-    Certificacion ISO 25010 y Presentacion Academica :crit, f6, 2026-10-31, 2026-11-02
+    Evaluacion Calidad ISO 25010 y Presentacion Academica :crit, f6, 2026-10-31, 2026-11-02
 ```
 
 ```mermaid
@@ -80,7 +80,7 @@ gantt
     Validacion Integral Flujo Admin Agente (Rodriguez y Angel)   :t25, 2026-10-29, 2d
     Revision de Usabilidad y Feedback Visual (Kuhn Joaquin)      :t26, 2026-10-30, 2d
 
-    section Fase 6 - Certificacion ISO & Entrega (31/10 - 02/11)
+    section Fase 6 - Evaluacion ISO 25010 & Entrega (31/10 - 02/11)
     Evaluacion Checklists ISO 25010 y Peer Review (Equipo)       :t27, 2026-10-31, 2d
     Consolidacion Testware Final y Excel en Drive (Escobar Raul) :t28, 2026-11-01, 1d
     Presentacion y Entrega Final al Mg Pedro Brest (Equipo)      :crit, t29, 2026-11-02, 1d
@@ -158,8 +158,8 @@ gantt
   - `29/10 - 30/10`: Validación integral de flujo completo Admin-Agente y concurrencia por Rodriguez Iván y Benitez Angel.
   - `30/10 - 31/10`: Verificación de usabilidad y feedback visual en dispositivos móviles por Kuhn Joaquin y Benitez Facundo.
 
-### FASE 6 (31/10 al 02/11/2026): Certificación ISO 25010 y Entrega Final Académica
-* **Objetivo**: Evaluación bajo la norma ISO/IEC 25010, compilación final del libro Excel de Testware en Google Drive y presentación ante la cátedra.
+### FASE 6 (31/10 al 02/11/2026): Evaluación bajo Modelo ISO 25010 y Entrega Final Académica
+* **Objetivo**: Evaluación metodológica bajo el modelo de calidad ISO/IEC 25010 (como estándar de referencia interna, sin pretensión de certificación externa), compilación final del libro Excel de Testware en Google Drive y presentación ante la cátedra.
 * **Plan de Trabajo**:
   - `31/10 - 01/11`: Evaluación formal de calidad de producto bajo ISO/IEC 25010 y Peer Review por el equipo completo.
   - `01/11`: Consolidación del libro Excel (`EcoAlerta_Testware_Matriz_Casos_Ejecucion.xlsx`) y subida a Google Drive por Escobar Raul.

@@ -6,7 +6,10 @@
 > **Proyecto Evaluado:** EcoAlerta (Aplicación Móvil React Native + Backend Express/TypeScript + PostgreSQL/Prisma)  
 > **Fecha de Inicio Oficial:** 25 de agosto de 2026 (Creación del repositorio en GitHub)  
 > **Fecha de Entrega Final:** 02 de noviembre de 2026  
-> **Metodología y Estándares:** IEEE 829 / ISO/IEC/IEEE 29119, ISO/IEC 25010, Spec-Driven Testing (SDD) y PMBOK (PERT-CPM).
+> **Metodología y Estándares:** IEEE 829 / ISO/IEC/IEEE 29119, Modelo de Calidad ISO/IEC 25010 (como marco de referencia interna), Spec-Driven Testing (SDD) y PMBOK (PERT-CPM).
+
+> [!NOTE]
+> **Aclaración sobre ISO/IEC 25010**: Se adopta el estándar ISO/IEC 25010 como modelo metodológico de referencia y guía de buenas prácticas de calidad de software. No constituye una certificación externa formal.
 
 ---
 
@@ -36,7 +39,10 @@ La documentación de aseguramiento de calidad del proyecto EcoAlerta ha sido est
 | **04** | **Casos de Prueba Detallados** | 57 Casos de Prueba con precondiciones, pasos reproducibles, payloads JSON de entrada, resultados esperados en interfaz (UI) y base de datos (DB). | [📄 04_CASOS_DE_PRUEBA_DETALLADOS.md](04_CASOS_DE_PRUEBA_DETALLADOS.md) |
 | **05** | **Planilla de Ejecución y Bitácora de Bugs** | Registro de corridas de prueba, tasa de aprobación, bitácora de defectos detectados (`BUG-101`, `BUG-102`), trazabilidad de fix y re-test. | [📄 05_PLANILLA_EJECUCION_Y_PROGRESO.md](05_PLANILLA_EJECUCION_Y_PROGRESO.md) |
 | **06** | **Cronograma Gantt, EDT y Camino Crítico (CPM)** | Estructura EDT/WBS desde el 25/08 al 02/11, 2 Diagramas Gantt en Mermaid con tareas multidía, tablero de avance ASCII, cálculo PERT y análisis CPM. | [📄 06_CRONOGRAMA_GANTT_EDT_CPM.md](06_CRONOGRAMA_GANTT_EDT_CPM.md) |
-| **07** | **Checklists de Calidad ISO/IEC 25010** | Lista de chequeo de revisión entre pares (Peer Review) y matriz de evaluación del producto bajo las 8 características de calidad de software ISO 25010. | [📄 07_CHECKLISTS_CALIDAD_ISO25010.md](07_CHECKLISTS_CALIDAD_ISO25010.md) |
+| **07** | **Checklists de Calidad Modelo ISO/IEC 25010** | Lista de chequeo de revisión entre pares (Peer Review) y matriz de evaluación del producto bajo las 8 características del modelo de calidad ISO 25010 (guía metodológica interna). | [📄 07_CHECKLISTS_CALIDAD_ISO25010.md](07_CHECKLISTS_CALIDAD_ISO25010.md) |
+| **08** | **Dossier de Evidencias, Datos y Logs** | Registro auditable de pruebas en Postman (Requests, Responses, Packs de Datos), 105 tests automatizados en Jest/Node, evidencias de concurrencia y guía de captura. | [📄 08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md) |
+| 🚀 | **Colección Oficial de Postman (JSON)** | Colección v2.1 importable con todos los endpoints de API, payloads preconfigurados y scripts de validación de contratos. | [📥 EcoAlerta_API_Postman_Collection.json](EcoAlerta_API_Postman_Collection.json) |
+| ⚙️ | **Entorno de Variables Postman (JSON)** | Environment oficial con `baseUrl` local y variables de token para los 4 roles del sistema. | [📥 EcoAlerta_Environment.postman_environment.json](EcoAlerta_Environment.postman_environment.json) |
 | 📊 | **Libro Maestro de Testware (Excel)** | Planilla integral con 10 hojas parametrizadas con estilos corporativos: Resumen, Casos, Jest, Postman, Pytest, Cypress, Ejecución, Trazabilidad, Requisitos y Criterios. | [📥 EcoAlerta_Testware_Matriz_Casos_Ejecucion.xlsx](EcoAlerta_Testware_Matriz_Casos_Ejecucion.xlsx) |
 | 📅 | **Exportación Cronograma MS Project (CSV)** | Tabla estructurada de tareas, dependencias, duraciones estimadas y fechas para importar en Microsoft Project o GanttProject. | [📥 Gantt_Tareas_MSProject_EcoAlerta.csv](Gantt_Tareas_MSProject_EcoAlerta.csv) |
 

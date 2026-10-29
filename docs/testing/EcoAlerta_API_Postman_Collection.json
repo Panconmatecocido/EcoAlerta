@@ -1,0 +1,597 @@
+{
+  "info": {
+    "_postman_id": "ecoalerta-testware-collection-2026",
+    "name": "EcoAlerta API — Colección Oficial de Testing y Evidencias",
+    "description": "Colección completa de endpoints para pruebas funcionales, seguridad RBAC, concurrencia y validación de respuestas del sistema EcoAlerta (UNPilar 2026 - Mg. Pedro Brest).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "tokenCitizen",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tokenAgent",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tokenAdmin",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tokenCollaborator",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "denunciaId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "codigoRetiro",
+      "value": "ECO-2026-7142",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01. Autenticación y Cuentas (Módulo 1)",
+      "item": [
+        {
+          "name": "CP-RF-AUT-01-01: Registro Ciudadano Nominal (Camino Feliz)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Carlos Alberto G\\u00f3mez\",\n  \"email\": \"carlos.gomez@ecoalerta.test\",\n  \"password\": \"PasswordEco2026!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CP-RF-AUT-01-02: Rechazo Registro Email Duplicado (409 Conflict)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Carlos G\\u00f3mez Clon\",\n  \"email\": \"carlos.gomez@ecoalerta.test\",\n  \"password\": \"OtraPassword2026!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CP-RF-AUT-03-01: Login Exitoso Rol Ciudadano (200 OK)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"carlos.gomez@ecoalerta.test\",\n  \"password\": \"PasswordEco2026!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CP-RF-AUT-03-02: Login Fallido Credenciales Inválidas (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"carlos.gomez@ecoalerta.test\",\n  \"password\": \"ClaveTotalmenteErronea!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CP-RF-AUT-09-01: Consulta de Perfil y Puntos Reales (GET /auth/me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCitizen}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02. Denuncias y Ciclo de Reporte (Módulo 2)",
+      "item": [
+        {
+          "name": "CP-RF-REP-01-01: Crear Denuncia Ciudadana con GPS y Foto (201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCitizen}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoria\": \"BASURAL\",\n  \"descripcion\": \"Acumulaci\\u00f3n de residuos y escombros en la esquina del boulevard.\",\n  \"latitud\": -26.8654,\n  \"longitud\": -58.2981,\n  \"direccion\": \"Av. Costanera y Calle 14, Pilar\",\n  \"fotoUrl\": \"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD...\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/denuncias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "denuncias"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CP-RF-REP-03-01: Rechazo Reporte sin Coordenadas GPS (400 Bad Request)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCitizen}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoria\": \"BASURAL\",\n  \"descripcion\": \"Reporte sin coordenadas geogr\\u00e1ficas para inducir error.\",\n  \"direccion\": \"Sin GPS\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/denuncias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "denuncias"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CP-RF-REP-06-01: Soft-Delete Ocultamiento Visual del Vecino (200 OK)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCitizen}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/denuncias/{{denunciaId}}/soft-delete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "denuncias",
+                "{{denunciaId}}",
+                "soft-delete"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CP-RF-ADM-01-01: Triaje Municipal - Aprobar y Asignar Prioridad (200 OK)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accion\": \"APROBAR\",\n  \"prioridad\": \"ALTA\",\n  \"observaciones\": \"Foco verificado preliminarmente por cercan\\u00eda a escuela.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/denuncias/{{denunciaId}}/triaje",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "denuncias",
+                "{{denunciaId}}",
+                "triaje"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CP-RF-AGE-02-01: Agente Toma Caso de la Bolsa con Bloqueo 1 a 1 (200 OK)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAgent}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/denuncias/{{denunciaId}}/tomar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "denuncias",
+                "{{denunciaId}}",
+                "tomar"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CP-RF-AGE-05-01: Verificación In Situ - Carga Foto Contraprueba Real (200 OK)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAgent}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resultado\": \"REAL\",\n  \"fotoContraprueba\": \"https://storage.ecoalerta.gob.ar/evidencias/contraprueba_01.jpg\",\n  \"observaciones\": \"Foco constatado en el lugar. Requiere cuadrilla pesada.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/denuncias/{{denunciaId}}/visita",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "denuncias",
+                "{{denunciaId}}",
+                "visita"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CP-RF-ADM-04-01: Admin Acredita Puntos Atómicos por Baremo (200 OK)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"puntos\": 250,\n  \"motivo\": \"Foco de prioridad ALTA verificado conforme a baremo 200-300 pts.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/denuncias/{{denunciaId}}/puntos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "denuncias",
+                "{{denunciaId}}",
+                "puntos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CP-RF-AGE-08-01: Agente Reporta Limpieza y Foto Después (200 OK)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAgent}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fotoSolucionUrl\": \"https://storage.ecoalerta.gob.ar/evidencias/despues_01.jpg\",\n  \"informeSolucion\": \"Se removieron 1.5 toneladas de escombros y se desinfect\\u00f3 la zona.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/denuncias/{{denunciaId}}/saneamiento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "denuncias",
+                "{{denunciaId}}",
+                "saneamiento"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CP-RF-ADM-07-01: Admin Certifica Doble Foto Antes vs Después y Cierra (200 OK)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"CERTIFICADO\",\n  \"dictamen\": \"Limpieza integral validada. Terreno recuperado exitosamente.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/denuncias/{{denunciaId}}/certificar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "denuncias",
+                "{{denunciaId}}",
+                "certificar"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03. Tienda Ecológica, Canjes y Entrega (Módulo 3)",
+      "item": [
+        {
+          "name": "CP-RF-TIE-02-01: Catálogo Público de Productos en Puntos (GET /productos)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/productos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "productos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CP-RF-TIE-05-01: Reserva Temporal de Stock TTL 5 Minutos (200 OK)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCitizen}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"productoId\": 1,\n      \"cantidad\": 1\n    }\n  ],\n  \"sucursalId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/canjes/reservar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "canjes",
+                "reservar"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CP-RF-TIE-05-04: Confirmación Transaccional de Canje y Código Retiro (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCitizen}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"productoId\": 1,\n      \"cantidad\": 1\n    }\n  ],\n  \"sucursalId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/canjes/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "canjes",
+                "checkout"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CP-RF-COL-01-01: Colaborador Busca Voucher por Código (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCollaborator}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/canjes/buscar/{{codigoRetiro}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "canjes",
+                "buscar",
+                "{{codigoRetiro}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CP-RF-COL-01-01b: Colaborador Confirma Entrega Presencial (200 OK)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenCollaborator}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigoRetiro\": \"{{codigoRetiro}}\",\n  \"dniTitularPresentado\": \"37769126\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/canjes/entregar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "canjes",
+                "entregar"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CP-RF-TIE-06-01: Job Expiración de Canjes a 30 Días (200 OK)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/canjes/procesar-expirados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "canjes",
+                "procesar-expirados"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
