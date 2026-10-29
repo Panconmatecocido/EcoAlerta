@@ -1,16 +1,13 @@
 import {
   createHmac,
-  randomBytes,
-  scrypt,
   timingSafeEqual,
 } from 'node:crypto';
-import { promisify } from 'node:util';
 import { Request, Response } from 'express';
 import { Role } from '@prisma/client';
 import { prisma } from '../config/db';
+import { hashPassword, verifyPassword } from '../utils/password';
+import { isValidProfilePhotoDataUri } from '../utils/profilePhoto';
 
-const scryptAsync = promisify(scrypt);
-const PASSWORD_KEY_LENGTH = 64;
 const DEFAULT_MUNICIPALITY_CODE = 'PILAR-BA';
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -22,6 +19,7 @@ export interface AuthUserRecord {
   rol: Role;
   puntos: number;
   municipioId: string;
+  fotoPerfilUri?: string | null;
   creadoEn: Date;
 }
 
@@ -96,33 +94,6 @@ const isDuplicateEmailError = (error: unknown): boolean =>
   error !== null &&
   'code' in error &&
   error.code === 'P2002';
-
-async function hashPassword(password: string): Promise<string> {
-  const salt = randomBytes(16).toString('hex');
-  const derivedKey = (await scryptAsync(password, salt, PASSWORD_KEY_LENGTH)) as Buffer;
-  return `scrypt$${salt}$${derivedKey.toString('hex')}`;
-}
-
-async function verifyPassword(password: string, storedHash: string): Promise<boolean> {
-  const [algorithm, salt, storedKey] = storedHash.split('$');
-  if (algorithm !== 'scrypt') {
-    const actual = Buffer.from(password);
-    const expected = Buffer.from(storedHash);
-    return actual.length === expected.length && timingSafeEqual(actual, expected);
-  }
-  if (
-    !salt ||
-    !storedKey ||
-    !/^[a-f\d]{32}$/i.test(salt) ||
-    !/^[a-f\d]{128}$/i.test(storedKey)
-  ) {
-    return false;
-  }
-
-  const expectedKey = Buffer.from(storedKey, 'hex');
-  const actualKey = (await scryptAsync(password, salt, expectedKey.length)) as Buffer;
-  return expectedKey.length === actualKey.length && timingSafeEqual(expectedKey, actualKey);
-}
 
 function issueToken(user: AuthUserRecord, secret: string): string {
   const now = Math.floor(Date.now() / 1000);
@@ -200,6 +171,7 @@ function publicUser(user: AuthUserRecord) {
     rol: user.rol,
     puntos: user.puntos,
     municipioId: user.municipioId,
+    fotoPerfilUri: user.fotoPerfilUri ?? null,
   };
 }
 
@@ -415,6 +387,7 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
         email: user.email,
         role: roleMapping[user.rol] || 'citizen',
         points: user.puntos,
+        fotoPerfilUri: user.fotoPerfilUri ?? null,
         municipio: user.municipio?.nombre,
         municipioId: user.municipioId,
         createdAt: user.creadoEn,
@@ -425,6 +398,7 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
         email: user.email,
         rol: user.rol,
         puntos: user.puntos,
+        fotoPerfilUri: user.fotoPerfilUri ?? null,
         municipioId: user.municipioId,
       },
     });
@@ -439,14 +413,37 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
 
 export const actualizarNombrePerfil = async (req: Request, res: Response): Promise<void> => {
   const userId = req.auth?.id;
-  const nombre = asString(req.body?.nombre);
+  const rol = req.auth?.rol;
+  const tieneNombre = Object.prototype.hasOwnProperty.call(req.body ?? {}, 'nombre');
+  const tieneFoto = Object.prototype.hasOwnProperty.call(req.body ?? {}, 'fotoPerfilUri');
+  const nombre = tieneNombre ? asString(req.body?.nombre) : null;
+  const fotoPerfilUri = req.body?.fotoPerfilUri;
 
   if (!userId) {
     res.status(401).json({ success: false, message: 'Se requiere una sesión válida' });
     return;
   }
 
-  if (!nombre || nombre.length < 2 || nombre.length > 80) {
+  if (rol !== Role.CITIZEN && rol !== Role.ADMIN) {
+    res.status(403).json({
+      success: false,
+      message: 'Este perfil no permite modificar el nombre o la foto',
+    });
+    return;
+  }
+
+  if (!tieneNombre && !tieneFoto) {
+    res.status(400).json({
+      success: false,
+      message: 'Indica el nombre o la foto que deseas actualizar',
+    });
+    return;
+  }
+
+  if (
+    tieneNombre &&
+    (!nombre || nombre.length < 2 || nombre.length > 80)
+  ) {
     res.status(400).json({
       success: false,
       message: 'El nombre debe tener entre 2 y 80 caracteres',
@@ -454,10 +451,27 @@ export const actualizarNombrePerfil = async (req: Request, res: Response): Promi
     return;
   }
 
+  if (
+    tieneFoto &&
+    fotoPerfilUri !== null &&
+    !isValidProfilePhotoDataUri(fotoPerfilUri)
+  ) {
+    res.status(400).json({
+      success: false,
+      message: 'La foto debe ser JPEG válida y no superar 1.2 MB',
+    });
+    return;
+  }
+
+  const nombreActualizado = tieneNombre ? nombre ?? undefined : undefined;
+
   try {
     const user = await prisma.user.update({
       where: { id: userId },
-      data: { nombre },
+      data: {
+        ...(nombreActualizado !== undefined ? { nombre: nombreActualizado } : {}),
+        ...(tieneFoto ? { fotoPerfilUri } : {}),
+      },
       select: {
         id: true,
         nombre: true,
@@ -465,6 +479,7 @@ export const actualizarNombrePerfil = async (req: Request, res: Response): Promi
         rol: true,
         puntos: true,
         municipioId: true,
+        fotoPerfilUri: true,
         creadoEn: true,
       },
     });
@@ -478,6 +493,7 @@ export const actualizarNombrePerfil = async (req: Request, res: Response): Promi
         rol: user.rol,
         puntos: user.puntos,
         municipioId: user.municipioId,
+        fotoPerfilUri: user.fotoPerfilUri,
         creadoEn: user.creadoEn,
       },
     });

@@ -24,6 +24,22 @@ export interface Agente {
   casoActivoEstado?: string;
 }
 
+export interface Colaborador {
+  id: string;
+  nombre: string;
+  email: string;
+  disponible: boolean;
+  fotoPerfilUri: string | null;
+  creadoEn: string;
+}
+
+export interface CuentaPersonalEliminada {
+  id: string;
+  nombre: string;
+  rol: RolPersonalAdmin;
+  denunciasLiberadas: number;
+}
+
 export interface AgenteCandidato {
   id: string;
   nombre: string;
@@ -44,6 +60,19 @@ export type EstadoDenunciaAdmin =
   | 'RESUELTO'
   | 'RECHAZADO'
   | 'CERRADO_INACCESIBLE';
+
+export type RolPersonalAdmin = 'AGENT' | 'COLLABORATOR';
+
+export interface CuentaPersonalCreada {
+  id: string;
+  nombre: string;
+  email: string;
+  rol: RolPersonalAdmin;
+  municipioId: string;
+  disponible: boolean;
+  creadoEn: string;
+  fotoPerfilUri: string | null;
+}
 
 export type PrioridadDenuncia = 'BAJA' | 'MEDIA' | 'ALTA' | 'URGENTE';
 
@@ -252,10 +281,61 @@ export const adminService = {
   },
 
   // Agentes
+  crearCuentaPersonal: async (datos: {
+    nombre: string;
+    email: string;
+    password: string;
+    rol: RolPersonalAdmin;
+    fotoPerfilUri?: string;
+  }): Promise<CuentaPersonalCreada> => {
+    const response = await api.post<RespuestaApi<CuentaPersonalCreada>>(
+      '/api/admin/usuarios',
+      datos
+    );
+    if (!response || response.success !== true || !response.data?.id) {
+      throw new Error(response?.message || 'No se pudo crear la cuenta de personal');
+    }
+    return response.data;
+  },
+
+  eliminarCuentaPersonal: async (id: string): Promise<CuentaPersonalEliminada> => {
+    const response = await api.delete<RespuestaApi<CuentaPersonalEliminada>>(
+      `/api/admin/usuarios/${encodeURIComponent(id)}`
+    );
+    if (!response || response.success !== true || !response.data?.id) {
+      throw new Error(response?.message || 'No se pudo eliminar la cuenta de personal');
+    }
+    return response.data;
+  },
+
   obtenerAgentes: async (municipioId?: string): Promise<Agente[]> => {
     const query = municipioId ? `?municipioId=${municipioId}` : '';
     const res = await api.get<RespuestaApi<Agente[]> | Agente[]>(`/api/agentes${query}`);
     return Array.isArray(res) ? res : res.data || [];
+  },
+
+  obtenerColaboradores: async (): Promise<Colaborador[]> => {
+    const response = await api.get<RespuestaApi<Colaborador[]>>(
+      '/api/admin/usuarios/colaboradores'
+    );
+    if (!response || response.success !== true || !Array.isArray(response.data)) {
+      throw new Error(response?.message || 'La respuesta de colaboradores no es válida');
+    }
+    return response.data;
+  },
+
+  alternarDisponibilidadColaborador: async (
+    colaboradorId: string,
+    disponible: boolean
+  ): Promise<Colaborador> => {
+    const response = await api.patch<RespuestaApi<Colaborador>>(
+      `/api/admin/usuarios/colaboradores/${encodeURIComponent(colaboradorId)}/disponibilidad`,
+      { disponible }
+    );
+    if (!response || response.success !== true || !response.data?.id) {
+      throw new Error(response?.message || 'No se pudo actualizar el estado del colaborador');
+    }
+    return response.data;
   },
 
   alternarDisponibilidadAgente: async (agenteId: string, disponible: boolean) => {

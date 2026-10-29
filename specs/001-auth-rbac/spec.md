@@ -107,6 +107,62 @@ Un ciudadano puede optar por el botón de acceso rápido con Google para ingresa
 
 ---
 
+### User Story 7 - Alta Administrativa de Agentes y Colaboradores (Priority: P1)
+
+Un administrador municipal autenticado crea cuentas para el personal operativo desde una pantalla dedicada, seleccionando Agente o Colaborador e ingresando nombre, correo y contraseña inicial. Para cada cuenta, también toma una foto de perfil con la cámara; la foto queda asociada y la persona la visualiza al ingresar. Las cuentas quedan asociadas al municipio del administrador; el registro público continúa creando únicamente ciudadanos.
+
+**Independent Test**: Desde el panel de administración, crear una cuenta de Agente y una de Colaborador con una foto tomada en el momento; verificar que pueden iniciar sesión y que cada persona ve su foto en su pantalla principal. Intentar usar la función sin ser administrador debe ser rechazado.
+
+**Acceptance Scenarios**:
+
+1. **Given** un administrador autenticado, **When** crea una cuenta válida de Agente o Colaborador, **Then** la cuenta se guarda en el municipio del administrador con el rol seleccionado y puede iniciar sesión en su panel.
+2. **Given** un administrador que crea una cuenta, **When** elige una contraseña inicial, **Then** la contraseña se almacena de forma segura y nunca se devuelve en la respuesta de creación.
+3. **Given** un usuario que no tiene rol Administrador, **When** intenta crear una cuenta de personal, **Then** el sistema rechaza la solicitud sin crear el usuario.
+4. **Given** un administrador que intenta crear una cuenta con un correo existente, datos inválidos o el rol Administrador/Ciudadano, **When** envía el formulario, **Then** el sistema rechaza la solicitud con un mensaje claro y no crea una cuenta.
+5. **Given** un administrador que crea una cuenta de Agente o Colaborador, **When** captura una foto con la cámara y completa el alta, **Then** la imagen queda guardada y se muestra a esa persona después de iniciar sesión.
+6. **Given** un administrador que intenta crear una cuenta de Agente o Colaborador sin una foto válida, **When** envía el formulario, **Then** el sistema rechaza el alta y permite reintentar la captura.
+7. **Given** un Agente o Colaborador autenticado, **When** utiliza la aplicación, **Then** no puede cambiar la foto asignada por el administrador durante el alta.
+
+### User Story 8 - Gestión de Colaboradores y Estado de Servicio (Priority: P1)
+
+El administrador municipal consulta el listado de colaboradores de su municipio, ve su foto y estado de servicio, y puede activar o desactivar su disponibilidad.
+
+**Independent Test**: Desde la pantalla de Colaboradores, verificar que solo aparecen cuentas de Colaborador del municipio, cambiar el estado de una cuenta y confirmar que el nuevo estado queda visible al actualizar la lista.
+
+**Acceptance Scenarios**:
+
+1. **Given** un administrador autenticado, **When** abre Colaboradores, **Then** ve todas las cuentas de colaborador de su municipio, su foto (o avatar alternativo) y si están en servicio.
+2. **Given** un colaborador listado, **When** el administrador cambia su estado de servicio, **Then** el cambio se guarda y el nuevo estado se muestra en la lista.
+3. **Given** un administrador, **When** consulta colaboradores de otro municipio o intenta cambiar su estado, **Then** esos usuarios no aparecen ni pueden ser modificados.
+
+### User Story 9 - Edición del Perfil del Administrador (Priority: P2)
+
+El administrador actualiza su nombre y foto desde la bienvenida del panel, sin cambiar sus credenciales ni afectar otros datos de la cuenta.
+
+**Independent Test**: Cambiar nombre y foto desde la pantalla principal del administrador, guardar, y verificar que ambos cambios aparecen en la bienvenida y permanecen después de cerrar e iniciar sesión.
+
+**Acceptance Scenarios**:
+
+1. **Given** un administrador autenticado, **When** abre la edición de perfil desde su tarjeta de bienvenida, **Then** puede modificar su nombre y tomar o elegir una nueva foto.
+2. **Given** un administrador que completa datos válidos, **When** guarda los cambios, **Then** el perfil y la sesión muestran el nombre y la foto actualizados.
+3. **Given** un administrador que intenta guardar un nombre inválido o una foto no válida, **When** confirma los cambios, **Then** el sistema informa el error y conserva el perfil previamente guardado.
+
+### User Story 10 - Eliminación de Cuentas de Personal (Priority: P2)
+
+El administrador municipal consulta las cuentas de Agentes y Colaboradores desde una pantalla de gestión y puede eliminar una cuenta que ya no debe tener acceso. Los reportes se conservan; los casos activos del Agente eliminado regresan a la bolsa de trabajo y los reportes históricos conservan su estado sin el vínculo con esa cuenta.
+
+**Independent Test**: Desde la pantalla de cuentas de personal, eliminar una cuenta de Agente con reportes asignados y una cuenta de Colaborador; verificar que no puedan volver a iniciar sesión, que los reportes permanezcan y que los asignados al Agente queden sin asignación.
+
+**Acceptance Scenarios**:
+
+1. **Given** un administrador autenticado, **When** abre la gestión de cuentas de personal, **Then** ve solo Agentes y Colaboradores de su municipio.
+2. **Given** una cuenta de personal listada, **When** el administrador solicita eliminarla, **Then** el sistema pide confirmación y explica que la operación es permanente.
+3. **Given** una cuenta de Agente con casos activos e históricos asignados, **When** el administrador confirma su eliminación, **Then** la cuenta se elimina, los reportes se conservan, los casos activos vuelven a quedar sin asignación y los históricos conservan su estado sin el vínculo con la cuenta.
+4. **Given** un administrador que intenta eliminar una cuenta inexistente, de otro municipio o que no sea Agente ni Colaborador, **When** confirma la operación, **Then** el sistema rechaza la solicitud sin modificar datos.
+5. **Given** un usuario que no tiene rol Administrador, **When** intenta eliminar una cuenta de personal, **Then** el sistema rechaza la solicitud.
+
+---
+
 ### Edge Cases
 
 - **Usuario invitado cancela la pantalla de Registro/Login**: Si el invitado fue llevado a la pantalla de Registro o Login pero decide volver atrás sin autenticarse, regresa limpiamente al Home de Bienvenida en Modo Invitado sin quedar atrapado.
@@ -128,10 +184,11 @@ Un ciudadano puede optar por el botón de acceso rápido con Google para ingresa
   - `CITIZEN`: Navegador Principal Ciudadano con todas las acciones desbloqueadas (Inicio personalizado, Perfil, Cámara de Reporte, Tienda con Carrito activo, Más).
   - `AGENT`: Navegador Operativo de Agente de Campo (Bolsa de casos e inspecciones asignadas, sin acceso a canjes de tienda).
   - `ADMIN`: Navegador de Administración Municipal (Métricas, Triaje de Denuncias, Gestión de Agentes y Catálogo).
+- **FR-006 (RF-AUT-05 - Foto de Perfil de Agente)**: El administrador DEBE capturar una foto con la cámara al crear una nueva cuenta de Agente. El sistema DEBE requerir una imagen válida, guardarla en el perfil y mostrarla al Agente al iniciar sesión; el Agente no puede cambiarla y los Colaboradores no requieren foto.
   - `COLLABORATOR`: Panel de Operador de Entrega (Búsqueda por código de retiro `codigoRetiro` y confirmación de entrega presencial).
 - **FR-006 (RF-AUT-05 - Persistencia y Cierre de Sesión)**: El sistema DEBE conservar localmente la sesión activa del usuario para restaurarla al abrir la aplicación y proveer una acción de cierre de sesión con confirmación que limpie el estado local y regrese al Home de Bienvenida en Modo Invitado.
 - **FR-007 (RF-AUT-02 - Acceso Rápido con Google)**: El sistema DEBE ofrecer la opción de acceso rápido mediante cuenta Google para el rol Ciudadano.
-- **FR-008 (Seguridad y Semillas de Prueba)**: El sistema DEBE proteger las contraseñas mediante hash seguro y disponer de cuentas de prueba preconfiguradas para los 4 roles (`CITIZEN` con 1250 pts y 50 pts, `AGENT` 1 y 2, `ADMIN` y `COLLABORATOR`) en el municipio `"Pilar"` (`PILAR-BA`).
+- **FR-008 (Seguridad y Semillas de Prueba)**: El sistema DEBE proteger las contraseñas mediante hash seguro y disponer de cuentas de prueba preconfiguradas para los 4 roles (`CITIZEN` con 1250 pts y 50 pts, `AGENT` 1 y 2, `ADMIN` y `COLLABORATOR`) en el municipio `"Pilar"` (`PILAR-BA`). Las credenciales de esas cuentas no DEBEN exponerse ni ofrecerse como accesos rápidos en la pantalla de inicio de sesión.
 - **FR-009 (RF-AUT-06 - Home de Bienvenida Explicativo y Botón CTA de Cabecera)**: Cuando el usuario no está autenticado (`user === null`), la pantalla de Inicio DEBE mostrar una guía explicativa del funcionamiento de Eco Alerta y reemplazar el bloque de nombre e ícono del usuario por un botón con la leyenda **"Regístrate para empezar a usar la app"** que redirija al flujo de Registro/Login.
 - **FR-010 (RF-AUT-07 y 08 - Guardián de Modo Invitado / Auth Gate)**: Cuando un usuario no autenticado intente realizar cualquier acción que requiera cuenta o datos del usuario —incluyendo abrir **Cámara / Reportar un foco**, entrar a **Perfil**, consultar **Historial** o pulsar **"Agregar al Carrito"** en la Tienda—, el sistema DEBE bloquear la acción y solicitarle que se registre o inicie sesión.
 - **FR-011 (RF-AUT-09 - Refresco en Caliente de Perfil y Puntos en DB)**: El sistema DEBE exponer endpoints autenticados `GET /api/auth/me` y `GET /api/auth/perfil` que retornen el perfil y saldo de puntos en tiempo real directamente de la base de datos PostgreSQL, e integrar `recargarPerfilUsuario()` en el cliente para mantener sincronizado el estado local con la base de datos tras canjes, entregas o acreditación de puntos.
@@ -146,7 +203,7 @@ Un ciudadano puede optar por el botón de acceso rápido con Google para ingresa
 
 - **Visitante Invitado (`GUEST` / Sesión Nula)**: Usuario no autenticado que navega la aplicación en modo lectura (Home de Bienvenida y visualización de catálogo de Tienda) sujeto a las restricciones del Guardián de Autenticación (Auth Gate).
 - **Municipio**: Entidad organizacional que agrupa usuarios, denuncias, sucursales y catálogo del distrito (ej. `"Municipio de Pilar"`, código `"PILAR-BA"`).
-- **Usuario (`User`)**: Persona registrada en la plataforma con nombre completo, correo electrónico único, credencial protegida (`passwordHash`), rol operativo (`CITIZEN`, `AGENT`, `ADMIN`, `COLLABORATOR`), saldo de puntos (`0` por defecto al registrarse), indicador de disponibilidad en servicio (para agentes) y vínculo con su Municipio.
+- **Usuario (`User`)**: Persona registrada en la plataforma con nombre completo, correo electrónico único, credencial protegida (`passwordHash`), rol operativo (`CITIZEN`, `AGENT`, `ADMIN`, `COLLABORATOR`), saldo de puntos (`0` por defecto al registrarse), indicador de disponibilidad en servicio (para agentes), foto de perfil capturada por el administrador para Agentes nuevos y vínculo con su Municipio.
 - **Sesión de Usuario**: Estado persistido localmente en el dispositivo del usuario autenticado que mantiene su identidad y rol activos entre reinicios de la aplicación.
 
 ## Success Criteria *(mandatory)*
@@ -182,6 +239,11 @@ Un ciudadano puede optar por el botón de acceso rápido con Google para ingresa
 - **FR-021 (RF-AUT-18 - Información legal provisional)**: Si los términos oficiales no están disponibles, la pantalla de Términos y Privacidad DEBE presentar el contenido como borrador pendiente de revisión municipal/legal, sin presentarlo como texto oficial.
 - **FR-022 (RF-AUT-19 - Encabezado institucional en todas las pantallas)**: El sistema DEBE mostrar el encabezado institucional con el logo Eco Alerta en todas las pantallas navegables para invitados y para los roles Ciudadano, Agente, Administrador y Colaborador, incluidas las pantallas secundarias dentro de cada flujo. El encabezado DEBE respetar el área segura del dispositivo y no duplicar el logo dentro de una misma pantalla.
 - **FR-023 (RF-AUT-20 - Contraste de la barra de estado del dispositivo)**: Al abrir la aplicación, la barra de estado del dispositivo DEBE mostrar en color oscuro los iconos y textos del sistema (hora, batería, señal y notificaciones), independientemente de la pantalla visible, para conservar su legibilidad sobre la interfaz clara.
+- **FR-024 (RF-AUT-21 - Aprovisionamiento administrativo de personal)**: El sistema DEBE permitir únicamente a un Administrador autenticado crear cuentas de Agente (`AGENT`) y Colaborador (`COLLABORATOR`) desde la pantalla de Personal. Cada cuenta DEBE asociarse al municipio del Administrador, requerir nombre, correo válido único y contraseña inicial de al menos 8 caracteres, y proteger la contraseña almacenada. La creación NO DEBE permitir los roles `ADMIN` ni `CITIZEN`; el autoregistro público DEBE continuar limitado a `CITIZEN`.
+- **FR-025 (RF-AUT-22 - Foto del Personal)**: Al aprovisionar una nueva cuenta `AGENT` o `COLLABORATOR`, el administrador DEBE tomar una foto con la cámara y el sistema DEBE guardarla como parte del perfil, entregarla al iniciar sesión y mostrarla en la pantalla principal del rol correspondiente. Una imagen ausente o inválida DEBE impedir el alta. El usuario NO DEBE poder cambiar su foto y las cuentas existentes sin imagen DEBEN conservar el acceso con un avatar alternativo.
+- **FR-026 (RF-AUT-23 - Gestión de Colaboradores)**: El administrador DEBE poder consultar una pantalla con todos los Colaboradores asociados a su municipio, sus fotos de perfil y su estado de servicio, y cambiar dicho estado. El listado y las actualizaciones DEBEN estar restringidos al municipio autenticado.
+- **FR-027 (RF-AUT-24 - Edición del Perfil del Administrador)**: El administrador autenticado DEBE poder actualizar su propio nombre y foto de perfil. El sistema DEBE validar y persistir ambos cambios, y reflejarlos en la sesión activa. Los cambios de perfil NO DEBEN permitir modificar otros usuarios ni credenciales.
+- **FR-028 (RF-AUT-25 - Eliminación de Cuentas de Personal)**: El administrador autenticado DEBE poder consultar y eliminar cuentas `AGENT` y `COLLABORATOR` de su municipio desde una pantalla de gestión, con confirmación explícita. La operación DEBE revocar el acceso al eliminar la cuenta y preservar los reportes; los casos activos del Agente eliminado DEBEN quedar sin asignación, mientras que los reportes históricos DEBEN conservar su estado aunque pierdan el vínculo con la cuenta eliminada. No DEBE permitir eliminar ciudadanos, administradores ni cuentas de otro municipio.
 - **SC-007**: El 100% de las pulsaciones de invitados sobre **Más** abre el modal de autenticación; el 100% de las pulsaciones de usuarios autenticados mantiene el acceso a la pantalla de opciones.
 - **SC-008**: Después de elegir o tomar una foto en Perfil, el 100% de las visitas a Inicio dentro de la sesión muestra esa misma imagen sin reiniciar la aplicación.
 - **SC-009**: El botón de notificaciones abre la bandeja y lista los estados actuales de todos los reportes y canjes del ciudadano; cada canje pendiente se identifica correctamente como disponible o pendiente según hayan transcurrido dos días hábiles.
@@ -194,3 +256,4 @@ Un ciudadano puede optar por el botón de acceso rápido con Google para ingresa
 - **SC-016**: La bandeja de Notificaciones muestra los estados disponibles del ciudadano; Ayuda muestra las preguntas frecuentes y el contenido de Términos identifica claramente su carácter de borrador.
 - **SC-017**: El 100% de las pantallas navegables de los cuatro roles y del flujo invitado muestra el logo institucional en su encabezado, sin duplicados y sin quedar oculto por la zona segura del dispositivo.
 - **SC-018**: En todas las pantallas de la aplicación, los indicadores de hora, batería, señal y notificaciones de la barra de estado se muestran oscuros y legibles sobre el fondo claro.
+- **SC-019**: El 100% de las cuentas de Agente y Colaborador creadas desde Personal quedan en el municipio correcto, guardan contraseña protegida y pueden iniciar sesión en el panel de su rol; los usuarios no administradores no pueden crear estas cuentas.

@@ -17,6 +17,7 @@ interface AuthContextType {
   updateUserPoints?: (nuevosPuntos: number) => void;
   actualizarFotoPerfil: (fotoPerfilUri: string | null) => Promise<void>;
   actualizarNombrePerfil: (nombre: string) => Promise<void>;
+  actualizarPerfilAdmin: (nombre: string, fotoPerfilUri: string) => Promise<void>;
   recargarPerfilUsuario?: () => Promise<void>;
 }
 
@@ -67,14 +68,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       throw new Error('Debes iniciar sesión para cambiar tu foto de perfil.');
     }
 
+    if (user.role === 'admin') {
+      const response = await api.patch<{
+        success: boolean;
+        user: { fotoPerfilUri: string | null };
+      }>('/auth/profile', { fotoPerfilUri });
+      if (!response.success || response.user?.fotoPerfilUri !== fotoPerfilUri) {
+        throw new Error('El servidor no pudo confirmar la actualización de la foto.');
+      }
+    }
+
     const updatedUser = { ...user, fotoPerfilUri };
     await authRepository.saveSession(updatedUser);
     setUser(updatedUser);
   };
 
   const actualizarNombrePerfil = async (nombre: string) => {
-    if (!user || user.role !== 'citizen') {
-      throw new Error('Solo un ciudadano autenticado puede editar este perfil.');
+    if (!user || (user.role !== 'citizen' && user.role !== 'admin')) {
+      throw new Error('Este perfil no permite editar el nombre.');
     }
 
     const nombreNormalizado = nombre.trim();
@@ -91,6 +102,37 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     const updatedUser = { ...user, name: response.user.nombre };
+    await authRepository.saveSession(updatedUser);
+    setUser(updatedUser);
+  };
+
+  const actualizarPerfilAdmin = async (nombre: string, fotoPerfilUri: string) => {
+    if (!user || user.role !== 'admin') {
+      throw new Error('Solo un administrador autenticado puede editar este perfil.');
+    }
+
+    const nombreNormalizado = nombre.trim();
+    if (nombreNormalizado.length < 2 || nombreNormalizado.length > 80) {
+      throw new Error('El nombre debe tener entre 2 y 80 caracteres.');
+    }
+
+    const response = await api.patch<{
+      success: boolean;
+      user: { nombre: string; fotoPerfilUri: string | null };
+    }>('/auth/profile', { nombre: nombreNormalizado, fotoPerfilUri });
+    if (
+      !response.success ||
+      response.user?.nombre !== nombreNormalizado ||
+      response.user?.fotoPerfilUri !== fotoPerfilUri
+    ) {
+      throw new Error('El servidor no pudo confirmar los cambios del perfil.');
+    }
+
+    const updatedUser = {
+      ...user,
+      name: response.user.nombre,
+      fotoPerfilUri: response.user.fotoPerfilUri,
+    };
     await authRepository.saveSession(updatedUser);
     setUser(updatedUser);
   };
@@ -238,6 +280,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         updateUserPoints,
         actualizarFotoPerfil,
         actualizarNombrePerfil,
+        actualizarPerfilAdmin,
         recargarPerfilUsuario,
       }}
     >

@@ -67,7 +67,7 @@ client/
 │   │       └── index.ts                      # [NUEVO] Factory/selector de repositorio
 │   ├── screens/
 │   │   ├── auth/
-│   │   │   ├── LoginScreen.tsx               # [EXTENDER] Validaciones RF-AUT-02, acceso rápido demo 4 roles y botón volver al Home Invitado
+│   │   │   ├── LoginScreen.tsx               # [EXTENDER] Validaciones RF-AUT-02, acceso con Google y botón volver al Home Invitado; sin credenciales demo visibles
 │   │   │   └── RegisterScreen.tsx            # [EXTENDER] Validaciones RF-AUT-01/02 (confirmPassword, >= 6 chars, email único, puntos = 0)
 │   │   ├── citizen/
 │   │   │   └── HomeScreenPrueba/

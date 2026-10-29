@@ -324,6 +324,87 @@ describe('admin and agent authentication middleware', () => {
     });
   });
 
+  describe('administrator profile update', () => {
+    const administrator = {
+      id: 'administrator-1',
+      rol: Role.ADMIN,
+      municipioId: 'municipality-1',
+    };
+    const profilePhoto = 'data:image/jpeg;base64,/9j/2Q==';
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      prisma.user.findUnique.mockResolvedValue(administrator);
+    });
+
+    it('updates the authenticated administrator name and photo together', async () => {
+      prisma.user.update.mockResolvedValue({
+        id: administrator.id,
+        nombre: 'Admin Actualizado',
+        email: 'admin@example.com',
+        rol: Role.ADMIN,
+        puntos: 0,
+        municipioId: administrator.municipioId,
+        fotoPerfilUri: profilePhoto,
+        creadoEn: new Date('2026-01-01T00:00:00.000Z'),
+      });
+
+      const token = createToken({
+        sub: administrator.id,
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 60,
+      });
+      const response = await request(createAuthProfileApp())
+        .patch('/api/auth/profile')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ nombre: ' Admin Actualizado ', fotoPerfilUri: profilePhoto })
+        .expect(200);
+
+      expect(prisma.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: administrator.id },
+          data: { nombre: 'Admin Actualizado', fotoPerfilUri: profilePhoto },
+        })
+      );
+      expect(response.body.user).toMatchObject({
+        nombre: 'Admin Actualizado',
+        fotoPerfilUri: profilePhoto,
+      });
+    });
+
+    it('rejects invalid profile photos and prevents agents from editing their profiles', async () => {
+      const token = createToken({
+        sub: administrator.id,
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 60,
+      });
+
+      await request(createAuthProfileApp())
+        .patch('/api/auth/profile')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ fotoPerfilUri: 'data:image/jpeg;base64,YWJj' })
+        .expect(400);
+
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'agent-1',
+        rol: Role.AGENT,
+        municipioId: administrator.municipioId,
+      });
+      const agentToken = createToken({
+        sub: 'agent-1',
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 60,
+      });
+      await request(createAuthProfileApp())
+        .patch('/api/auth/profile')
+        .set('Authorization', `Bearer ${agentToken}`)
+        .send({ nombre: 'Nuevo nombre' })
+        .expect(403);
+
+      expect(prisma.user.update).not.toHaveBeenCalled();
+    });
+  });
+
   it('clears an agent current position when the agent becomes unavailable', async () => {
     const agent = {
       id: 'agent-1',

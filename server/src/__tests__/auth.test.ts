@@ -23,6 +23,7 @@ interface AuthApiResponse {
     rol: Role;
     puntos: number;
     municipioId: string;
+    fotoPerfilUri?: string | null;
   };
 }
 
@@ -172,9 +173,22 @@ test('register rejects invalid input and duplicate emails', async () => {
   }
 });
 
-test('login supports all four roles and upgrades legacy seed passwords', async () => {
+test('login supports all four roles, returns the agent profile photo, and upgrades legacy seed passwords', async () => {
   const roles = [Role.CITIZEN, Role.AGENT, Role.ADMIN, Role.COLLABORATOR];
-  const { store, users } = makeStore(roles.map((role) => makeUser(role)));
+  const agentPhoto = 'data:image/jpeg;base64,/9j/2Q==';
+  const collaboratorPhoto = 'data:image/jpeg;base64,/9j/4Q==';
+  const { store, users } = makeStore(
+    roles.map((role) =>
+      makeUser(
+        role,
+        role === Role.AGENT
+          ? { fotoPerfilUri: agentPhoto }
+          : role === Role.COLLABORATOR
+            ? { fotoPerfilUri: collaboratorPhoto }
+            : {}
+      )
+    )
+  );
   const server = await startTestServer(store);
 
   try {
@@ -191,6 +205,11 @@ test('login supports all four roles and upgrades legacy seed passwords', async (
 
       assert.equal(response.status, 200);
       assert.equal(body.user?.rol, role);
+      if (role === Role.AGENT) {
+        assert.equal(body.user?.fotoPerfilUri, agentPhoto);
+      } else if (role === Role.COLLABORATOR) {
+        assert.equal(body.user?.fotoPerfilUri, collaboratorPhoto);
+      }
       assert.equal(typeof body.token, 'string');
       const account = users.find((user) => user.rol === role);
       assert.ok(account);

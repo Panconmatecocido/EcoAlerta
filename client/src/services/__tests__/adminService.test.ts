@@ -6,11 +6,13 @@ jest.mock('../api', () => ({
   api: {
     get: jest.fn(),
     patch: jest.fn(),
+    delete: jest.fn(),
   },
 }));
 
 const mockedGet = jest.mocked(api.get);
 const mockedPatch = jest.mocked(api.patch);
+const mockedDelete = jest.mocked(api.delete);
 
 describe('adminService.obtenerDenuncias', () => {
   beforeEach(() => {
@@ -82,6 +84,42 @@ describe('adminService.obtenerDenuncias', () => {
       },
     ]);
     expect(mockedGet).toHaveBeenCalledWith('/api/denuncias?estado=PENDIENTE');
+  });
+
+  it('loads municipality collaborators and updates their service status', async () => {
+    const collaborator = {
+      id: 'collaborator-1',
+      nombre: 'Colaborador Uno',
+      email: 'colaborador@example.com',
+      disponible: false,
+      fotoPerfilUri: null,
+      creadoEn: '2026-10-28T12:00:00.000Z',
+    };
+    mockedGet.mockResolvedValueOnce({ success: true, data: [collaborator] });
+    await expect(adminService.obtenerColaboradores()).resolves.toEqual([collaborator]);
+    expect(mockedGet).toHaveBeenCalledWith('/api/admin/usuarios/colaboradores');
+
+    mockedPatch.mockResolvedValueOnce({ success: true, data: { ...collaborator, disponible: true } });
+    await expect(
+      adminService.alternarDisponibilidadColaborador('collaborator-1', true)
+    ).resolves.toMatchObject({ id: 'collaborator-1', disponible: true });
+    expect(mockedPatch).toHaveBeenCalledWith(
+      '/api/admin/usuarios/colaboradores/collaborator-1/disponibilidad',
+      { disponible: true }
+    );
+  });
+
+  it('deletes a managed staff account through the administrator endpoint', async () => {
+    const deletedAccount = {
+      id: 'agent-1',
+      nombre: 'Agente Uno',
+      rol: 'AGENT' as const,
+      denunciasLiberadas: 2,
+    };
+    mockedDelete.mockResolvedValueOnce({ success: true, data: deletedAccount });
+
+    await expect(adminService.eliminarCuentaPersonal('agent/1')).resolves.toEqual(deletedAccount);
+    expect(mockedDelete).toHaveBeenCalledWith('/api/admin/usuarios/agent%2F1');
   });
 
   it('propagates network failures and rejects malformed API envelopes', async () => {

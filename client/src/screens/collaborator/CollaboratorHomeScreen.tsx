@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
+  Image,
   StyleSheet,
   TextInput,
   TouchableOpacity,
@@ -161,9 +162,17 @@ export const CollaboratorHomeScreen: React.FC = () => {
         <View style={styles.encabezadoCurvo}>
           {/* Tarjeta de Identificación del Colaborador */}
           <View style={styles.tarjetaColaborador}>
-            <View style={styles.avatarColaborador}>
-              <MaterialCommunityIcons name="badge-account-horizontal" size={28} color={COLORS.textoLogo} />
-            </View>
+            {user?.fotoPerfilUri ? (
+              <Image
+                source={{ uri: user.fotoPerfilUri }}
+                style={styles.avatarColaborador}
+                accessibilityLabel="Foto de perfil del colaborador"
+              />
+            ) : (
+              <View style={styles.avatarColaborador}>
+                <MaterialCommunityIcons name="badge-account-horizontal" size={28} color={COLORS.textoLogo} />
+              </View>
+            )}
             <View style={styles.infoColaborador}>
               <Text style={styles.nombreColaborador}>{user?.name || 'Operador de Entrega'}</Text>
               <Text style={styles.rolColaborador}>Puesto de Entrega Municipal • PILAR</Text>

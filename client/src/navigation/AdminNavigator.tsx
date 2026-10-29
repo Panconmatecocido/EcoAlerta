@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { COLORS } from '../utils/theme';
@@ -11,17 +12,28 @@ import { AdminHomeScreen } from '../screens/admin/AdminHomeScreen';
 import { AdminDenunciasScreen } from '../screens/admin/AdminDenunciasScreen';
 import { AdminAgenteScreen } from '../screens/admin/AdminAgentesScreen';
 import { AdminProductosScreen } from '../screens/admin/AdminProductosScreen';
+import { AdminUsuariosScreen } from '../screens/admin/AdminUsuariosScreen';
+import { AdminColaboradoresScreen } from '../screens/admin/AdminColaboradoresScreen';
+import { AdminCuentasPersonalScreen } from '../screens/admin/AdminCuentasPersonalScreen';
 
 export type AdminTabParamList = {
   InicioAdmin: undefined;
   DenunciasAdmin: { filtro?: string } | undefined;
   AgentesAdmin: undefined;
   ProductosAdmin: undefined;
+  UsuariosAdmin: { rol?: 'AGENT' | 'COLLABORATOR' } | undefined;
+  ColaboradoresAdmin: undefined;
+};
+
+type AdminStackParamList = {
+  AdminTabs: undefined;
+  CuentasPersonalAdmin: undefined;
 };
 
 const Tab = createBottomTabNavigator<AdminTabParamList>();
+const Stack = createNativeStackNavigator<AdminStackParamList>();
 
-export const AdminNavigator: React.FC = () => {
+const AdminTabs: React.FC = () => {
   const insets = useSafeAreaInsets();
 
   return (
@@ -84,6 +96,36 @@ export const AdminNavigator: React.FC = () => {
           ),
         }}
       />
+      <Tab.Screen
+        name="UsuariosAdmin"
+        component={AdminUsuariosScreen}
+        options={{
+          tabBarLabel: 'Personal',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="account-multiple-plus-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="ColaboradoresAdmin"
+        component={AdminColaboradoresScreen}
+        options={{
+          tabBarLabel: 'Colaboradores',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="account-badge-outline" size={size} color={color} />
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 };
+
+export const AdminNavigator: React.FC = () => (
+  <Stack.Navigator
+    initialRouteName="AdminTabs"
+    screenOptions={{ headerShown: false }}
+  >
+    <Stack.Screen name="AdminTabs" component={AdminTabs} />
+    <Stack.Screen name="CuentasPersonalAdmin" component={AdminCuentasPersonalScreen} />
+  </Stack.Navigator>
+);

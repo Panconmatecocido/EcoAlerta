@@ -151,13 +151,6 @@ export const AdminAgenteScreen: React.FC = () => {
     );
   };
 
-  const nuevoAgente = () => {
-    Alert.alert(
-      'Nuevo Inspector',
-      'Función para dar de alta un nuevo inspector municipal en el sistema.'
-    );
-  };
-
   // Acordeón/Desplegable para inspeccionar la ubicación del agente
   const [agenteExpandidoId, setAgenteExpandidoId] = useState<string | null>(null);
 
@@ -198,14 +191,6 @@ export const AdminAgenteScreen: React.FC = () => {
       <View style={styles.contenedor}>
         <View style={styles.encabezado}>
           <Text style={styles.tituloEncabezado}>Personal de Campo</Text>
-          <TouchableOpacity style={styles.botonAgregar} onPress={nuevoAgente}>
-            <MaterialCommunityIcons
-              name="account-plus"
-              size={ICON_SIZE.sm}
-              color={COLORS.superficieTarjeta}
-            />
-            <Text style={styles.textoBotonAgregar}>Nuevo</Text>
-          </TouchableOpacity>
         </View>
 
         {cargando ? (
@@ -408,20 +393,6 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     color: COLORS.textoVerdeOscuro,
-  },
-  botonAgregar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: COLORS.botonPrincipal,
-    paddingVertical: SPACING.xs,
-    paddingHorizontal: SPACING.sm,
-    borderRadius: BORDER_RADIUS.sm,
-  },
-  textoBotonAgregar: {
-    color: COLORS.superficieTarjeta,
-    fontSize: 12,
-    fontWeight: 'bold',
   },
   lista: {
     paddingBottom: SPACING.lg * 2,

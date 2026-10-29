@@ -53,4 +53,9 @@
 - [ ] Verify that Notificaciones in Más opens current report/redemption activity, Centro de Ayuda displays FAQs, and Términos y Privacidad clearly labels its content as a draft pending official review.
 - [ ] Verify that the shared Eco Alerta logo header appears once on every guest, citizen, agent, administrator, and collaborator screen, including secondary screens, and respects device safe areas.
 - [ ] Verify on a device that the status bar's time, battery, signal, and notification indicators use dark foregrounds and remain legible on every role's screens.
+- [ ] Verify that the administrator can take and preview an agent or collaborator photo during account creation, that creation is blocked without a valid photo, and that both roles see their registered photo after login while legacy accounts remain unaffected.
+- [ ] Verify that administrators can list only collaborators from their municipality and activate/deactivate their service status.
+- [ ] Verify that the administrator can edit their own name and profile photo, save both, and see the updates persist in the active session.
 - [ ] Sign out as a collaborator and verify the app opens Login directly instead of the guest Home; verify a session-clear failure displays an error.
+- [ ] As an administrator, create Agent and Collaborator accounts from Personal and verify successful login for both roles; confirm invalid/duplicate inputs are rejected and a non-administrator cannot create accounts.
+- [ ] As an administrator, open Cuentas de personal, confirm accounts from other municipalities are absent, delete an Agent with active and historical reports and a Collaborator, and verify login is revoked, reports and historical states remain, and active cases return to the unassigned pool.

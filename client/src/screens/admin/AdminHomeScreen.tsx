@@ -6,6 +6,8 @@ import {
   Modal,
   View,
   Text,
+  TextInput,
+  Image,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
@@ -14,6 +16,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
 import { useAuth } from '../../context/AuthContext';
@@ -25,12 +28,13 @@ import {
   buildAdminNotifications,
   hasUnreadAdminNotifications,
 } from '../../utils/adminNotifications';
+import { compressImage, imageUriToDataUri } from '../../utils/imageCompressor';
 
 const ADMIN_NOTIFICATIONS_POLL_INTERVAL = 30_000;
 
 export const AdminHomeScreen: React.FC = () => {
   const navigation = useNavigation<any>();
-  const { logout, user } = useAuth();
+  const { logout, user, actualizarPerfilAdmin } = useAuth();
   const [metricas, setMetricas] = useState<MetricasAdmin | null>(null);
   const [cargando, setCargando] = useState<boolean>(true);
   const [notificaciones, setNotificaciones] = useState<AdminNotification[]>([]);
@@ -39,6 +43,11 @@ export const AdminHomeScreen: React.FC = () => {
   const [errorNotificaciones, setErrorNotificaciones] = useState<string | null>(null);
   const [bandejaVisible, setBandejaVisible] = useState(false);
   const [recargaNotificaciones, setRecargaNotificaciones] = useState(0);
+  const [perfilVisible, setPerfilVisible] = useState(false);
+  const [nombrePerfil, setNombrePerfil] = useState('');
+  const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
+  const [procesandoFoto, setProcesandoFoto] = useState(false);
+  const [guardandoPerfil, setGuardandoPerfil] = useState(false);
 
   const claveAlmacenamiento = `@ecoalerta_admin_notifications_seen:${user?.id ?? 'admin'}`;
   const notificacionesSinLeer = hasUnreadAdminNotifications(notificaciones, clavesVistas);
@@ -155,6 +164,79 @@ export const AdminHomeScreen: React.FC = () => {
     navigation.navigate('DenunciasAdmin', { filtro: notificacion.state });
   };
 
+  const abrirEdicionPerfil = () => {
+    setNombrePerfil(user?.name ?? '');
+    setFotoPerfil(user?.fotoPerfilUri ?? null);
+    setPerfilVisible(true);
+  };
+
+  const seleccionarFotoPerfil = async (origen: 'camera' | 'gallery') => {
+    setProcesandoFoto(true);
+    try {
+      const permiso =
+        origen === 'camera'
+          ? await ImagePicker.requestCameraPermissionsAsync()
+          : await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permiso.granted) {
+        Alert.alert(
+          'Permiso requerido',
+          origen === 'camera'
+            ? 'Habilita el acceso a la cámara para tomar tu foto.'
+            : 'Habilita el acceso a tus fotos para elegir una imagen de perfil.'
+        );
+        return;
+      }
+
+      const resultado =
+        origen === 'camera'
+          ? await ImagePicker.launchCameraAsync({
+              mediaTypes: ['images'],
+              allowsEditing: true,
+              aspect: [1, 1],
+              quality: 0.75,
+            })
+          : await ImagePicker.launchImageLibraryAsync({
+              mediaTypes: ['images'],
+              allowsEditing: true,
+              aspect: [1, 1],
+              quality: 0.75,
+            });
+      if (resultado.canceled || resultado.assets.length === 0) return;
+
+      const comprimida = await compressImage(resultado.assets[0].uri);
+      setFotoPerfil(await imageUriToDataUri(comprimida.uri));
+    } catch (error) {
+      console.error('No se pudo procesar la foto del administrador:', error);
+      Alert.alert(
+        'No se pudo cargar la foto',
+        error instanceof Error ? error.message : 'Inténtalo nuevamente.'
+      );
+    } finally {
+      setProcesandoFoto(false);
+    }
+  };
+
+  const guardarPerfilAdmin = async () => {
+    if (!fotoPerfil) {
+      Alert.alert('Foto requerida', 'Toma o elige una foto de perfil antes de guardar.');
+      return;
+    }
+    setGuardandoPerfil(true);
+    try {
+      await actualizarPerfilAdmin(nombrePerfil, fotoPerfil);
+      setPerfilVisible(false);
+      Alert.alert('Perfil actualizado', 'Tu nombre y foto se guardaron correctamente.');
+    } catch (error) {
+      console.error('No se pudo actualizar el perfil del administrador:', error);
+      Alert.alert(
+        'No se pudo actualizar el perfil',
+        error instanceof Error ? error.message : 'Inténtalo nuevamente.'
+      );
+    } finally {
+      setGuardandoPerfil(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
       <Header
@@ -184,17 +266,32 @@ export const AdminHomeScreen: React.FC = () => {
         contentContainerStyle={styles.contenido}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.tarjetaBienvenida}>
-          <View style={styles.iconoBienvenida}>
-            <MaterialCommunityIcons name="account-tie" size={30} color={COLORS.botonPrincipal} />
-          </View>
+        <TouchableOpacity
+          style={styles.tarjetaBienvenida}
+          onPress={abrirEdicionPerfil}
+          activeOpacity={0.75}
+          accessibilityRole="button"
+          accessibilityLabel="Editar nombre y foto de perfil del administrador"
+        >
+          {user?.fotoPerfilUri ? (
+            <Image source={{ uri: user.fotoPerfilUri }} style={styles.iconoBienvenida} />
+          ) : (
+            <View style={styles.iconoBienvenida}>
+              <MaterialCommunityIcons name="account-tie" size={30} color={COLORS.botonPrincipal} />
+            </View>
+          )}
           <View style={styles.textosBienvenida}>
             <Text style={styles.etiquetaBienvenida}>¡Bienvenido!</Text>
             <Text style={styles.nombreAdministrador} numberOfLines={1} ellipsizeMode="tail">
               {user?.name || 'Administrador'}
             </Text>
           </View>
-        </View>
+          <MaterialCommunityIcons
+            name="pencil-outline"
+            size={ICON_SIZE.md}
+            color={COLORS.textoSecundario}
+          />
+        </TouchableOpacity>
 
         {/* Resumen Operativo */}
         <View style={styles.cabeceraSeccion}>
@@ -293,6 +390,69 @@ export const AdminHomeScreen: React.FC = () => {
           <MaterialCommunityIcons name="chevron-right" size={24} color={COLORS.textoSecundario} />
         </TouchableOpacity>
 
+        <TouchableOpacity
+          style={styles.tarjetaAccesoRapido}
+          onPress={() => navigation.navigate('UsuariosAdmin', { rol: 'AGENT' })}
+          activeOpacity={0.8}
+        >
+          <View style={styles.iconoAccesoRapido}>
+            <MaterialCommunityIcons
+              name="account-multiple-plus-outline"
+              size={28}
+              color={COLORS.botonPrincipal}
+            />
+          </View>
+          <View style={styles.textosAccesoRapido}>
+            <Text style={styles.tituloAccesoRapido}>Crear cuenta de personal</Text>
+            <Text style={styles.descripcionAccesoRapido}>
+              Dar de alta agentes de campo y colaboradores municipales.
+            </Text>
+          </View>
+          <MaterialCommunityIcons name="chevron-right" size={24} color={COLORS.textoSecundario} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.tarjetaAccesoRapido}
+          onPress={() => navigation.navigate('ColaboradoresAdmin')}
+          activeOpacity={0.8}
+        >
+          <View style={styles.iconoAccesoRapido}>
+            <MaterialCommunityIcons
+              name="account-badge-outline"
+              size={28}
+              color={COLORS.botonPrincipal}
+            />
+          </View>
+          <View style={styles.textosAccesoRapido}>
+            <Text style={styles.tituloAccesoRapido}>Administrar colaboradores</Text>
+            <Text style={styles.descripcionAccesoRapido}>
+              Consultar el personal de entrega y actualizar su estado de servicio.
+            </Text>
+          </View>
+          <MaterialCommunityIcons name="chevron-right" size={24} color={COLORS.textoSecundario} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.tarjetaAccesoRapido}
+          onPress={() => navigation.navigate('CuentasPersonalAdmin')}
+          activeOpacity={0.8}
+        >
+          <View style={styles.iconoAccesoRapido}>
+            <MaterialCommunityIcons
+              name="account-multiple-remove"
+              size={30}
+              color={COLORS.botonPrincipal}
+            />
+          </View>
+          <View style={styles.textosAccesoRapido}>
+            <Text style={styles.tituloAccesoRapido}>Administrar cuentas de personal</Text>
+            <Text style={styles.descripcionAccesoRapido}>
+              Consultar agentes y colaboradores, y eliminar sus cuentas.
+            </Text>
+          </View>
+          <MaterialCommunityIcons name="chevron-right" size={24} color={COLORS.textoSecundario} />
+        </TouchableOpacity>
+
         {/* Sección Auditoría de Actividad */}
         <Text style={styles.tituloSeccion}>Últimas Acciones del Personal</Text>
         <View style={styles.contenedorAuditoria}>
@@ -306,6 +466,99 @@ export const AdminHomeScreen: React.FC = () => {
           </View>
         </View>
       </ScrollView>
+
+      <Modal
+        visible={perfilVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => {
+          if (!guardandoPerfil && !procesandoFoto) setPerfilVisible(false);
+        }}
+      >
+        <View style={styles.fondoModal}>
+          <View style={styles.contenedorModal}>
+            <View style={styles.encabezadoModal}>
+              <View>
+                <Text style={styles.tituloModal}>Mi perfil</Text>
+                <Text style={styles.subtituloModal}>Actualiza tu nombre y foto</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.botonCerrarModal}
+                onPress={() => setPerfilVisible(false)}
+                disabled={guardandoPerfil || procesandoFoto}
+                accessibilityRole="button"
+                accessibilityLabel="Cerrar edición de perfil"
+              >
+                <MaterialCommunityIcons name="close" size={24} color={COLORS.textoSecundario} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.editorFotoPerfil}>
+              {fotoPerfil ? (
+                <Image source={{ uri: fotoPerfil }} style={styles.fotoPerfilAdmin} />
+              ) : (
+                <View style={styles.fotoPerfilAdmin}>
+                  <MaterialCommunityIcons
+                    name="account-tie"
+                    size={42}
+                    color={COLORS.textoSecundario}
+                  />
+                </View>
+              )}
+              <View style={styles.accionesFotoPerfil}>
+                <TouchableOpacity
+                  style={styles.botonFotoPerfil}
+                  onPress={() => void seleccionarFotoPerfil('camera')}
+                  disabled={procesandoFoto || guardandoPerfil}
+                >
+                  <MaterialCommunityIcons name="camera-outline" size={18} color={COLORS.botonPrincipal} />
+                  <Text style={styles.textoBotonFotoPerfil}>Tomar foto</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.botonFotoPerfil}
+                  onPress={() => void seleccionarFotoPerfil('gallery')}
+                  disabled={procesandoFoto || guardandoPerfil}
+                >
+                  <MaterialCommunityIcons name="image-outline" size={18} color={COLORS.botonPrincipal} />
+                  <Text style={styles.textoBotonFotoPerfil}>Elegir de galería</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {procesandoFoto ? (
+              <ActivityIndicator color={COLORS.botonPrincipal} style={styles.procesandoPerfil} />
+            ) : null}
+
+            <Text style={styles.etiquetaCampoPerfil}>Nombre</Text>
+            <TextInput
+              style={styles.inputPerfil}
+              value={nombrePerfil}
+              onChangeText={setNombrePerfil}
+              placeholder="Nombre del administrador"
+              placeholderTextColor={COLORS.textoDesactivado}
+              autoCapitalize="words"
+              maxLength={80}
+              editable={!guardandoPerfil && !procesandoFoto}
+              accessibilityLabel="Nombre del administrador"
+            />
+
+            <TouchableOpacity
+              style={[
+                styles.botonGuardarPerfil,
+                (guardandoPerfil || procesandoFoto) && styles.botonPerfilDeshabilitado,
+              ]}
+              onPress={() => void guardarPerfilAdmin()}
+              disabled={guardandoPerfil || procesandoFoto}
+            >
+              {guardandoPerfil ? (
+                <ActivityIndicator color={COLORS.superficieTarjeta} />
+              ) : (
+                <Text style={styles.textoGuardarPerfil}>Guardar cambios</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       <Modal
         visible={bandejaVisible}
@@ -435,6 +688,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: SPACING.sm,
+    overflow: 'hidden',
   },
   textosBienvenida: {
     flex: 1,
@@ -447,6 +701,73 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: COLORS.textoVerdeOscuro,
+  },
+  editorFotoPerfil: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.md,
+    marginBottom: SPACING.md,
+  },
+  fotoPerfilAdmin: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: COLORS.fondoTarjeta,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  accionesFotoPerfil: {
+    flex: 1,
+    gap: SPACING.xs,
+  },
+  botonFotoPerfil: {
+    minHeight: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xs,
+    paddingHorizontal: SPACING.sm,
+    borderRadius: BORDER_RADIUS.sm,
+    backgroundColor: COLORS.fondoTarjeta,
+  },
+  textoBotonFotoPerfil: {
+    color: COLORS.textoVerdeOscuro,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  procesandoPerfil: {
+    marginBottom: SPACING.sm,
+  },
+  etiquetaCampoPerfil: {
+    marginBottom: SPACING.xs,
+    color: COLORS.textoVerdeOscuro,
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  inputPerfil: {
+    minHeight: 48,
+    borderWidth: 1,
+    borderColor: COLORS.bordeSuave,
+    borderRadius: BORDER_RADIUS.sm,
+    backgroundColor: COLORS.fondoAplicacion,
+    color: COLORS.textoVerdeOscuro,
+    paddingHorizontal: SPACING.sm,
+    fontSize: 15,
+  },
+  botonGuardarPerfil: {
+    minHeight: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: SPACING.md,
+    borderRadius: BORDER_RADIUS.sm,
+    backgroundColor: COLORS.botonPrincipal,
+  },
+  botonPerfilDeshabilitado: {
+    opacity: 0.6,
+  },
+  textoGuardarPerfil: {
+    color: COLORS.superficieTarjeta,
+    fontSize: 15,
+    fontWeight: '700',
   },
   botonSalir: {
     flexDirection: 'row',

@@ -125,6 +125,7 @@
 - [X] T022 [US1] Permitir reasignar un caso `EN_SANEAMIENTO` de forma atómica a un agente distinto y libre, conservando el estado del saneamiento; mostrar como no elegibles agentes ocupados y probar la transferencia y el rechazo por caso activo en `server/src/controllers/denuncias.controller.ts`, `server/src/__tests__/admin-assignment.test.ts` y `client/src/screens/admin/AdminDenunciasScreen.tsx`.
 - [X] T023 [US2] Separar conexión y ocupación: persistir/recuperar el estado de servicio del agente, permitir GPS durante un caso activo y mostrar `Conectado · Ocupado` en las vistas de agente y administrador en `server/src/controllers/agentes.controller.ts`, `server/src/routes/agentes.routes.ts`, `client/src/services/adminService.ts`, `client/src/screens/agente/AgentHomeScreen.tsx` y `client/src/screens/admin/AdminAgentesScreen.tsx`.
 - [X] T024 [US1] Añadir al inicio administrativo una bienvenida y una bandeja de alertas para reportes nuevos, validaciones pendientes y certificaciones de saneamiento, con actualización periódica, persistencia de lectura y navegación por estado en `client/src/screens/admin/AdminHomeScreen.tsx` y `client/src/utils/adminNotifications.ts`; cubrir la selección de alertas con pruebas unitarias.
+- [X] T025 [US2] Unificar el logo institucional, la bienvenida con nombre, la leyenda municipal y el botón de salida a la derecha en un único encabezado fijo; mantener el estado de servicio en una sección separada debajo en `client/src/screens/agente/AgentHomeScreen.tsx`.
 
 ---
 

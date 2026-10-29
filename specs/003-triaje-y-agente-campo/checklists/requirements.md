@@ -38,6 +38,7 @@
 - [x] **US4 - Liberación y Desasignación Inteligente (`PATCH /api/denuncias/:id/liberar`)**: Botón `"Liberar / Abandonar Caso"` en `AgentHomeScreen` y `"Liberar a Bolsa"` en `AdminDenunciasScreen` / `AdminAgentesScreen`, retornando a `APROBADO` si aún no fue verificado o manteniendo `EN_SANEAMIENTO` si ya había sido validado.
 - [x] **US1 - Lógica de alertas administrativas**: Pruebas unitarias verifican que la bandeja incluya `PENDIENTE`, `VERIFICADO_PENDIENTE` y `RESUELTO_TECNICO`, excluya estados sin acción administrativa y calcule correctamente el indicador de no leído.
 - [ ] **US1 - Verificación visual de bienvenida y notificaciones (`AdminHomeScreen`)**: En Expo Go, confirmar que la bienvenida usa el nombre del Administrador, que la campana abre la bandeja, que cada fila lleva al filtro correcto y que el indicador de lectura se conserva al volver a abrir la aplicación.
+- [ ] **US2 - Encabezado del Agente (`AgentHomeScreen`)**: En Expo Go, confirmar que el encabezado muestra `Agente de campo municipal` y la bienvenida con el nombre del agente, que el botón para salir queda a la derecha y que el estado de servicio aparece debajo con separación visual.
 
 ## Notes
 

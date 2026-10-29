@@ -28,6 +28,7 @@ interface ServerAuthResponse {
     role?: string;
     puntos?: number;
     points?: number;
+    fotoPerfilUri?: string | null;
     creadoEn?: string;
     createdAt?: string;
   };
@@ -136,6 +137,7 @@ export class RemoteAuthRepository implements IAuthRepository {
         email: serverUser.email,
         role: normalizedRole,
         points: serverUser.puntos ?? serverUser.points ?? 0,
+        fotoPerfilUri: serverUser.fotoPerfilUri ?? null,
         createdAt: serverUser.creadoEn ?? serverUser.createdAt,
       },
     };

@@ -3,8 +3,11 @@
 import { Request, Response } from 'express';
 import { EstadoDenuncia, Prisma, PrismaClient, Role } from '@prisma/client';
 import { distanceBetweenCoordinates, isValidCoordinatePair } from '../utils/geo';
+import { hashPassword } from '../utils/password';
+import { isValidProfilePhotoDataUri } from '../utils/profilePhoto';
 
 const prisma = new PrismaClient();
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // 1. Obtener la lista de agentes de campo con sus casos asignados
 export const obtenerAgentes = async (req: Request, res: Response): Promise<void> => {
@@ -306,24 +309,48 @@ export const obtenerAgentesDisponiblesParaDenuncia = async (
 // 3. Registrar un nuevo agente de campo para el municipio
 export const crearAgente = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { nombre, email, password } = req.body;
+    const nombre = typeof req.body?.nombre === 'string' ? req.body.nombre.trim() : '';
+    const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+    const password = typeof req.body?.password === 'string' ? req.body.password : '';
+    const fotoPerfilUri = req.body?.fotoPerfilUri;
     const municipioId = req.auth!.municipioId;
 
-    if (!nombre || !email || !password) {
+    if (nombre.length < 2 || nombre.length > 80) {
       res.status(400).json({
         success: false,
-        message: 'Faltan datos obligatorios para registrar al agente',
+        message: 'El nombre debe tener entre 2 y 80 caracteres',
       });
       return;
     }
 
-    // Verificar si el correo ya está registrado
-    const existeUsuario = await prisma.user.findUnique({
-      where: { email: email.trim().toLowerCase() },
+    if (!EMAIL_PATTERN.test(email)) {
+      res.status(400).json({ success: false, message: 'El correo electrónico no es válido' });
+      return;
+    }
+
+    if (password.length < 8) {
+      res.status(400).json({
+        success: false,
+        message: 'La contraseña debe tener al menos 8 caracteres',
+      });
+      return;
+    }
+
+    if (!isValidProfilePhotoDataUri(fotoPerfilUri)) {
+      res.status(400).json({
+        success: false,
+        message: 'Toma una foto válida del agente para completar el alta',
+      });
+      return;
+    }
+
+    const existeUsuario = await prisma.user.findFirst({
+      where: { email: { equals: email, mode: 'insensitive' } },
+      select: { id: true },
     });
 
     if (existeUsuario) {
-      res.status(400).json({
+      res.status(409).json({
         success: false,
         message: 'Ya existe un usuario o agente registrado con ese correo electrónico',
       });
@@ -332,18 +359,20 @@ export const crearAgente = async (req: Request, res: Response): Promise<void> =>
 
     const nuevoAgente = await prisma.user.create({
       data: {
-        nombre: nombre.trim(),
-        email: email.trim().toLowerCase(),
-        passwordHash: password.trim(),
+        nombre,
+        email,
+        passwordHash: await hashPassword(password),
         rol: Role.AGENT,
         disponible: false,
         municipioId,
+        fotoPerfilUri,
       },
       select: {
         id: true,
         nombre: true,
         email: true,
         disponible: true,
+        fotoPerfilUri: true,
       },
     });
 
@@ -354,6 +383,18 @@ export const crearAgente = async (req: Request, res: Response): Promise<void> =>
     });
   } catch (error) {
     console.error('Error al crear agente:', error);
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      error.code === 'P2002'
+    ) {
+      res.status(409).json({
+        success: false,
+        message: 'Ya existe un usuario o agente registrado con ese correo electrónico',
+      });
+      return;
+    }
     res.status(500).json({
       success: false,
       message: 'Error interno al dar de alta al nuevo agente',

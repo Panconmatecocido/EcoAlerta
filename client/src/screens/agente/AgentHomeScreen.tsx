@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
+  Image,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
@@ -12,7 +13,7 @@ import {
   Linking,
   RefreshControl,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { useAuth } from '../../context/AuthContext';
@@ -26,7 +27,6 @@ import { TechnicalClosureModal } from '../../components/agent/TechnicalClosureMo
 import { TransactionLoaderModal } from '../../components/common/TransactionLoaderModal';
 import { fieldAgentRepository, CasoCampo } from '../../repositories/agent';
 import { adminService } from '../../services/adminService';
-import Header from '../../components/Header';
 
 type PestanaAgente = 'BOLSA' | 'ACTIVO';
 type FiltroPrioridadBolsa = 'TODAS' | PrioridadCaso;
@@ -55,6 +55,7 @@ const ordenarBolsaPorPrioridad = (casos: CasoCampo[]): CasoCampo[] => {
 };
 
 export const AgentHomeScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
   const { user: usuario, logout: cerrarSesion } = useAuth();
   const agenteId = usuario?.id || 'agent-user-1';
 
@@ -450,7 +451,6 @@ export const AgentHomeScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={estilos.contenedor} edges={['left', 'right', 'bottom']}>
-      <Header showActions={false} />
       <StatusBar barStyle="dark-content" />
 
       {/* Spinner Bloqueante de Transacción en Base de Datos (RNF-10) */}
@@ -459,6 +459,97 @@ export const AgentHomeScreen: React.FC = () => {
         mensaje={mensajeTransaccion}
         submensaje="Por favor espera, no cierres ni presiones otros botones"
       />
+
+      {/* Cabecera unificada con logo, bienvenida y cierre de sesión */}
+      <View
+        style={[
+          estilos.cabecera,
+          { paddingTop: Math.max(insets.top, 12) + SPACING.sm },
+        ]}
+      >
+        <View style={estilos.logoCabecera}>
+          <MaterialCommunityIcons
+            name="leaf"
+            size={24}
+            color={COLORS.botonPrincipal}
+            style={estilos.iconoLogoCabecera}
+          />
+          <Text style={estilos.textoLogoCabecera}>ECO ALERTA</Text>
+        </View>
+        <View style={estilos.filaCabecera}>
+          {usuario?.fotoPerfilUri ? (
+            <Image
+              source={{ uri: usuario.fotoPerfilUri }}
+              style={estilos.fotoPerfilAgente}
+              accessibilityLabel="Foto de perfil del agente"
+            />
+          ) : (
+            <View style={estilos.fotoPerfilAgente}>
+              <MaterialCommunityIcons
+                name="account"
+                size={ICON_SIZE.lg}
+                color={COLORS.textoSecundario}
+              />
+            </View>
+          )}
+          <View style={estilos.infoCabecera}>
+            <Text style={estilos.etiquetaRol}>Agente de campo municipal</Text>
+            <Text style={estilos.nombreAgente} numberOfLines={1} ellipsizeMode="tail">
+              ¡Bienvenido, {usuario?.name || 'Inspector Municipal'}!
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => {
+              void cerrarSesion('login').catch((error: unknown) => {
+                Alert.alert(
+                  'No se pudo cerrar sesión',
+                  error instanceof Error ? error.message : 'Inténtalo nuevamente.'
+                );
+              });
+            }}
+            style={estilos.botonSalir}
+            disabled={transaccionEnCurso}
+            accessibilityRole="button"
+            accessibilityLabel="Cerrar sesión"
+          >
+            <Ionicons name="log-out-outline" size={ICON_SIZE.md} color={COLORS.textoPeligro} />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Estado de servicio separado visualmente de la cabecera */}
+      <View style={estilos.contenedorEstado}>
+        <View style={estilos.tarjetaEstado}>
+          <View style={estilos.infoEstado}>
+            <View
+              style={[
+                estilos.indicadorPunto,
+                {
+                  backgroundColor: enServicio
+                    ? COLORS.botonPrincipal
+                    : COLORS.textoDesactivado,
+                },
+              ]}
+            />
+            <Text style={estilos.textoEstado}>
+              {enServicio
+                ? casoActivo
+                  ? 'Conectado · Ocupado'
+                  : 'Conectado · Disponible'
+                : casoActivo
+                  ? 'Fuera de servicio · Ocupado'
+                  : 'Fuera de Servicio'}
+            </Text>
+          </View>
+          <Switch
+            value={enServicio}
+            onValueChange={alternarServicio}
+            disabled={transaccionEnCurso}
+            trackColor={{ false: COLORS.bordeSuave, true: COLORS.fondoEncabezado }}
+            thumbColor={enServicio ? COLORS.botonPrincipal : COLORS.textoDesactivado}
+          />
+        </View>
+      </View>
 
       <ScrollView
         contentContainerStyle={estilos.contenidoScroll}
@@ -470,62 +561,6 @@ export const AgentHomeScreen: React.FC = () => {
           />
         }
       >
-        {/* Cabecera del Inspector */}
-        <View style={estilos.cabecera}>
-          <View style={estilos.filaCabecera}>
-            <View>
-              <Text style={estilos.etiquetaRol}>AGENTE DE CAMPO MUNICIPAL</Text>
-              <Text style={estilos.nombreAgente}>{usuario?.name || 'Inspector Municipal'}</Text>
-            </View>
-            <TouchableOpacity
-onPress={() => {
-                void cerrarSesion('login').catch((error: unknown) => {
-                  Alert.alert(
-                    'No se pudo cerrar sesión',
-                    error instanceof Error ? error.message : 'Inténtalo nuevamente.'
-                  );
-                });
-              }}
-              style={estilos.botonSalir}
-              disabled={transaccionEnCurso}
-            >
-              <Ionicons name="log-out-outline" size={ICON_SIZE.md} color={COLORS.textoPeligro} />
-            </TouchableOpacity>
-          </View>
-
-          {/* Switch de Disponibilidad */}
-          <View style={estilos.tarjetaEstado}>
-            <View style={estilos.infoEstado}>
-              <View
-                style={[
-                  estilos.indicadorPunto,
-                  {
-                    backgroundColor: enServicio
-                      ? COLORS.botonPrincipal
-                      : COLORS.textoDesactivado,
-                  },
-                ]}
-              />
-              <Text style={estilos.textoEstado}>
-                {enServicio
-                  ? casoActivo
-                    ? 'Conectado · Ocupado'
-                    : 'Conectado · Disponible'
-                  : casoActivo
-                    ? 'Fuera de servicio · Ocupado'
-                    : 'Fuera de Servicio'}
-              </Text>
-            </View>
-            <Switch
-              value={enServicio}
-              onValueChange={alternarServicio}
-              disabled={transaccionEnCurso}
-              trackColor={{ false: COLORS.bordeSuave, true: COLORS.fondoEncabezado }}
-              thumbColor={enServicio ? COLORS.botonPrincipal : COLORS.textoDesactivado}
-            />
-          </View>
-        </View>
-
         {/* Selector de Pestañas: Bolsa General vs. Mi Caso Activo (1 a 1) */}
         <View style={estilos.contenedorPestanas}>
           <TouchableOpacity
@@ -901,31 +936,71 @@ const estilos = StyleSheet.create({
   },
   cabecera: {
     backgroundColor: COLORS.fondoEncabezado,
-    padding: SPACING.md,
+    paddingHorizontal: SPACING.md,
+    paddingBottom: SPACING.md,
     borderBottomLeftRadius: BORDER_RADIUS.lg,
     borderBottomRightRadius: BORDER_RADIUS.lg,
   },
-  filaCabecera: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  logoCabecera: {
     alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: SPACING.md,
   },
+  iconoLogoCabecera: {
+    marginBottom: -4,
+    transform: [{ rotate: '-10deg' }],
+  },
+  textoLogoCabecera: {
+    fontSize: 20,
+    fontWeight: '800',
+    letterSpacing: 1.2,
+    color: COLORS.textoLogo,
+  },
+  filaCabecera: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+  },
+  fotoPerfilAgente: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.superficieTarjeta,
+    borderWidth: 1,
+    borderColor: COLORS.bordeSuave,
+  },
+  infoCabecera: {
+    flex: 1,
+  },
   etiquetaRol: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '700',
     color: COLORS.textoVerde,
-    letterSpacing: 0.8,
+    textTransform: 'capitalize',
   },
   nombreAgente: {
     fontSize: 20,
     fontWeight: '700',
     color: COLORS.textoVerdeOscuro,
+    marginTop: SPACING.xs,
   },
   botonSalir: {
-    padding: SPACING.xs,
+    width: 42,
+    height: 42,
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: COLORS.fondoPeligro,
     borderRadius: BORDER_RADIUS.sm,
+    borderWidth: 1,
+    borderColor: COLORS.bordePeligro,
+    marginLeft: SPACING.sm,
+  },
+  contenedorEstado: {
+    marginTop: SPACING.sm,
+    marginHorizontal: SPACING.md,
+    marginBottom: SPACING.sm,
   },
   tarjetaEstado: {
     flexDirection: 'row',
