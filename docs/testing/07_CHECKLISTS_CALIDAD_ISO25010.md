@@ -3,7 +3,13 @@
 **Cátedra:** Testing & Calidad de Software — UNPilar 2026  
 **Profesor Titular:** Mg. Pedro Brest  
 **Unidad Temática:** Unidad 4 / 5 — Herramientas de Calidad, Indicadores y Testware (ISO/IEC 25010)  
-**Auditor / QA Lead:** Raul Escobar (DNI: 37.769.126)  
+**Equipo Evaluador (5 integrantes):**  
+- **Escobar Raul** (Scrum Master - Moderador del Peer Review)  
+- **Benitez Facundo** (Analista de QA - Autor del Testware Evaluado)  
+- **Rodriguez Iván** (Desarrollador FrontEnd - Revisor Par Técnico UI)  
+- **Benitez Angel** (Desarrollador BackEnd - Revisor Par Técnico Server)  
+- **Kuhn Joaquin** (Diseñador UI/UX - Revisor Par Usabilidad ISO 25010)  
+**Período de Evaluación:** 25 de agosto al 02 de noviembre de 2026  
 **Versión:** 2.0 (Auditoría Académica Formal)  
 
 ---
