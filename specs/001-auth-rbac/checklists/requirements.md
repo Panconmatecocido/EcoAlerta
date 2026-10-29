@@ -52,3 +52,5 @@
 - [ ] Verify that Editar Perfil opens the profile, allows changing name and photo, persists the name, and keeps email read-only.
 - [ ] Verify that Notificaciones in Más opens current report/redemption activity, Centro de Ayuda displays FAQs, and Términos y Privacidad clearly labels its content as a draft pending official review.
 - [ ] Verify that the shared Eco Alerta logo header appears once on every guest, citizen, agent, administrator, and collaborator screen, including secondary screens, and respects device safe areas.
+- [ ] Verify on a device that the status bar's time, battery, signal, and notification indicators use dark foregrounds and remain legible on every role's screens.
+- [ ] Sign out as a collaborator and verify the app opens Login directly instead of the guest Home; verify a session-clear failure displays an error.
