@@ -2,13 +2,19 @@
 ## Proyecto: EcoAlerta — Aplicación Móvil de Gestión Ambiental Ciudadana y Tienda de Recompensas
 **Cátedra:** Testing & Calidad de Software — UNPilar 2026  
 **Profesor:** Mg. Pedro Brest  
+**Equipo de Proyecto (5 integrantes):**  
+- **Escobar Raul** (Scrum Master - Aprobador y Auditor de Testware)  
+- **Benitez Facundo** (Analista de QA - Diseñador y Ejecutor de Casos de Prueba)  
+- **Rodriguez Iván** (Desarrollador FrontEnd - Pantallas Móviles y Corrección de Bugs UI)  
+- **Benitez Angel** (Desarrollador BackEnd - API REST, Concurrencia y Corrección de Bugs Server)  
+- **Kuhn Joaquin** (Diseñador UI/UX - Maquetación y Usabilidad)  
 **Estándar:** IEEE 829 / ISO/IEC/IEEE 29119 Test Documentation  
 **Versión:** 2.0 (Exactitud Milimétrica sin Ambigüedades)  
 
 ---
 
 ## 🔐 MÓDULO 1: AUTENTICACIÓN, MODO INVITADO, CUENTAS Y ROLES (RBAC)
-**Responsable Técnico de Corrección:** `Dev Módulo 1 (Auth & RBAC)`
+**Responsables Técnicos de Corrección:** **Rodriguez Iván** (FrontEnd) / **Benitez Angel** (BackEnd)
 
 ---
 
@@ -272,9 +278,9 @@
 
 ## 🌿 MÓDULO 2: CICLO DE VIDA DEL REPORTE AMBIENTAL
 **Responsables Técnicos de Corrección:**
-- Creación, Cámara y GPS: `Dev Módulo 2A (Reporte Ciudadano)`
-- Triaje, Asignación y Visitas: `Dev Módulo 2B (Triaje & Agente Campo)`
-- Puntos, Saneamiento y Certificación: `Dev Módulo 2C (Saneamiento & Puntos)`
+- Creación, Cámara y GPS: **Rodriguez Iván** (FrontEnd) / **Kuhn Joaquin** (UI/UX)
+- Triaje, Asignación y Visitas: **Benitez Angel** (BackEnd) / **Rodriguez Iván** (FrontEnd)
+- Puntos, Saneamiento y Certificación: **Benitez Angel** (BackEnd)
 
 ---
 
@@ -704,8 +710,8 @@
 
 ## 🛒 MÓDULO 3: TIENDA ECOLÓGICA, CARRITO, CHECKOUT CON RESERVA TTL Y ENTREGA
 **Responsables Técnicos de Corrección:**
-- Tienda, Carrito y Checkout: `Dev Módulo 3A (Tienda & Carrito)`
-- Entrega Colaborador y Expiración: `Dev Módulo 3B (Colaborador & Entrega)`
+- Tienda, Carrito y Checkout: **Rodriguez Iván** (FrontEnd) / **Benitez Angel** (BackEnd)
+- Entrega Colaborador y Expiración: **Rodriguez Iván** (FrontEnd) / **Benitez Angel** (BackEnd)
 
 ---
 

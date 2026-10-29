@@ -3,10 +3,16 @@
 **Institución:** Universidad Nacional de Pilar (UNPilar)  
 **Cátedra:** Testing & Calidad de Software — Año 2026  
 **Profesor Titular:** Mg. Pedro Brest  
-**Estudiante / QA Lead:** Raul Escobar (DNI: 37.769.126)  
+**Equipo de Proyecto (5 integrantes):**  
+- **Escobar Raul** (Scrum Master / Delivery Lead - DNI: 37.769.126)  
+- **Kuhn Joaquin** (Diseñador UI/UX)  
+- **Rodriguez Iván** (Desarrollador FrontEnd)  
+- **Benitez Angel** (Desarrollador BackEnd)  
+- **Benitez Facundo** (Analista de QA)  
 **Estándar de Referencia:** IEEE 829 / ISO/IEC/IEEE 29119 & ISO/IEC 25010  
+**Cronograma del Proyecto:** 25 de agosto de 2026 (Creación del repositorio GitHub) al 02 de noviembre de 2026 (Entrega Final)  
 **Versión del Plan:** 2.0 (Definitivo para Entrega Académica)  
-**Fecha:** Octubre de 2026  
+**Fecha de Emisión:** 28 de Octubre de 2026  
 
 ---
 
@@ -169,17 +175,15 @@ Conforme a la directiva del proyecto:
 
 ## 7. 👥 Matriz de Roles y Responsabilidades (RACI)
 
-| Rol del Proyecto | Responsabilidades Principales | Responsable de Corrección de Bugs |
-| :--- | :--- | :--- |
-| **Lead QA / Tester Principal** | Diseño de casos de prueba, ejecución de matrices, registro de bugs, control de trazabilidad y emisión del informe de calidad. | *N/A (Detecta y Verifica)* |
-| **Dev Módulo 1 (Auth & RBAC)** | Implementación de pantallas de Login, Registro, Auth Gate, JWT, validadores de formato y control de roles. | **Bugs en HU-INV-01..03, RF-AUT-01..08** |
-| **Dev Módulo 2A (Reporte Ciudadano)** | Creación de reporte, integración de cámara, compresión de fotos `< 1.2 MB`, GPS y soft-delete. | **Bugs en RF-REP-01..07, HU-03, HU-04, HU-VEC01** |
-| **Dev Módulo 2B (Triaje & Agente Campo)** | Triaje admin, control de disponibilidad de agentes, bolsa de casos, bloqueo 1 a 1 y protocolo de 3 visitas. | **Bugs en RF-ADM-01..03b, RF-AGE-01..06, HU-05, HU-08, HU-09** |
-| **Dev Módulo 2C (Saneamiento & Puntos)** | Acreditación atómica de puntos por baremo, liberación/abandono de casos, informe técnico y doble certificación visual. | **Bugs en RF-ADM-04..08, RF-AGE-07..08, HU-07, HU-10, HU-11** |
-| **Dev Módulo 3A (Tienda & Carrito)** | ABM catálogo admin, tienda reactiva, carrito con persistencia local y Checkout con reserva de stock TTL 5 min. | **Bugs en RF-TIE-01..05, HU-05..HU-08** |
-| **Dev Módulo 3B (Colaborador & Entrega)** | Pantalla de entrega colaborador, validación de `codigoRetiro` presencial y job de expiración de canjes a 30 días. | **Bugs en RF-COL-01, RF-TIE-06** |
-| **Dev Backend & Arquitectura BD** | Integridad transaccional Prisma, modelos relacionales, migraciones y endpoints REST. | **Bugs de concurrencia, BD, RNF-01, RNF-03, RNF-04** |
-| **Dev Frontend Mobile UI/UX** | Componente `TransactionLoaderModal`, spinners en filtros de listas, estilos visuales y fluidez de interfaz. | **Bugs de RNF-09, RNF-10, estilos y modales** |
+Conforme al requerimiento de trazabilidad unívoca de calidad, cada integrante del equipo asume responsabilidades directas en la construcción, prueba y corrección de su área funcional:
+
+| Integrante | Rol Oficial en el Proyecto | Responsabilidades Principales | Responsable Directo de Corrección de Defectos |
+| :--- | :--- | :--- | :--- |
+| **Escobar Raul** | **Scrum Master** | Coordinación metodológica Scrum, gestión del alcance y cronograma (PMBOK/CPM), elaboración del Plan Maestro IEEE 829 y Matriz RTM. | Coordinación y control de calidad general |
+| **Benitez Facundo** | **Analista de QA** | Diseño y ejecución de los 57 casos de prueba, automatización Jest/Supertest, colecciones Postman, bitácora de bugs y regresión. | *N/A (Identifica, Documenta y Verifica re-test)* |
+| **Rodriguez Iván** | **Desarrollador FrontEnd** | Desarrollo de pantallas React Native (Expo), Auth Gate, módulo Ciudadano, Tienda, Modales transaccionales y componentes UI. | **Bugs en Módulo 1 (Auth), Módulo 2A (Reportes/Cámara - `BUG-101`), Módulo 3A (Tienda) y UI** |
+| **Benitez Angel** | **Desarrollador BackEnd** | API REST Node.js/Express, TypeScript, Prisma ORM, PostgreSQL en Supabase, transacciones ACID, concurrencia y TTL de canjes. | **Bugs en Módulo 2B (Triaje), Módulo 2C (Puntos), Módulo 3A/3B (Checkout/Reserva - `BUG-102`), BD y APIs** |
+| **Kuhn Joaquin** | **Diseñador UI/UX** | Wireframes, prototipado Figma, pantallas HomeScreen, arquitectura de información, fluidez visual y evaluación ISO/IEC 25010. | **Bugs de Usabilidad, feedback visual, desalineación estética y accesibilidad** |
 
 ---
 

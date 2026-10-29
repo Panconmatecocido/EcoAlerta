@@ -1,32 +1,43 @@
 ID,Nombre_de_Tarea,Duracion,Comienzo,Fin,Predecesoras,Nombres_de_los_recursos,Semaforo
-1,Proyecto EcoAlerta - Plan de Testing y Calidad,24 d,26/10/2026,27/11/2026,,Equipo QA & Devs,Verde
-2,FASE 1: Planificacion y Analisis de Requerimientos,4 d,26/10/2026,30/10/2026,,Lead QA,Verde
-3,A: Relevamiento de BACKLOG y HU,2 d,26/10/2026,27/10/2026,,Lead QA,Verde
-4,B: Definicion de Criterios Gherkin BDD,2 d,28/10/2026,29/10/2026,3,Lead QA / PO,Verde
-5,C: Redaccion del Plan Maestro de Testing (IEEE 829),2 d,30/10/2026,02/11/2026,4,Lead QA,Verde
-6,D: Construccion de la Matriz de Trazabilidad RTM,2 d,03/11/2026,04/11/2026,5,Lead QA,Verde
-7,Hito 1: Alcance y RTM Aprobados,0 d,04/11/2026,04/11/2026,6,Todos,Verde
-8,FASE 2: Diseno y Construccion del Testware,5 d,05/11/2026,11/11/2026,,Equipo QA & Devs,Verde
-9,E: Diseno de Casos M1 (Auth & Roles),2 d,05/11/2026,06/11/2026,6,Dev Modulo 1 / QA,Verde
-10,F: Diseno de Casos M2 (Denuncias y Saneamiento),3 d,05/11/2026,09/11/2026,6,Dev Modulo 2 / QA,Verde
-11,G: Diseno de Casos M3 (Tienda Carrito y TTL),3 d,05/11/2026,09/11/2026,6,Dev Modulo 3 / QA,Verde
-12,H: Configuracion de DB y Semillas Prisma,1 d,28/10/2026,28/10/2026,3,Dev Backend & BD,Verde
-13,I: Armado de Coleccion Postman y Fixtures Jest,2 d,10/11/2026,11/11/2026,"9,10,11,12",Lead QA,Verde
-14,Hito 2: Testware y Fixtures Listos,0 d,11/11/2026,11/11/2026,13,Todos,Verde
-15,FASE 3: Ejecucion de Pruebas Backend y Concurrencia,4 d,12/11/2026,17/11/2026,,Equipo QA & Backend,Verde
-16,J: Ejecucion de Suites Unitarias en Jest,2 d,12/11/2026,13/11/2026,13,Lead QA / Devs,Verde
-17,K: Ejecucion de API REST en Postman,2 d,12/11/2026,13/11/2026,13,Lead QA,Verde
-18,L: Pruebas de Toma Concurrente 1 a 1 de Agentes,2 d,16/11/2026,17/11/2026,"16,17",Dev Modulo 2B / QA,Verde
-19,M: Pruebas de Reserva Concurrente TTL en Checkout,2 d,16/11/2026,17/11/2026,"16,17",Dev Modulo 3A / QA,Verde
-20,Hito 3: Backend y Concurrencia Validados,0 d,17/11/2026,17/11/2026,"18,19",Todos,Verde
-21,FASE 4: Ejecucion de Pruebas UI E2E y Experiencia,4 d,18/11/2026,23/11/2026,,Equipo QA & Frontend,Verde
-22,N: Pruebas de Modo Invitado y Auth Gate (< 100 ms),1 d,18/11/2026,18/11/2026,16,Dev Modulo 1 / QA,Verde
-23,O: Pruebas de TransactionLoaderModal y Spinners,1 d,18/11/2026,18/11/2026,16,Dev Frontend Mobile,Verde
-24,P: Recorrido E2E Modulo Denuncias y Saneamiento,2 d,19/11/2026,20/11/2026,"18,22,23",Lead QA,Verde
-25,Q: Recorrido E2E Modulo Tienda y Entrega Retiro,2 d,19/11/2026,20/11/2026,"19,22,23",Lead QA,Verde
-26,FASE 5: Cierre Correccion de Defectos y Entrega,4 d,23/11/2026,27/11/2026,,Equipo Completo,Verde
-27,R: Correccion de Bugs por Dev del Modulo,2 d,23/11/2026,24/11/2026,"24,25",Dev Modulo 2A / 3A,Verde
-28,S: Re-test de Confirmacion y Cierre de Defectos,1 d,25/11/2026,25/11/2026,27,Lead QA,Verde
-29,T: Evaluacion de Checklists ISO 25010 y Peer Review,1 d,26/11/2026,26/11/2026,28,Lead QA / PO,Verde
-30,U: Emision del Testware Final y Planilla Excel,1 d,27/11/2026,27/11/2026,29,Lead QA,Verde
-31,Hito 5: Dictamen de Calidad y Entrega Final,0 d,27/11/2026,27/11/2026,30,Mg. Pedro Brest,Verde
+1,Proyecto EcoAlerta - Ciclo de Vida y Testware de Calidad,70 d,25/08/2026,02/11/2026,,Equipo Completo,Verde
+2,FASE 1: Setup Arquitectura y Prototipos UI/UX,14 d,25/08/2026,07/09/2026,,Rodriguez / Kuhn / Benitez A / Escobar,Verde
+3,A: Setup inicial y arquitectura client/server monorepo,4 d,25/08/2026,28/08/2026,,Rodriguez Iván,Verde
+4,B: Wireframes y maquetacion UI/UX HomeScreen inicial,5 d,26/08/2026,30/08/2026,3,Kuhn Joaquin,Verde
+5,C: Setup Backend Express TypeScript y Prisma ORM,5 d,27/08/2026,31/08/2026,3,Benitez Angel,Verde
+6,D: Contexto de Carrito y navegacion inicial,4 d,30/08/2026,02/09/2026,5,Rodriguez Iván / Benitez Angel,Verde
+7,E: Estandares Scrum y alineacion de calidad,5 d,01/09/2026,05/09/2026,4,Escobar Raul / Benitez Facundo,Verde
+8,Hito 1: Cimientos de Arquitectura y UI Aprobados,0 d,07/09/2026,07/09/2026,7,Equipo Completo,Verde
+9,FASE 2: Desarrollo Core Frontend y Modulos Base,23 d,08/09/2026,30/09/2026,,Rodriguez / Kuhn / Benitez F,Verde
+10,F: Pantallas Perfil y MasScreen con mockups,4 d,08/09/2026,11/09/2026,8,Rodriguez Iván,Verde
+11,G: Modulo Operativo Agente de Campo y vistas,6 d,08/09/2026,13/09/2026,8,Rodriguez Iván,Verde
+12,H: Integracion camara nativa Expo y selector galeria,5 d,09/09/2026,13/09/2026,10,Kuhn Joaquin / Rodriguez Iván,Verde
+13,I: Refinamiento visual UI de Tienda y Carrito,6 d,11/09/2026,16/09/2026,12,Kuhn Joaquin,Verde
+14,J: Integracion Home Administrador Municipal,10 d,20/09/2026,29/09/2026,13,Rodriguez Iván / Kuhn Joaquin,Verde
+15,K: Revision de usabilidad y pruebas exploratorias,6 d,25/09/2026,30/09/2026,14,Benitez Facundo / Escobar Raul,Verde
+16,Hito 2: Interfaces Core y Mockups Integrados,0 d,30/09/2026,30/09/2026,15,Equipo Completo,Verde
+17,FASE 3: Especificacion Formal SDD Base de Datos y Backend,18 d,01/10/2026,18/10/2026,,Benitez A / Escobar / Rodriguez,Verde
+18,L: Migracion a Supabase PostgreSQL y Prisma ORM,14 d,01/10/2026,14/10/2026,16,Benitez Angel,Verde
+19,M: Adopcion Spec-Driven Development y Backlog HU,2 d,14/10/2026,15/10/2026,18,Escobar Raul,Verde
+20,N: Endpoints REST Triaje Asignacion y Concurrencia,4 d,15/10/2026,18/10/2026,19,Benitez Angel,Verde
+21,O: Integracion Servicios REST y Cliente Movil,4 d,15/10/2026,18/10/2026,19,Rodriguez Iván,Verde
+22,P: Acreditacion de Puntos Saneamiento y Canjes,3 d,16/10/2026,18/10/2026,20,Benitez Angel / Rodriguez Iván,Verde
+23,Hito 3: Backend Supabase y Modulos 001-006 Conectados,0 d,18/10/2026,18/10/2026,22,Equipo Completo,Verde
+24,FASE 4: Finalizacion de Modulos Testware y Correccion Bugs,10 d,19/10/2026,28/10/2026,,Equipo Completo,Verde
+25,Q: Cierre Modulo 001 Auth RBAC y Logout Seguro,3 d,19/10/2026,21/10/2026,23,Rodriguez Iván / Benitez Angel,Verde
+26,R: Cierre Modulo 002 Reporte Ciudadano y GPS,4 d,21/10/2026,24/10/2026,25,Rodriguez Iván / Kuhn Joaquin,Verde
+27,S: Upgrade Expo SDK 58 y Resiliencia de Red,3 d,24/10/2026,26/10/2026,26,Escobar Raul / Rodriguez Iván,Verde
+28,T: Plan Maestro de Testing IEEE 829 y Matriz RTM,2 d,26/10/2026,27/10/2026,27,Escobar Raul / Benitez Facundo,Verde
+29,U: Diseno de 57 Casos de Prueba Detallados,2 d,26/10/2026,27/10/2026,27,Benitez Facundo,Verde
+30,V: Correccion de BUG-101 en Compresion de Imagen,2 d,27/10/2026,28/10/2026,29,Rodriguez Iván (FrontEnd),Verde
+31,W: Correccion de BUG-102 en Reserva Stock Concurrente,2 d,27/10/2026,28/10/2026,29,Benitez Angel (BackEnd),Verde
+32,Hito 4: Testware y Defectos 100% Corregidos,0 d,28/10/2026,28/10/2026,"30,31",Equipo Completo,Verde
+33,FASE 5: Ejecucion de Pruebas E2E Regresion y Aceptacion,4 d,28/10/2026,31/10/2026,,Benitez F / Rodriguez / Angel / Kuhn,Amarillo
+34,X: Ejecucion de Suites E2E y Pruebas de Regresion,2 d,28/10/2026,29/10/2026,32,Benitez Facundo,Amarillo
+35,Y: Validacion Integral Flujo Completo Admin Agente,2 d,29/10/2026,30/10/2026,34,Rodriguez Iván / Benitez Angel,Azul
+36,Z: Revision de Usabilidad y Feedback Visual en Dispositivo,2 d,30/10/2026,31/10/2026,35,Kuhn Joaquin / Benitez Facundo,Azul
+37,Hito 5: Pruebas E2E y Regresion Conformes,0 d,31/10/2026,31/10/2026,36,Equipo Completo,Azul
+38,FASE 6: Certificacion ISO 25010 y Entrega Final Academica,3 d,31/10/2026,02/11/2026,,Equipo Completo,Azul
+39,AA: Evaluacion Checklists ISO 25010 y Peer Review,2 d,31/10/2026,01/11/2026,37,Equipo Completo,Azul
+40,AB: Consolidacion de Testware Final y Planilla Excel en Drive,1 d,01/11/2026,01/11/2026,39,Escobar Raul / Benitez Facundo,Azul
+41,AC: Presentacion y Entrega Final ante la Catedra,1 d,02/11/2026,02/11/2026,40,Equipo Completo / Mg. Pedro Brest,Azul
+42,Hito 6: Dictamen de Aprobacion de Calidad,0 d,02/11/2026,02/11/2026,41,Mg. Pedro Brest,Azul

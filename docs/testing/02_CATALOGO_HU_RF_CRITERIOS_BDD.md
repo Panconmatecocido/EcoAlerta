@@ -2,13 +2,19 @@
 ## Proyecto: EcoAlerta — Aplicación Móvil de Gestión Ambiental Ciudadana y Tienda de Recompensas
 **Cátedra:** Testing & Calidad de Software — UNPilar 2026  
 **Profesor:** Mg. Pedro Brest  
+**Equipo de Proyecto (5 integrantes):**  
+- **Escobar Raul** (Scrum Master - Coordinación y RTM)  
+- **Kuhn Joaquin** (Diseñador UI/UX - Experiencia y Maquetación)  
+- **Rodriguez Iván** (Desarrollador FrontEnd - Pantallas React Native y Lógica Móvil)  
+- **Benitez Angel** (Desarrollador BackEnd - API Express, Prisma ORM y PostgreSQL)  
+- **Benitez Facundo** (Analista de QA - Especificación BDD, Casos de Prueba y Verificación)  
 **Estándar:** Agile User Stories, BDD (Gherkin Specification) & ISO/IEC 25010  
 **Versión:** 2.0 (Definitivo sin ambigüedades)  
 
 ---
 
 ## 🔐 MÓDULO 1: AUTENTICACIÓN, MODO INVITADO, CUENTAS Y ROLES (RBAC)
-**Responsable Técnico del Módulo (Corrección de Defectos):** `Dev Módulo 1 (Auth & RBAC)`
+**Responsables Técnicos del Módulo (Corrección de Defectos):** **Rodriguez Iván** (FrontEnd) / **Benitez Angel** (BackEnd)
 
 ---
 
@@ -158,6 +164,10 @@ Escenario: Intento de registro con contraseñas que no coinciden (Negativo)
 ---
 
 ## 🌿 MÓDULO 2: CICLO DE VIDA COMPLETO DEL REPORTE AMBIENTAL
+**Responsables Técnicos del Módulo (Corrección de Defectos):**
+- **Rodriguez Iván** (FrontEnd): Captura de cámara, compresión `< 1.2 MB`, GPS, vista de reportes y Soft-Delete (`BUG-101`).
+- **Benitez Angel** (BackEnd): Triaje, disponibilidad de agentes, bloqueo atómico 1 a 1, baremo de puntos y doble certificación.
+- **Kuhn Joaquin** (UI/UX): Diseño de flujos de reporte, semáforos de prioridad y feedback visual.
 
 ---
 
@@ -292,6 +302,9 @@ Escenario: Creación exitosa de reporte con imagen comprimida (Camino Feliz)
 ---
 
 ## 🛒 MÓDULO 3: TIENDA ECOLÓGICA, CARRITO, CHECKOUT CON RESERVA TTL Y ENTREGA
+**Responsables Técnicos del Módulo (Corrección de Defectos):**
+- **Rodriguez Iván** (FrontEnd): Catálogo reactivo, carrito local, pantalla de checkout y panel de entrega presencial.
+- **Benitez Angel** (BackEnd): Transacciones atómicas de puntos, reserva TTL de 5 minutos, generación de `codigoRetiro` y job de expiración a 30 días (`BUG-102`).
 
 ---
 
