@@ -20,6 +20,7 @@ import { storeRepository, RedemptionDetail } from '../../repositories/store';
 import { VoucherDetailCard } from '../../components/collaborator/VoucherDetailCard';
 import { TransactionLoaderModal } from '../../components/common/TransactionLoaderModal';
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
+import Header from '../../components/Header';
 
 export const CollaboratorHomeScreen: React.FC = () => {
   const { user, logout } = useAuth();
@@ -123,13 +124,25 @@ export const CollaboratorHomeScreen: React.FC = () => {
       '¿Deseas salir del panel operativo de entregas?',
       [
         { text: 'Cancelar', style: 'cancel' },
-        { text: 'Cerrar Sesión', style: 'destructive', onPress: () => logout() },
+        {
+          text: 'Cerrar Sesión',
+          style: 'destructive',
+          onPress: () => {
+            void logout('login').catch((error: unknown) => {
+              Alert.alert(
+                'No se pudo cerrar sesión',
+                error instanceof Error ? error.message : 'Inténtalo nuevamente.'
+              );
+            });
+          },
+        },
       ]
     );
   };
 
   return (
-    <SafeAreaView style={styles.contenedor}>
+    <SafeAreaView style={styles.contenedor} edges={['left', 'right', 'bottom']}>
+      <Header showActions={false} />
       <StatusBar barStyle="dark-content" />
 
       {/* RNF-10: Modal Bloqueante con Spinner en Transacción de Base de Datos */}
@@ -146,25 +159,6 @@ export const CollaboratorHomeScreen: React.FC = () => {
       >
         {/* Encabezado Institucional Curvo */}
         <View style={styles.encabezadoCurvo}>
-          <View style={styles.encabezadoFilaSuperior}>
-            <View style={styles.iconoCampanaPlaceholder}>
-              <MaterialCommunityIcons name="clipboard-check" size={24} color={COLORS.textoVerdeOscuro} />
-            </View>
-
-            <View style={styles.tituloHeaderRow}>
-              <MaterialCommunityIcons name="leaf" size={22} color={COLORS.botonPrincipal} />
-              <Text style={styles.tituloHeaderTexto}>ECO ALERTA</Text>
-            </View>
-
-            <TouchableOpacity
-              style={styles.botonSalir}
-              onPress={handleCerrarSesion}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="log-out-outline" size={22} color={COLORS.textoPeligro} />
-            </TouchableOpacity>
-          </View>
-
           {/* Tarjeta de Identificación del Colaborador */}
           <View style={styles.tarjetaColaborador}>
             <View style={styles.avatarColaborador}>
@@ -174,6 +168,15 @@ export const CollaboratorHomeScreen: React.FC = () => {
               <Text style={styles.nombreColaborador}>{user?.name || 'Operador de Entrega'}</Text>
               <Text style={styles.rolColaborador}>Puesto de Entrega Municipal • PILAR</Text>
             </View>
+            <TouchableOpacity
+              style={styles.botonSalir}
+              onPress={handleCerrarSesion}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Cerrar sesión"
+            >
+              <Ionicons name="log-out-outline" size={22} color={COLORS.textoPeligro} />
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -334,38 +337,8 @@ const styles = StyleSheet.create({
     paddingBottom: SPACING.xl * 2,
   },
   encabezadoCurvo: {
-    backgroundColor: COLORS.fondoEncabezado,
     paddingTop: SPACING.md,
-    paddingBottom: SPACING.lg,
     paddingHorizontal: SPACING.md,
-    borderBottomLeftRadius: 36,
-    borderBottomRightRadius: 36,
-    elevation: 4,
-  },
-  encabezadoFilaSuperior: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: SPACING.sm,
-  },
-  iconoCampanaPlaceholder: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: COLORS.superficieTarjeta,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  tituloHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  tituloHeaderTexto: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: COLORS.textoLogo,
-    letterSpacing: 1.2,
   },
   botonSalir: {
     width: 36,

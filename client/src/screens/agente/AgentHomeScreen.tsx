@@ -26,6 +26,7 @@ import { TechnicalClosureModal } from '../../components/agent/TechnicalClosureMo
 import { TransactionLoaderModal } from '../../components/common/TransactionLoaderModal';
 import { fieldAgentRepository, CasoCampo } from '../../repositories/agent';
 import { adminService } from '../../services/adminService';
+import Header from '../../components/Header';
 
 type PestanaAgente = 'BOLSA' | 'ACTIVO';
 type FiltroPrioridadBolsa = 'TODAS' | PrioridadCaso;
@@ -448,7 +449,8 @@ export const AgentHomeScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={estilos.contenedor}>
+    <SafeAreaView style={estilos.contenedor} edges={['left', 'right', 'bottom']}>
+      <Header showActions={false} />
       <StatusBar barStyle="dark-content" />
 
       {/* Spinner Bloqueante de Transacción en Base de Datos (RNF-10) */}

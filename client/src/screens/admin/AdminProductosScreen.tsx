@@ -18,6 +18,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { storeRepository, StoreProduct, StoreBranch } from '../../repositories/store';
 import { TransactionLoaderModal } from '../../components/common/TransactionLoaderModal';
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
+import Header from '../../components/Header';
 
 export const AdminProductosScreen: React.FC = () => {
   const [seccionActiva, setSeccionActiva] = useState<'productos' | 'sucursales'>('productos');
@@ -230,7 +231,8 @@ export const AdminProductosScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
+      <Header showActions={false} />
       <View style={styles.container}>
         {/* Cabecera */}
         <View style={styles.header}>

@@ -7,14 +7,80 @@ import {
   TouchableOpacity,
   StatusBar,
   Alert,
+  Modal,
+  ScrollView as ModalScrollView,
 } from 'react-native';
 import { Ionicons, Feather, MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { CitizenNotificationsModal } from '../../components/citizen/CitizenNotificationsModal';
+import Header from '../../components/Header';
+
+type InformacionVisible = 'help' | 'terms' | null;
+
+const PREGUNTAS_FRECUENTES = [
+  {
+    question: '¿Cómo hago un reporte?',
+    answer:
+      'Usa el botón de cámara para fotografiar el problema, completa los datos solicitados y envía el reporte para que el municipio pueda revisarlo.',
+  },
+  {
+    question: '¿Cómo consulto el estado de un reporte?',
+    answer:
+      'En Perfil puedes revisar tus reportes y su estado. También puedes abrir Notificaciones para ver los estados actuales.',
+  },
+  {
+    question: '¿Cuándo recibo EcoPuntos?',
+    answer:
+      'Los EcoPuntos se acreditan cuando el municipio verifica y aprueba el reporte, según la evaluación correspondiente.',
+  },
+  {
+    question: '¿Cuándo puedo retirar un canje?',
+    answer:
+      'Los canjes pendientes se muestran en Notificaciones. La disponibilidad se calcula luego de dos días hábiles desde su creación.',
+  },
+  {
+    question: '¿Cómo cambio mi foto o nombre?',
+    answer:
+      'Abre Editar Perfil. Desde Perfil puedes cambiar tu foto y editar tu nombre. El correo de la cuenta es de solo lectura.',
+  },
+];
+
+const BORRADOR_TERMINOS = [
+  {
+    title: 'Borrador para revisión',
+    body:
+      'Este texto es informativo y está pendiente de revisión y aprobación municipal y legal. No reemplaza los términos oficiales del municipio.',
+  },
+  {
+    title: 'Uso de EcoAlerta',
+    body:
+      'La aplicación permite enviar reportes ambientales, consultar su estado y, para cuentas ciudadanas, participar en el programa de EcoPuntos y canjes. La información enviada debe ser veraz y referirse a situaciones reales.',
+  },
+  {
+    title: 'Reportes y ubicación',
+    body:
+      'Al enviar un reporte, la imagen y los datos que proporciones pueden ser utilizados por el municipio para evaluar, gestionar y dar seguimiento al caso. Comparte únicamente información pertinente y evita incluir datos personales de terceros.',
+  },
+  {
+    title: 'EcoPuntos y canjes',
+    body:
+      'La acreditación de EcoPuntos depende de la revisión municipal. Los canjes están sujetos a disponibilidad, reglas de retiro y validación por parte de la sucursal correspondiente.',
+  },
+  {
+    title: 'Cuenta y datos',
+    body:
+      'Eres responsable de mantener el acceso a tu cuenta bajo control. Puedes actualizar tu nombre y foto desde Perfil; el correo asociado a la cuenta no se modifica desde la aplicación.',
+  },
+];
 
 export const MasScreen: React.FC = () => {
   const { user: usuario, logout: cerrarSesion } = useAuth();
+  const navigation = useNavigation<any>();
+  const [notificacionesVisibles, setNotificacionesVisibles] = React.useState(false);
+  const [informacionVisible, setInformacionVisible] = React.useState<InformacionVisible>(null);
 
   const manejarCerrarSesion = () => {
     Alert.alert(
@@ -39,16 +105,54 @@ export const MasScreen: React.FC = () => {
     );
   };
 
-  const mostrarMensajeMokeado = (titulo: string) => {
-    Alert.alert(
-      titulo,
-      'Esta sección se encuentra en desarrollo para la versión beta de EcoAlerta.'
-    );
-  };
-
   return (
-    <SafeAreaView style={estilos.contenedor}>
+    <SafeAreaView style={estilos.contenedor} edges={['left', 'right', 'bottom']}>
+      <Header showActions={false} />
       <StatusBar barStyle="dark-content" />
+      <CitizenNotificationsModal
+        visible={notificacionesVisibles}
+        ciudadanoId={usuario?.role === 'citizen' ? usuario.id : undefined}
+        onClose={() => setNotificacionesVisibles(false)}
+      />
+      <Modal
+        visible={informacionVisible !== null}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setInformacionVisible(null)}
+      >
+        <View style={estilos.modalBackdrop}>
+          <View style={estilos.modalContenido}>
+            <View style={estilos.modalCabecera}>
+              <Text style={estilos.modalTitulo}>
+                {informacionVisible === 'help' ? 'Centro de Ayuda' : 'Términos y Privacidad'}
+              </Text>
+              <TouchableOpacity
+                onPress={() => setInformacionVisible(null)}
+                accessibilityRole="button"
+                accessibilityLabel="Cerrar"
+                style={estilos.botonCerrarModal}
+              >
+                <Feather name="x" size={22} color={COLORS.textoVerdeOscuro} />
+              </TouchableOpacity>
+            </View>
+            <ModalScrollView contentContainerStyle={estilos.modalLista}>
+              {informacionVisible === 'help'
+                ? PREGUNTAS_FRECUENTES.map((item) => (
+                    <View key={item.question} style={estilos.tarjetaInformacion}>
+                      <Text style={estilos.tituloInformacion}>{item.question}</Text>
+                      <Text style={estilos.textoInformacion}>{item.answer}</Text>
+                    </View>
+                  ))
+                : BORRADOR_TERMINOS.map((item) => (
+                    <View key={item.title} style={estilos.tarjetaInformacion}>
+                      <Text style={estilos.tituloInformacion}>{item.title}</Text>
+                      <Text style={estilos.textoInformacion}>{item.body}</Text>
+                    </View>
+                  ))}
+            </ModalScrollView>
+          </View>
+        </View>
+      </Modal>
       <ScrollView contentContainerStyle={estilos.contenidoScroll}>
         
         {/* Encabezado */}
@@ -65,23 +169,25 @@ export const MasScreen: React.FC = () => {
           
           <TouchableOpacity
             style={estilos.opcionFila}
-            onPress={() => mostrarMensajeMokeado('Editar Perfil')}
+            onPress={() => navigation.navigate('Perfil')}
             activeOpacity={0.7}
+            accessibilityRole="button"
           >
             <View style={estilos.contenedorIcono}>
               <Ionicons name="person-outline" size={ICON_SIZE.md} color={COLORS.iconoPrincipal} />
             </View>
             <View style={estilos.textoFila}>
               <Text style={estilos.tituloOpcion}>Editar Perfil</Text>
-              <Text style={estilos.subtituloOpcion}>Modifica tus datos personales</Text>
+              <Text style={estilos.subtituloOpcion}>Modifica tu nombre y foto de perfil</Text>
             </View>
             <Feather name="chevron-right" size={ICON_SIZE.md} color={COLORS.textoSecundario} />
           </TouchableOpacity>
 
           <TouchableOpacity
             style={estilos.opcionFila}
-            onPress={() => mostrarMensajeMokeado('Notificaciones')}
+            onPress={() => setNotificacionesVisibles(true)}
             activeOpacity={0.7}
+            accessibilityRole="button"
           >
             <View style={estilos.contenedorIcono}>
               <Ionicons name="notifications-outline" size={ICON_SIZE.md} color={COLORS.iconoPrincipal} />
@@ -100,8 +206,9 @@ export const MasScreen: React.FC = () => {
 
           <TouchableOpacity
             style={estilos.opcionFila}
-            onPress={() => mostrarMensajeMokeado('Centro de Ayuda')}
+            onPress={() => setInformacionVisible('help')}
             activeOpacity={0.7}
+            accessibilityRole="button"
           >
             <View style={estilos.contenedorIcono}>
               <Ionicons name="help-circle-outline" size={ICON_SIZE.md} color={COLORS.iconoPrincipal} />
@@ -115,8 +222,9 @@ export const MasScreen: React.FC = () => {
 
           <TouchableOpacity
             style={estilos.opcionFila}
-            onPress={() => mostrarMensajeMokeado('Términos y Condiciones')}
+            onPress={() => setInformacionVisible('terms')}
             activeOpacity={0.7}
+            accessibilityRole="button"
           >
             <View style={estilos.contenedorIcono}>
               <MaterialIcons name="security" size={ICON_SIZE.md} color={COLORS.iconoPrincipal} />
@@ -244,5 +352,61 @@ const estilos = StyleSheet.create({
     fontSize: 12,
     color: COLORS.textoDesactivado,
     marginTop: SPACING.lg,
+  },
+  modalBackdrop: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: COLORS.superposicionOscura,
+  },
+  modalContenido: {
+    maxHeight: '85%',
+    minHeight: '50%',
+    backgroundColor: COLORS.fondoAplicacion,
+    borderTopLeftRadius: BORDER_RADIUS.lg,
+    borderTopRightRadius: BORDER_RADIUS.lg,
+    paddingTop: SPACING.md,
+  },
+  modalCabecera: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.md,
+    paddingBottom: SPACING.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.bordeSuave,
+  },
+  modalTitulo: {
+    flex: 1,
+    color: COLORS.textoVerdeOscuro,
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  botonCerrarModal: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalLista: {
+    padding: SPACING.md,
+    gap: SPACING.sm,
+  },
+  tarjetaInformacion: {
+    padding: SPACING.md,
+    backgroundColor: COLORS.superficieTarjeta,
+    borderRadius: BORDER_RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.bordeSuave,
+  },
+  tituloInformacion: {
+    color: COLORS.textoVerdeOscuro,
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: SPACING.xs,
+  },
+  textoInformacion: {
+    color: COLORS.textoSecundario,
+    fontSize: 14,
+    lineHeight: 20,
   },
 });

@@ -336,7 +336,7 @@ export const ReportScreen: React.FC = () => {
   if (!permission?.granted && !image) {
     return (
       <View style={styles.container}>
-        <Header />
+        <Header showSettings={false} />
         <View style={styles.permissionContent}>
           <Ionicons name="camera-outline" size={64} color={COLORS.camaraInferior} />
           <Text style={styles.gateTitle}>Agrega una foto del problema</Text>
@@ -373,7 +373,7 @@ export const ReportScreen: React.FC = () => {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <Header />
+      <Header showSettings={false} />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"

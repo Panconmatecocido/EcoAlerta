@@ -28,6 +28,7 @@ import { TransactionLoaderModal } from '../../components/common/TransactionLoade
 import { PointsScaleModal } from '../../components/admin/PointsScaleModal';
 import { BeforeAfterAuditModal } from '../../components/admin/BeforeAfterAuditModal';
 import { AdminTabParamList } from '../../navigation/AdminNavigator';
+import Header from '../../components/Header';
 
 type FiltroEstado =
   | 'TODAS'
@@ -495,7 +496,8 @@ export const AdminDenunciasScreen: React.FC = () => {
 
   return (
 
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
+      <Header showActions={false} />
       <TransactionLoaderModal
         visible={procesandoTriaje}
         mensaje={mensajeTransaccion}

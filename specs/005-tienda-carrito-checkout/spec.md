@@ -79,6 +79,11 @@ El Administrador Municipal gestiona el inventario de premios ecológicos pudiend
 - **FR-008 (RF-AUT-08 - Bloqueo de Carrito para Usuarios Invitados)**: Si un visitante no autenticado (`user === null`) pulsa *"Agregar al Carrito"* o intenta acceder al carrito/historial desde la Tienda, el sistema DEBE impedir la acción y solicitarle que se registre o inicie sesión.
 - **FR-009 (RNF-10 - Spinner en Mutaciones de BD y en Filtros de Catálogo)**: Toda acción de escritura en la Base de Datos (ABM de productos Admin, iniciar reserva TTL de 5 minutos en Checkout, confirmar canje definitivo o cancelar reserva) DEBE mostrar inmediatamente un spinner bloqueante (`TransactionLoaderModal`) que impida volver a presionar los botones hasta recibir el estado de la transacción (positiva: continúa el flujo; negativa: mantiene vista actual y muestra error para reintentar). Asimismo, siempre que el usuario cambie un filtro de categoría o búsqueda en la Tienda o en el ABM de Catálogo, DEBE mostrarse un spinner de carga hasta obtener los productos filtrados.
 - **FR-010 (RF-TIE-07 - Worker de Liberación de Reservas TTL y Consultas por ID)**: El backend DEBE exponer el endpoint de mantenimiento `POST /api/canjes/liberar-vencidas` para procesar y liberar de forma masiva o periódica todas aquellas órdenes en `RESERVADO_PENDIENTE` cuyo `bloqueadoHasta` haya expirado restituyendo el stock en transacción atómica, junto con endpoints de consulta por identificador `GET /api/productos/:id` y `GET /api/canjes/:id`.
+- **FR-012 (RF-TIE-09 - Espacios de anuncios en la grilla de Tienda)**: La tienda DEBE mostrar un banner de `Anuncios` a ancho completo después de cada tres filas de productos. El conteo DEBE reiniciarse con cada búsqueda o categoría seleccionada; si el resultado contiene menos de tres filas de productos, el banner DEBE mostrarse en una fila debajo del último producto. Si la búsqueda o categoría no devuelve productos, DEBE mostrarse igualmente el banner.
+- **FR-013 (RF-TIE-10 - Encabezado de Tienda sin configuración)**: El encabezado de la Tienda NO DEBE mostrar el engranaje de configuración; debe conservarse el equilibrio visual y la alineación del logo central.
+- **FR-014 (RF-TIE-11 - Saldo de EcoPuntos sin icono decorativo)**: El saldo de EcoPuntos de la Tienda DEBE mostrarse sin una estrella junto al valor.
+- **FR-015 (RF-TIE-12 - Saldo y carrito integrados al encabezado)**: El encabezado de la Tienda DEBE mostrar el saldo de EcoPuntos y un acceso al carrito en el espacio opuesto a las notificaciones, sin repetir el saldo en una tarjeta separada debajo del encabezado.
+- **FR-016 (RF-TIE-13 - Separación y contraste de categorías)**: La fila de categorías DEBE tener un espacio visible debajo del encabezado y un fondo en un tono verde ligeramente más oscuro que el fondo general de la Tienda.
 
 ### Key Entities
 
@@ -115,3 +120,8 @@ El Administrador Municipal gestiona el inventario de premios ecológicos pudiend
 
 - **SC-005**: El carrusel presenta productos activos del catálogo de la Tienda y, al pulsar un producto con sesión y stock válidos, lo agrega al carrito y abre esta pantalla.
 - **SC-006**: Un usuario invitado no modifica el carrito al pulsar un producto; recibe el Auth Gate y una imagen no disponible no deja la tarjeta en blanco.
+- **SC-007**: El banner de Anuncios aparece a ancho completo tras cada bloque de tres filas de productos; con resultados filtrados de una o dos filas aparece inmediatamente después de la última fila; sin productos coincidentes, aparece como única fila de contenido. Nunca interrumpe una fila de productos.
+- **SC-008**: El encabezado de la Tienda no muestra el engranaje y mantiene el logo centrado.
+- **SC-009**: El saldo de EcoPuntos de la Tienda se muestra sin estrella junto al valor y conserva un espaciado alineado.
+- **SC-010**: El encabezado de la Tienda muestra un solo saldo de EcoPuntos junto al acceso al carrito, conserva el logo centrado y no requiere una tarjeta de saldo debajo.
+- **SC-011**: La fila de categorías tiene separación visible respecto del encabezado y se distingue del fondo general mediante un tono verde suave, conservando la legibilidad de sus controles.

@@ -20,6 +20,7 @@ import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import Header from '../../components/Header';
+import { buildStoreGridRows } from '../../utils/storeGrid';
 
 const CATEGORIAS = [
   { id: '0', nombre: 'Todos', icono: 'grid-outline' },
@@ -137,39 +138,82 @@ export const StoreScreen: React.FC = () => {
   const totalPuntosCarrito = obtenerSubtotalPuntos ? obtenerSubtotalPuntos() : 0;
   const cantidadItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
   const userPuntos = user?.points ?? 0;
+  const filasProductos = buildStoreGridRows(productos, (producto) => producto.id);
 
-  return (
-    <View style={estilos.contenedor}>
-      <Header />
+  const renderProducto = (item: StoreProduct) => {
+    const sinStock = item.stock <= 0;
+    return (
+      <View key={item.id} style={estilos.tarjetaProducto}>
+        <Image
+          source={{
+            uri:
+              item.imagenUrl && item.imagenUrl.startsWith('http')
+                ? item.imagenUrl
+                : 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=400',
+          }}
+          style={estilos.imagenProducto}
+        />
+        <Text style={estilos.tituloProducto} numberOfLines={2}>
+          {item.titulo}
+        </Text>
 
-      {/* 1. Tarjeta de Puntos Canjeables */}
-      <View style={estilos.tarjetaPuntos}>
-        <View style={estilos.puntosIzquierda}>
-          <Text style={estilos.tituloPuntos}>
-            {user ? 'Tus EcoPuntos' : 'Modo Invitado'}
-          </Text>
-          <View style={estilos.contenedorValorPuntos}>
-            <Ionicons name="star" size={ICON_SIZE.lg} color={COLORS.iconoPrincipal} />
-            <Text style={estilos.valorPuntos}>
-              {user ? `${userPuntos.toLocaleString()} EcoPuntos` : '0 EcoPuntos'}
-            </Text>
+        <View style={estilos.filaBadges}>
+          <View style={estilos.insigniaPrecio}>
+            <Ionicons name="star" size={ICON_SIZE.sm} color={COLORS.iconoPrincipal} />
+            <Text style={estilos.puntosProducto}>{item.costoPuntos} EcoPuntos</Text>
           </View>
+          {sinStock ? (
+            <View style={estilos.badgeSinStock}>
+              <Text style={estilos.textoSinStock}>AGOTADO</Text>
+            </View>
+          ) : (
+            <Text style={estilos.textoStockDisponible}>{item.stock} disp.</Text>
+          )}
         </View>
 
         <TouchableOpacity
-          style={estilos.puntosDerecha}
-          activeOpacity={0.7}
-          onPress={handleVerHistorial}
+          style={[estilos.botonAgregar, sinStock && estilos.botonAgregarDisabled]}
+          onPress={() => handleAgregarAlCarrito(item)}
+          activeOpacity={sinStock ? 1 : 0.8}
+          disabled={sinStock}
         >
-          <View style={estilos.contenedorValorPuntos}>
-            <Ionicons name="cart" size={ICON_SIZE.md} color={COLORS.iconoPrincipal} />
-            <Text style={estilos.subValorPuntos}>
-              {user ? ` Mis EcoPuntos: ${userPuntos}` : ' Iniciar sesión'}
-            </Text>
-          </View>
-          <Text style={estilos.enlaceHistorial}>Ver Carrito &gt;</Text>
+          <Text style={estilos.textoBotonAgregar}>
+            {sinStock ? 'Sin Stock' : 'Agregar'}
+          </Text>
+          {!sinStock && (
+            <Ionicons name="add" size={ICON_SIZE.sm} color={COLORS.superficieTarjeta} />
+          )}
         </TouchableOpacity>
       </View>
+    );
+  };
+
+  return (
+    <View style={estilos.contenedor}>
+      <Header
+        showSettings={false}
+        rightContent={
+          <TouchableOpacity
+            style={estilos.headerStoreAction}
+            activeOpacity={0.7}
+            onPress={handleVerHistorial}
+            accessibilityRole="button"
+            accessibilityLabel={user
+              ? `Mis EcoPuntos: ${userPuntos}. Ver carrito`
+              : 'Iniciar sesión para ver el carrito'}
+          >
+            <View style={estilos.headerStoreText}>
+              <Text style={estilos.headerStoreBalance} numberOfLines={1}>
+                {user ? userPuntos.toLocaleString('es-AR') : 'Entrar'}
+              </Text>
+              <Text style={estilos.headerStoreLabel} numberOfLines={1}>
+                {user ? 'EcoPuntos' : 'al carrito'}
+              </Text>
+            </View>
+            <Ionicons name="cart" size={ICON_SIZE.md} color={COLORS.iconoPrincipal} />
+          </TouchableOpacity>
+        }
+      />
 
       {/* 2. Categorías con Iconos */}
       <View style={estilos.wrapperCategorias}>
@@ -224,60 +268,25 @@ export const StoreScreen: React.FC = () => {
         <ActivityIndicator size="large" color={COLORS.botonPrincipal} style={{ marginTop: 20 }} />
       ) : (
         <FlatList
-          data={productos}
-          numColumns={2}
-          keyExtractor={(item) => item.id}
+          data={filasProductos}
+          keyExtractor={(row) => row.key}
           contentContainerStyle={estilos.listaProductos}
-          renderItem={({ item }) => {
-            const sinStock = item.stock <= 0;
-            return (
-              <View style={estilos.tarjetaProducto}>
-                <Image
-                  source={{
-                    uri:
-                      item.imagenUrl && item.imagenUrl.startsWith('http')
-                        ? item.imagenUrl
-                        : 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=400',
-                  }}
-                  style={estilos.imagenProducto}
-                />
-                <Text style={estilos.tituloProducto} numberOfLines={2}>
-                  {item.titulo}
-                </Text>
-
-                <View style={estilos.filaBadges}>
-                  <View style={estilos.insigniaPrecio}>
-                    <Ionicons name="star" size={ICON_SIZE.sm} color={COLORS.iconoPrincipal} />
-                    <Text style={estilos.puntosProducto}>{item.costoPuntos} EcoPuntos</Text>
-                  </View>
-                  {sinStock ? (
-                    <View style={estilos.badgeSinStock}>
-                      <Text style={estilos.textoSinStock}>AGOTADO</Text>
-                    </View>
-                  ) : (
-                    <Text style={estilos.textoStockDisponible}>{item.stock} disp.</Text>
-                  )}
-                </View>
-
-                <TouchableOpacity
-                  style={[
-                    estilos.botonAgregar,
-                    sinStock && estilos.botonAgregarDisabled,
-                  ]}
-                  onPress={() => handleAgregarAlCarrito(item)}
-                  activeOpacity={sinStock ? 1 : 0.8}
-                  disabled={sinStock}
-                >
-                  <Text style={estilos.textoBotonAgregar}>
-                    {sinStock ? 'Sin Stock' : 'Agregar'}
-                  </Text>
-                  {!sinStock && (
-                    <Ionicons name="add" size={ICON_SIZE.sm} color={COLORS.superficieTarjeta} />
-                  )}
-                </TouchableOpacity>
+          renderItem={({ item: row }) =>
+            row.type === 'ad' ? (
+              <View
+                style={estilos.bannerAnuncios}
+                accessibilityRole="image"
+                accessibilityLabel="Anuncios"
+              >
+                <Text style={estilos.textoBannerAnuncios}>Anuncios</Text>
               </View>
-            );
-          }}
+            ) : (
+              <View style={estilos.filaProductos}>
+                {row.products.map(renderProducto)}
+                {row.products.length === 1 && <View style={estilos.espacioProducto} />}
+              </View>
+            )
+          }
         />
       )}
 
@@ -304,53 +313,41 @@ const estilos = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.fondoAplicacion,
   },
-  tarjetaPuntos: {
-    backgroundColor: COLORS.fondoTarjeta,
-    borderRadius: BORDER_RADIUS.md,
-    padding: SPACING.md,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: SPACING.md,
-  },
-  puntosIzquierda: {
-    flexDirection: 'column',
-  },
-  tituloPuntos: {
-    fontSize: 14,
-    color: COLORS.textoVerdeOscuro,
-    fontWeight: '600',
-  },
-  contenedorValorPuntos: {
+  headerStoreAction: {
+    width: 108,
+    minHeight: 46,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: SPACING.xs,
   },
-  valorPuntos: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: COLORS.textoVerdeOscuro,
-    marginLeft: SPACING.xs,
-  },
-  puntosDerecha: {
+  headerStoreText: {
+    flexShrink: 1,
     alignItems: 'flex-end',
   },
-  subValorPuntos: {
-    fontSize: 12,
-    fontWeight: 'bold',
+  headerStoreBalance: {
+    maxWidth: 82,
     color: COLORS.textoVerdeOscuro,
+    fontSize: 17,
+    fontWeight: '800',
   },
-  enlaceHistorial: {
-    fontSize: 11,
-    color: COLORS.textoVerde,
-    marginTop: 2,
-    fontWeight: '600',
+  headerStoreLabel: {
+    color: COLORS.textoVerdeOscuro,
+    fontSize: 12,
+    fontWeight: '700',
   },
   wrapperCategorias: {
     maxHeight: 90,
+    marginTop: SPACING.sm,
+    marginHorizontal: SPACING.sm,
     marginBottom: SPACING.md,
+    paddingVertical: SPACING.sm,
+    backgroundColor: COLORS.fondoSeccion,
+    borderRadius: BORDER_RADIUS.md,
   },
   contenedorCategorias: {
     flexDirection: 'row',
+    paddingHorizontal: SPACING.sm,
   },
   tarjetaCategoria: {
     alignItems: 'center',
@@ -403,6 +400,30 @@ const estilos = StyleSheet.create({
   listaProductos: {
     paddingHorizontal: SPACING.sm,
     paddingBottom: 90,
+  },
+  filaProductos: {
+    flexDirection: 'row',
+  },
+  espacioProducto: {
+    flex: 1,
+    margin: SPACING.xs,
+  },
+  bannerAnuncios: {
+    height: 88,
+    marginHorizontal: SPACING.xs,
+    marginVertical: SPACING.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.fondoEncabezado,
+    borderRadius: BORDER_RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.bordeSuave,
+    borderStyle: 'dashed',
+  },
+  textoBannerAnuncios: {
+    color: COLORS.textoVerdeOscuro,
+    fontSize: 14,
+    fontWeight: '700',
   },
   tarjetaProducto: {
     flex: 1,

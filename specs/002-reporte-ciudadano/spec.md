@@ -135,6 +135,7 @@ Una vez que el ciudadano ya recibió los puntos por su denuncia verificada (o el
 - **FR-014 (RF-REP-11 - Carga Independiente y Estable de Reportes en Perfil)**: La carga de reportes DEBE ser independiente de la consulta de canjes y terminar de mostrarse cuando sus propios datos estén disponibles. Las actualizaciones del perfil (por ejemplo, puntos) no DEBEN reiniciar repetidamente la consulta ni hacer parpadear la lista.
 - **FR-015 (RNF-12 - Distribución de la Pantalla de Permisos)**: La pantalla inicial de permisos de cámara DEBE mantener el encabezado en la parte superior y separación visual clara entre las acciones de abrir cámara y seleccionar desde galería.
 - **FR-016 (RF-REP-12 - Fotografía Compartida con el Municipio)**: Al crear un reporte, el sistema DEBE transmitir y persistir la fotografía comprimida de forma que el ciudadano y el Administrador puedan verla desde dispositivos distintos. La imagen DEBE respetar el límite de tamaño establecido y su lectura no DEBE requerir acceso al almacenamiento local del teléfono que la capturó.
+- **FR-017 (RF-REP-13 - Encabezado de Reporte sin configuración)**: El encabezado de la pantalla de Reporte NO DEBE mostrar el engranaje de configuración; debe conservarse el espacio y la alineación del logo central en las vistas de permisos y formulario.
 
 **Success criteria**:
 
@@ -143,3 +144,4 @@ Una vez que el ciudadano ya recibió los puntos por su denuncia verificada (o el
 - **SC-007**: En Perfil, los reportes aparecen al finalizar su propia consulta y no desaparecen mientras se cargan canjes o se actualiza el perfil.
 - **SC-008**: La pantalla inicial de permisos presenta el encabezado en la parte superior y controles de cámara y galería claramente separados.
 - **SC-009**: El 100% de los reportes nuevos con foto enviada correctamente permite recuperar la evidencia desde otro dispositivo autenticado del mismo municipio.
+- **SC-010**: Ninguna de las vistas de Reporte muestra el engranaje de configuración y ambas mantienen el logo centrado.

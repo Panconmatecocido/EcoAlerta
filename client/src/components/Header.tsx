@@ -7,6 +7,7 @@ import { COLORS } from '../utils/theme';
 
 interface HeaderProps {
   showActions?: boolean;
+  showSettings?: boolean;
   onPressNotifications?: () => void;
   onPressSettings?: () => void;
   unreadNotifications?: boolean;
@@ -15,6 +16,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   showActions = true,
+  showSettings = true,
   onPressNotifications,
   onPressSettings,
   unreadNotifications = false,
@@ -53,6 +55,8 @@ export const Header: React.FC<HeaderProps> = ({
         {showActions ? (
           rightContent !== undefined ? (
             rightContent
+          ) : !showSettings ? (
+            <View style={styles.actionButton} />
           ) : (
             <TouchableOpacity
               style={styles.actionButton}
@@ -103,6 +107,12 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    pointerEvents: 'none',
   },
   leafIcon: {
     marginBottom: -4,

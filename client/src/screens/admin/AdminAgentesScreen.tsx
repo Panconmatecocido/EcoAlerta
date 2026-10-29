@@ -17,6 +17,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
 import { adminService, Agente } from '../../services/adminService';
 import { TransactionLoaderModal } from '../../components/common/TransactionLoaderModal';
+import Header from '../../components/Header';
 
 export const AdminAgenteScreen: React.FC = () => {
   const [agentes, setAgentes] = useState<Agente[]>([]);
@@ -187,7 +188,8 @@ export const AdminAgenteScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
+      <Header showActions={false} />
       <TransactionLoaderModal
         visible={transaccionEnCurso}
         mensaje={mensajeTransaccion}

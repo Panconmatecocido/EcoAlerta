@@ -49,3 +49,6 @@
 - [ ] As a citizen, verify that the Home header shows the EcoPuntos balance instead of the settings gear, and that the balance is not duplicated in the welcome card.
 - [ ] Verify that the Home displays a full-width `Anuncios` banner slot between the redemption carousel and recent reports, with slightly less height than the welcome card.
 - [ ] Verify that the redemption carousel and recent reports have a soft green section background and that their white cards remain legible.
+- [ ] Verify that Editar Perfil opens the profile, allows changing name and photo, persists the name, and keeps email read-only.
+- [ ] Verify that Notificaciones in Más opens current report/redemption activity, Centro de Ayuda displays FAQs, and Términos y Privacidad clearly labels its content as a draft pending official review.
+- [ ] Verify that the shared Eco Alerta logo header appears once on every guest, citizen, agent, administrator, and collaborator screen, including secondary screens, and respects device safe areas.

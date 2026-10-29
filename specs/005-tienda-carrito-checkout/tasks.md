@@ -118,3 +118,9 @@
 ## Ajustes de UX posteriores
 
 - [x] T018 [US1] Reemplazar los productos mockeados del carrusel del Inicio por productos de `storeRepository`, manejar estados de carga/error/vacío y alternativas ante imágenes inaccesibles; al pulsar un producto validar rol y stock, agregarlo al carrito y navegar a `Cart` en `client/src/screens/citizen/HomeScreenPrueba/CarruselPrueba.tsx`.
+- [x] T019 [US1] Insertar banners de `Anuncios` a ancho completo cada tres filas de productos en la tienda; recalcular posiciones a partir de los resultados filtrados y mostrar un banner debajo del último producto o como única fila cuando no haya resultados, con pruebas unitarias de distribución en `client/src/screens/citizen/StoreScreen.tsx`, `client/src/utils/storeGrid.ts` y `client/src/utils/__tests__/storeGrid.test.ts`.
+- [x] T020 [US1] Quitar el engranaje de configuración únicamente del encabezado de la Tienda, manteniendo el espacio reservado para conservar el logo centrado en `client/src/components/Header.tsx` y `client/src/screens/citizen/StoreScreen.tsx`.
+- [x] T021 [US1] Quitar la estrella decorativa del saldo de EcoPuntos en la Tienda y ajustar el espaciado del valor en `client/src/screens/citizen/StoreScreen.tsx`.
+- [x] T022 [US1] Retirar el bloque duplicado de saldo situado a la izquierda y destacar el saldo junto al acceso al carrito en la parte derecha de la tarjeta superior en `client/src/screens/citizen/StoreScreen.tsx`.
+- [x] T023 [US1] Integrar el saldo de EcoPuntos y el acceso al carrito en la parte derecha del encabezado de la Tienda, retirar la tarjeta de saldo independiente y mantener el logo centrado en `client/src/components/Header.tsx` y `client/src/screens/citizen/StoreScreen.tsx`.
+- [x] T024 [US1] Agregar separación entre el encabezado y las categorías, y destacar la fila de categorías con un tono verde suave de fondo en `client/src/screens/citizen/StoreScreen.tsx`.

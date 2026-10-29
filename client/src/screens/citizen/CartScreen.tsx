@@ -23,6 +23,7 @@ import {
 import { CheckoutReservationModal } from '../../components/citizen/CheckoutReservationModal';
 import { TransactionLoaderModal } from '../../components/common/TransactionLoaderModal';
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
+import Header from '../../components/Header';
 
 export const CartScreen: React.FC = ({ navigation }: any) => {
   const { user, updateUserPoints } = useAuth();
@@ -192,7 +193,8 @@ export const CartScreen: React.FC = ({ navigation }: any) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
+      <Header showActions={false} />
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         {/* Encabezado Usuario */}
         <View style={styles.headerContainer}>

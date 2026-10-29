@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   StatusBar,
   Image,
+  TextInput,
   Alert,
   ActivityIndicator,
   RefreshControl,
@@ -25,6 +26,7 @@ import { CitizenVouchersList } from '../../components/citizen/CitizenVouchersLis
 import { reportRepository } from '../../repositories/reports';
 import { CitizenReport } from '../../repositories/reports/IReportRepository';
 import { ReportStatusBadge } from '../../components/citizen/ReportStatusBadge';
+import Header from '../../components/Header';
 
 export const ProfileScreen: React.FC = () => {
   const {
@@ -32,6 +34,7 @@ export const ProfileScreen: React.FC = () => {
     logout,
     recargarPerfilUsuario,
     actualizarFotoPerfil,
+    actualizarNombrePerfil,
   } = useAuth();
   const usuarioId = usuario?.id;
   const esCiudadano = usuario?.role === 'citizen';
@@ -48,8 +51,32 @@ export const ProfileScreen: React.FC = () => {
   const [errorDenuncias, setErrorDenuncias] = useState<string | null>(null);
   const [denunciaSeleccionada, setDenunciaSeleccionada] = useState<CitizenReport | null>(null);
   const [ocultandoReporteId, setOcultandoReporteId] = useState<string | null>(null);
+  const [editarNombreVisible, setEditarNombreVisible] = useState(false);
+  const [nombreEditado, setNombreEditado] = useState(usuario?.name ?? '');
+  const [guardandoNombre, setGuardandoNombre] = useState(false);
 
   const fotoPerfilUri = usuario?.fotoPerfilUri ?? null;
+
+  const abrirEdicionNombre = () => {
+    setNombreEditado(usuario?.name ?? '');
+    setEditarNombreVisible(true);
+  };
+
+  const guardarNombre = async () => {
+    setGuardandoNombre(true);
+    try {
+      await actualizarNombrePerfil(nombreEditado);
+      setEditarNombreVisible(false);
+      Alert.alert('Perfil actualizado', 'Tu nombre se guardó correctamente.');
+    } catch (error) {
+      Alert.alert(
+        'No se pudo actualizar el perfil',
+        error instanceof Error ? error.message : 'Inténtalo nuevamente.'
+      );
+    } finally {
+      setGuardandoNombre(false);
+    }
+  };
 
   const cargarDatosPerfil = useCallback(
     async (refrescar = false, sigueActivo: () => boolean = () => true) => {
@@ -285,7 +312,8 @@ export const ProfileScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={estilos.contenedor}>
+    <SafeAreaView style={estilos.contenedor} edges={['left', 'right', 'bottom']}>
+      <Header showActions={false} />
       <StatusBar barStyle="dark-content" />
       <ScrollView
         contentContainerStyle={estilos.contenidoScroll}
@@ -319,6 +347,16 @@ export const ProfileScreen: React.FC = () => {
 
           <Text style={estilos.nombreUsuario}>{usuario?.name || 'Ciudadano Eco'}</Text>
           <Text style={estilos.correoUsuario}>{usuario?.email || 'sin-email@ecoalerta.com'}</Text>
+          {esCiudadano && (
+            <TouchableOpacity
+              style={estilos.botonEditarNombre}
+              onPress={abrirEdicionNombre}
+              accessibilityRole="button"
+            >
+              <Ionicons name="pencil-outline" size={16} color={COLORS.iconoPrincipal} />
+              <Text style={estilos.textoEditarNombre}>Editar nombre</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Tarjeta de resumen de EcoPuntos */}
@@ -608,6 +646,50 @@ export const ProfileScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
+      <Modal
+        visible={editarNombreVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setEditarNombreVisible(false)}
+      >
+        <View style={estilos.modalBackdrop}>
+          <View style={estilos.modalEditarNombre}>
+            <Text style={estilos.modalTitulo}>Editar nombre</Text>
+            <Text style={estilos.modalDescripcion}>
+              El correo de la cuenta no se puede modificar desde esta pantalla.
+            </Text>
+            <TextInput
+              value={nombreEditado}
+              onChangeText={setNombreEditado}
+              autoCapitalize="words"
+              maxLength={80}
+              placeholder="Tu nombre"
+              accessibilityLabel="Nombre del perfil"
+              style={estilos.inputNombre}
+            />
+            <View style={estilos.modalAcciones}>
+              <TouchableOpacity
+                onPress={() => setEditarNombreVisible(false)}
+                disabled={guardandoNombre}
+                style={estilos.botonCancelarNombre}
+              >
+                <Text style={estilos.textoCancelarNombre}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => void guardarNombre()}
+                disabled={guardandoNombre}
+                style={estilos.botonGuardarNombre}
+              >
+                {guardandoNombre ? (
+                  <ActivityIndicator color={COLORS.superficieTarjeta} />
+                ) : (
+                  <Text style={estilos.textoGuardarNombre}>Guardar</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -684,6 +766,84 @@ const estilos = StyleSheet.create({
     fontSize: 14,
     color: COLORS.textoSecundario,
     marginTop: 2,
+  },
+  botonEditarNombre: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xs,
+    marginTop: SPACING.sm,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.xs,
+    borderRadius: BORDER_RADIUS.sm,
+    backgroundColor: COLORS.superficieTarjeta,
+  },
+  textoEditarNombre: {
+    color: COLORS.iconoPrincipal,
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  modalBackdrop: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: SPACING.lg,
+    backgroundColor: COLORS.superposicionOscura,
+  },
+  modalEditarNombre: {
+    padding: SPACING.md,
+    backgroundColor: COLORS.superficieTarjeta,
+    borderRadius: BORDER_RADIUS.lg,
+  },
+  modalTitulo: {
+    color: COLORS.textoVerdeOscuro,
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  modalDescripcion: {
+    color: COLORS.textoSecundario,
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: SPACING.xs,
+  },
+  inputNombre: {
+    marginTop: SPACING.md,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    color: COLORS.textoVerdeOscuro,
+    backgroundColor: COLORS.fondoAplicacion,
+    borderWidth: 1,
+    borderColor: COLORS.bordeSuave,
+    borderRadius: BORDER_RADIUS.sm,
+    fontSize: 16,
+  },
+  modalAcciones: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: SPACING.sm,
+    marginTop: SPACING.md,
+  },
+  botonCancelarNombre: {
+    justifyContent: 'center',
+    paddingHorizontal: SPACING.md,
+    minHeight: 44,
+  },
+  textoCancelarNombre: {
+    color: COLORS.textoSecundario,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  botonGuardarNombre: {
+    minWidth: 96,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: SPACING.md,
+    backgroundColor: COLORS.botonPrincipal,
+    borderRadius: BORDER_RADIUS.sm,
+  },
+  textoGuardarNombre: {
+    color: COLORS.superficieTarjeta,
+    fontSize: 14,
+    fontWeight: '700',
   },
   contenedorPuntos: {
     flexDirection: 'row',

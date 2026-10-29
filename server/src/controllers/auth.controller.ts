@@ -436,3 +436,56 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
     });
   }
 };
+
+export const actualizarNombrePerfil = async (req: Request, res: Response): Promise<void> => {
+  const userId = req.auth?.id;
+  const nombre = asString(req.body?.nombre);
+
+  if (!userId) {
+    res.status(401).json({ success: false, message: 'Se requiere una sesión válida' });
+    return;
+  }
+
+  if (!nombre || nombre.length < 2 || nombre.length > 80) {
+    res.status(400).json({
+      success: false,
+      message: 'El nombre debe tener entre 2 y 80 caracteres',
+    });
+    return;
+  }
+
+  try {
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { nombre },
+      select: {
+        id: true,
+        nombre: true,
+        email: true,
+        rol: true,
+        puntos: true,
+        municipioId: true,
+        creadoEn: true,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      user: {
+        id: user.id,
+        nombre: user.nombre,
+        email: user.email,
+        rol: user.rol,
+        puntos: user.puntos,
+        municipioId: user.municipioId,
+        creadoEn: user.creadoEn,
+      },
+    });
+  } catch (error) {
+    console.error('Error al actualizar el nombre del perfil:', error);
+    res.status(500).json({
+      success: false,
+      message: 'No se pudo actualizar el nombre del perfil',
+    });
+  }
+};

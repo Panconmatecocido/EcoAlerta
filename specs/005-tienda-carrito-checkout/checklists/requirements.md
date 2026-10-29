@@ -41,3 +41,9 @@
 - [ ] Comprobar que el límite de stock se respeta desde el carrusel.
 - [ ] Iniciar como invitado y verificar que pulsar un producto muestra el Auth Gate sin agregarlo.
 - [ ] Verificar el estado de reintento si falla la carga del catálogo y la alternativa visual si una imagen no está disponible.
+- [ ] Verificar que la tienda muestra un banner `Anuncios` a ancho completo cada tres filas, que categorías con menos de tres filas lo muestran debajo del último producto y que aparece incluso si el filtro no devuelve productos.
+- [ ] Verificar que el encabezado de la Tienda no muestra el engranaje y conserva el logo centrado.
+- [ ] Verificar que el saldo de EcoPuntos se muestra sin estrella y queda correctamente alineado.
+- [ ] Verificar que el saldo aparece una sola vez en el encabezado junto al acceso al carrito.
+- [ ] Verificar que saldo y acceso al carrito están integrados a la cabecera de la Tienda y que el logo se mantiene centrado.
+- [ ] Verificar que hay espacio entre el encabezado y las categorías y que estas tienen un fondo verde ligeramente más oscuro que el fondo general.

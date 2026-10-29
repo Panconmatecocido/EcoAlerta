@@ -42,3 +42,4 @@
 - [ ] Denegar el permiso GPS, seleccionar un punto en el mapa y enviar con una dirección ingresada manualmente.
 - [ ] Verificar que la pantalla de permisos mantiene el encabezado arriba y controles de cámara/galería claramente separados.
 - [ ] Abrir Perfil después de crear un reporte y verificar que el reporte aparece y permanece visible mientras se resuelven consultas independientes de perfil o canjes.
+- [ ] Verificar que los encabezados de permisos y formulario de Reporte no muestran el engranaje y conservan el logo centrado.

@@ -89,6 +89,16 @@ function createReportsApp() {
   return app;
 }
 
+function createAuthProfileApp() {
+  process.env.AUTH_TOKEN_SECRET = tokenSecret;
+  const { createAuthRouter } =
+    require('../routes/auth.routes') as typeof import('../routes/auth.routes');
+  const app = express();
+  app.use(express.json());
+  app.use('/api/auth', createAuthRouter(undefined, tokenSecret));
+  return app;
+}
+
 const admin = {
   id: 'admin-1',
   rol: Role.ADMIN,
@@ -242,6 +252,75 @@ describe('admin and agent authentication middleware', () => {
     expect(prisma.denuncia.findFirst).toHaveBeenCalledWith({
       where: { id: 'foreign-report', municipioId: 'municipality-1' },
       select: { id: true },
+    });
+  });
+
+  describe('citizen profile update', () => {
+    const citizen = {
+      id: 'citizen-1',
+      rol: Role.CITIZEN,
+      municipioId: 'municipality-1',
+    };
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      prisma.user.findUnique.mockResolvedValue(citizen);
+    });
+
+    it('updates only the authenticated user name and returns the saved profile', async () => {
+      prisma.user.update.mockResolvedValue({
+        id: citizen.id,
+        nombre: 'Ana Vecina',
+        email: 'ana@example.com',
+        rol: Role.CITIZEN,
+        puntos: 25,
+        municipioId: citizen.municipioId,
+        creadoEn: new Date('2026-01-01T00:00:00.000Z'),
+      });
+
+      const response = await request(createAuthProfileApp())
+        .patch('/api/auth/profile')
+        .set(
+          'Authorization',
+          `Bearer ${createToken({
+            sub: citizen.id,
+            iat: Math.floor(Date.now() / 1000),
+            exp: Math.floor(Date.now() / 1000) + 60,
+          })}`
+        )
+        .send({ nombre: '  Ana Vecina  ' })
+        .expect(200);
+
+      expect(prisma.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: citizen.id },
+          data: { nombre: 'Ana Vecina' },
+        })
+      );
+      expect(response.body.user.nombre).toBe('Ana Vecina');
+      expect(response.body.user.email).toBe('ana@example.com');
+    });
+
+    it('rejects invalid names and requests without an authenticated session', async () => {
+      const app = createAuthProfileApp();
+      const token = createToken({
+        sub: citizen.id,
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 60,
+      });
+
+      await request(app)
+        .patch('/api/auth/profile')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ nombre: ' ' })
+        .expect(400);
+
+      await request(app)
+        .patch('/api/auth/profile')
+        .send({ nombre: 'Ana' })
+        .expect(401);
+
+      expect(prisma.user.update).not.toHaveBeenCalled();
     });
   });
 

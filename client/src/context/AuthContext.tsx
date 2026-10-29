@@ -16,6 +16,7 @@ interface AuthContextType {
   dismissAuthGate: () => void;
   updateUserPoints?: (nuevosPuntos: number) => void;
   actualizarFotoPerfil: (fotoPerfilUri: string | null) => Promise<void>;
+  actualizarNombrePerfil: (nombre: string) => Promise<void>;
   recargarPerfilUsuario?: () => Promise<void>;
 }
 
@@ -67,6 +68,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     const updatedUser = { ...user, fotoPerfilUri };
+    await authRepository.saveSession(updatedUser);
+    setUser(updatedUser);
+  };
+
+  const actualizarNombrePerfil = async (nombre: string) => {
+    if (!user || user.role !== 'citizen') {
+      throw new Error('Solo un ciudadano autenticado puede editar este perfil.');
+    }
+
+    const nombreNormalizado = nombre.trim();
+    if (nombreNormalizado.length < 2 || nombreNormalizado.length > 80) {
+      throw new Error('El nombre debe tener entre 2 y 80 caracteres.');
+    }
+
+    const response = await api.patch<{ success: boolean; user: { nombre: string } }>(
+      '/auth/profile',
+      { nombre: nombreNormalizado }
+    );
+    if (!response.success || !response.user?.nombre) {
+      throw new Error('El servidor no pudo confirmar los cambios del perfil.');
+    }
+
+    const updatedUser = { ...user, name: response.user.nombre };
     await authRepository.saveSession(updatedUser);
     setUser(updatedUser);
   };
@@ -213,6 +237,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         dismissAuthGate,
         updateUserPoints,
         actualizarFotoPerfil,
+        actualizarNombrePerfil,
         recargarPerfilUsuario,
       }}
     >
