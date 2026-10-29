@@ -12,6 +12,10 @@
 **Período de Evaluación:** 25 de agosto al 02 de noviembre de 2026  
 **Versión:** 2.0 (Auditoría Académica Formal)  
 
+> [!NOTE]
+> **Alcance del Estándar ISO/IEC 25010 en el Proyecto:**  
+> Este checklist adopta la norma ISO/IEC 25010 como **marco de referencia de buenas prácticas y guía de calidad de producto** para garantizar coherencia técnica y funcional. **No constituye una certificación formal ante un ente auditor externo**, sino un instrumento de evaluación continua y auditoría interna para mantener una línea homogénea de calidad.  
+
 ---
 
 ## 1. 📋 Checklist para Peer Review de Casos de Prueba (Revisión entre Pares)

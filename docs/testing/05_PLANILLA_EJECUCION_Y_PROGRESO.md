@@ -14,6 +14,10 @@
 
 ---
 
+> [!NOTE]
+> **Trazabilidad y Respaldo de Evidencias de Ejecución**:  
+> Cada uno de los identificadores de evidencia registrados en esta planilla (`LOG-API-20261024-01`, `TEST-JEST-VAL-01`, `E2E-NAV-ROLES-01`, etc.) se encuentra respaldado de forma auditable en el [📄 08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md). Allí se documentan el pack de datos exacto, las precondiciones, el request completo (URL, headers, payload) y la respuesta JSON devuelta por el servidor con su tiempo de respuesta en milisegundos. Además, se adjunta la colección oficial exportable [📥 EcoAlerta_API_Postman_Collection.json](EcoAlerta_API_Postman_Collection.json) para reproducir cualquier prueba.
+
 ## 1. 📈 Tablero Ejecutivo de Métricas de Calidad
 
 ### Resumen General de Requerimientos y Cobertura
