@@ -8,7 +8,7 @@
 > - **Kuhn Joaquin** (Diseñador UI/UX — Prototipado, Interfaces, HomeScreen y Usabilidad ISO 25010)  
 > - **Rodriguez Iván** (Desarrollador FrontEnd — React Native Expo, Auth Gate, Cámara y Resolución de BUG-101)  
 > - **Benitez Angel** (Desarrollador BackEnd — API REST, Prisma ORM, PostgreSQL, Concurrencia y Resolución de BUG-102)  
-> - **Benitez Facundo** (Analista de QA — Diseño y Ejecución de 57 Casos de Prueba, Regresión y Bug Tracker)  
+> - **Benitez Facundo** (Analista de QA — Diseño y Ejecución de 67 Casos de Prueba, Regresión y Bug Tracker)  
 > **Metodología:** Gestión del Alcance y Tiempo (PMBOK / PERT-CPM) & Spec-Driven Testing (SDD)  
 > **Duración Total:** 10 Semanas Calendario (70 Días / 50 Días Laborables)  
 > **Fecha de Inicio Oficial:** 25 de agosto de 2026 (Creación del repositorio en GitHub)  
@@ -74,6 +74,9 @@ gantt
     Diseño de 57 Casos de Prueba Detallados (Benitez Facundo)    :done, t21, 2026-10-26, 2d
     Correccion BUG-101 en Compresion de Imagen (Rodriguez Ivan)  :done, t22, 2026-10-27, 2d
     Correccion BUG-102 en Reserva Stock Concurrente (Benitez A)  :done, t23, 2026-10-27, 2d
+    Modulo 007 Alta Personal y Foto Camara Obligatoria (Ivan y Angel) :done, t23b, 2026-10-28, 1d
+    Modulo 007 Gestion Colaboradores y Baja Transaccional (Angel y Ivan) :done, t23c, 2026-10-28, 1d
+    Diseño y Ejecucion Casos CP-58 a CP-67 Modulo 007 (Facundo B) :done, t23d, 2026-10-28, 1d
 
     section Fase 5 - Pruebas E2E & Regresion (28/10 - 31/10)
     Ejecucion de Suites E2E y Regresion (Benitez Facundo)        :active, t24, 2026-10-28, 2d
@@ -92,15 +95,15 @@ gantt
 
 | Métrica del Proyecto | Estado Actual (Corte: 28-10) | Período Histórico (Inicio: 25-08) | Diagnóstico de Cumplimiento |
 | :--- | :--- | :--- | :--- |
-| **Progreso Global del Proyecto** | **85% Realizado** (23 / 29 Tareas) | 25/08 al 02/11/2026 (Semana 9 de 10) | 🟢 **100% en fecha (On Track)** |
+| **Progreso Global del Proyecto** | **88% Realizado** (28 / 32 Tareas) | 25/08 al 02/11/2026 (Semana 9 de 10) | 🟢 **100% en fecha (On Track)** |
 | **Fase 1: Setup, Arquitectura & UI** | **100% Completado** `[██████████]` | **25/08 al 07/09/2026** | 🟢 Cimientos aprobados |
 | **Fase 2: Desarrollo Core Front** | **100% Completado** `[██████████]` | **08/09 al 30/09/2026** | 🟢 Vistas y mockups integrados |
 | **Fase 3: SDD, Base de Datos & Back** | **100% Completado** `[██████████]` | **01/10 al 18/10/2026** | 🟢 PostgreSQL + Supabase funcional |
-| **Fase 4: Módulos, Testware & Bugs** | **100% Completado** `[██████████]` | **19/10 al 28/10/2026** | 🟢 57 CPs, RTM, BUG-101 y 102 cerrados |
+| **Fase 4: Módulos, Testware & Bugs** | **100% Completado** `[██████████]` | **19/10 al 28/10/2026** | 🟢 Módulos 001-007, 67 CPs, 146 Tests Automatizados |
 | **Fase 5: Pruebas E2E & Regresión** | **50% En Ejecución** `[█████░░░░░]` | **28/10 al 31/10/2026** | 🟡 En curso según cronograma |
 | **Fase 6: Certificación & Entrega** | **0% Planificado** `[░░░░░░░░░░]` | **31/10 al 02/11/2026** | ⚪ Entrega final el 02/11 |
 | **Defectos Bloqueantes Abiertos** | **0 Defectos S1/S2** | 2 detectados, 2 resueltos | 🟢 100% de bugs cerrados |
-| **Cobertura de Requisitos (RTM)** | **100% Trazada** | 68 RF/RNF con casos | 🟢 Matriz auditada sin vacíos |
+| **Cobertura de Requisitos (RTM)** | **100% Trazada** | 78 RF/RNF con casos | 🟢 Matriz auditada sin vacíos (67 CPs) |
 
 > [!TIP]
 > **Evaluación Global de Ritmo**: **El proyecto se encuentra estrictamente al día.** Habiendo iniciado formalmente el **25 de agosto de 2026**, el equipo completó el 100% de las fases de desarrollo (Fases 1 a 4) registrando en git la implementación progresiva de los 6 módulos. Con la resolución y verificación de los dos defectos identificados (`BUG-101` y `BUG-102`), la Fase 5 de regresión integral se encuentra activa al día de hoy (28 de octubre), asegurando una entrega holgada y conforme al estándar el próximo **02 de noviembre de 2026**.

@@ -1,7 +1,7 @@
 import { RedemptionDetail } from '../repositories/store/IStoreRepository';
 
 const isWeekend = (date: Date): boolean => {
-  const day = date.getDay();
+  const day = date.getUTCDay();
   return day === 0 || day === 6;
 };
 
@@ -13,7 +13,7 @@ export const getRedemptionReadyAt = (createdAt?: string | null): Date | null => 
 
   let businessDays = 0;
   while (businessDays < 2) {
-    readyAt.setDate(readyAt.getDate() + 1);
+    readyAt.setUTCDate(readyAt.getUTCDate() + 1);
     if (!isWeekend(readyAt)) businessDays += 1;
   }
 
