@@ -3,6 +3,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   ConfirmRedemptionResponse,
+  DeleteProductResult,
   IStoreRepository,
   RedemptionDetail,
   ReservationItem,
@@ -24,6 +25,7 @@ const DEFAULT_PRODUCTS: StoreProduct[] = [
     descripcion: 'Bolsa ecológica de algodón orgánico para compras diarias.',
     costoPuntos: 40,
     stock: 50,
+    categoria: 'Hogar',
     activo: true,
     imagenUrl: 'https://images.unsplash.com/photo-1597484661643-2f5f74293e41?auto=format&fit=crop&w=300&q=80',
   },
@@ -33,6 +35,7 @@ const DEFAULT_PRODUCTS: StoreProduct[] = [
     descripcion: 'Botella térmica de acero inoxidable 500ml libre de BPA.',
     costoPuntos: 100,
     stock: 20,
+    categoria: 'Hogar',
     activo: true,
     imagenUrl: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=300&q=80',
   },
@@ -42,6 +45,7 @@ const DEFAULT_PRODUCTS: StoreProduct[] = [
     descripcion: 'Gorra sustentable confeccionada con materiales reciclados.',
     costoPuntos: 80,
     stock: 15,
+    categoria: 'Cuidado Personal',
     activo: true,
     imagenUrl: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=300&q=80',
   },
@@ -51,6 +55,7 @@ const DEFAULT_PRODUCTS: StoreProduct[] = [
     descripcion: 'Compostera compacta aireada para tratamiento de residuos orgánicos.',
     costoPuntos: 250,
     stock: 10,
+    categoria: 'Hogar',
     activo: true,
     imagenUrl: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=300&q=80',
   },
@@ -230,6 +235,7 @@ export class LocalStoreRepository implements IStoreRepository {
       descripcion: producto.descripcion || '',
       costoPuntos: Number(producto.costoPuntos) || 0,
       stock: Number(producto.stock) || 0,
+      categoria: producto.categoria || 'Otros',
       imagenUrl: producto.imagenUrl || null,
       activo: true,
       creadoEn: new Date().toISOString(),
@@ -251,6 +257,17 @@ export class LocalStoreRepository implements IStoreRepository {
     products[idx] = updated;
     await this.saveStoredProducts(products);
     return updated;
+  }
+
+  async deleteProduct(id: string): Promise<DeleteProductResult> {
+    const products = await this.getStoredProducts();
+    const reservations = await this.getStoredReservations();
+    if (reservations.some((r) => r.items.some((it) => it.productoId === id))) {
+      await this.updateProduct(id, { activo: false });
+      return { eliminado: false, mensaje: 'El producto tiene canjes asociados; se dio de baja en lugar de borrarse.' };
+    }
+    await this.saveStoredProducts(products.filter((p) => p.id !== id));
+    return { eliminado: true, mensaje: 'Producto eliminado definitivamente.' };
   }
 
   async deactivateProduct(id: string): Promise<StoreProduct> {

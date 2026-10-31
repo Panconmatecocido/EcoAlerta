@@ -102,6 +102,7 @@ model User {
   denunciasCreadas   Denuncia[] @relation("CiudadanoDenuncias")
   denunciasAsignadas Denuncia[] @relation("AgenteDenuncias")
   canjesRealizados   Canje[]    @relation("CiudadanoCanjes")
+  notificaciones     Notificacion[]
 
   creadoEn      DateTime   @default(now())
   actualizadoEn DateTime   @updatedAt
@@ -176,6 +177,21 @@ model Producto {
   creadoEn    DateTime    @default(now())
 
   @@map("productos")
+}
+
+// Avisos persistentes al ciudadano (ej. canje cancelado por baja de un producto)
+model Notificacion {
+  id        String   @id @default(uuid())
+  titulo    String
+  mensaje   String   @db.Text
+  leida     Boolean  @default(false)
+
+  usuarioId String
+  usuario   User     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  creadoEn  DateTime @default(now())
+
+  @@map("notificaciones")
 }
 
 model Canje {

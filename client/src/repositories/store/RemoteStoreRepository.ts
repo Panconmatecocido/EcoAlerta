@@ -3,6 +3,7 @@
 import { api } from '../../services/api';
 import {
   ConfirmRedemptionResponse,
+  DeleteProductResult,
   IStoreRepository,
   RedemptionDetail,
   ReservationItem,
@@ -17,6 +18,7 @@ const mapearProductoServidor = (raw: any): StoreProduct => ({
   descripcion: raw.descripcion || '',
   costoPuntos: typeof raw.costoPuntos === 'number' ? raw.costoPuntos : (raw.precio || 0),
   stock: typeof raw.stock === 'number' ? raw.stock : 0,
+  categoria: raw.categoria || 'Otros',
   imagenUrl: raw.imagenUrl || raw.urlImagen || null,
   activo: raw.activo !== undefined ? Boolean(raw.activo) : true,
   municipioId: raw.municipioId,
@@ -89,6 +91,16 @@ export class RemoteStoreRepository implements IStoreRepository {
   async updateProduct(id: string, producto: Partial<StoreProduct>): Promise<StoreProduct> {
     const res = await api.put<{ success: boolean; data: any }>(`/api/productos/${id}`, producto);
     return mapearProductoServidor(res.data);
+  }
+
+  async deleteProduct(id: string): Promise<DeleteProductResult> {
+    const res = await api.delete<{ success: boolean; message?: string; data?: { eliminado?: boolean } }>(
+      `/api/productos/${id}/permanente`
+    );
+    return {
+      eliminado: res.data?.eliminado ?? true,
+      mensaje: res.message || 'Producto eliminado',
+    };
   }
 
   async deactivateProduct(id: string): Promise<StoreProduct> {

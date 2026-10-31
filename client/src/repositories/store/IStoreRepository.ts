@@ -6,6 +6,7 @@ export interface StoreProduct {
   descripcion: string;
   costoPuntos: number;
   stock: number;
+  categoria?: string;
   imagenUrl?: string | null;
   activo: boolean;
   municipioId?: string;
@@ -77,12 +78,18 @@ export interface RedemptionDetail {
   }>;
 }
 
+export interface DeleteProductResult {
+  eliminado: boolean;
+  mensaje: string;
+}
+
 export interface IStoreRepository {
   getProducts(params?: { busqueda?: string; municipioId?: string }): Promise<StoreProduct[]>;
   getProductsAdmin(params?: { busqueda?: string; municipioId?: string }): Promise<StoreProduct[]>;
   createProduct(producto: Partial<StoreProduct>): Promise<StoreProduct>;
   updateProduct(id: string, producto: Partial<StoreProduct>): Promise<StoreProduct>;
   deactivateProduct(id: string): Promise<StoreProduct>;
+  deleteProduct(id: string): Promise<DeleteProductResult>;
   getBranches(params?: { municipioId?: string; todas?: boolean }): Promise<StoreBranch[]>;
   createBranch(branch: Partial<StoreBranch>): Promise<StoreBranch>;
   updateBranch(id: string, branch: Partial<StoreBranch>): Promise<StoreBranch>;

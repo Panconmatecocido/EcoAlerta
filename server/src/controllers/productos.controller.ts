@@ -2,6 +2,7 @@
 
 import { Request, Response } from 'express';
 import { Prisma, PrismaClient } from '@prisma/client';
+import { ErrorAlmacenamiento, subirImagenProducto } from '../utils/supabaseStorage';
 
 const prisma = new PrismaClient();
 
@@ -111,9 +112,43 @@ export const obtenerProductosAdmin = async (req: Request, res: Response): Promis
  * POST /api/productos
  * Crear producto nuevo
  */
+const CATEGORIAS_VALIDAS = ['Hogar', 'Limpieza', 'Cuidado Personal', 'Papelería', 'Otros'];
+
+/**
+ * POST /api/productos/imagen
+ * Recibe { imagen: dataUri } y devuelve la URL pública en Supabase Storage.
+ */
+export const subirImagen = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { imagen } = req.body ?? {};
+    if (typeof imagen !== 'string' || !imagen) {
+      res.status(400).json({ success: false, message: 'Se requiere la imagen' });
+      return;
+    }
+    const url = await subirImagenProducto(imagen);
+    res.status(201).json({ success: true, data: { url } });
+  } catch (error) {
+    if (error instanceof ErrorAlmacenamiento) {
+      res.status(error.estado).json({ success: false, message: error.message });
+      return;
+    }
+    console.error('Error al subir imagen de producto:', error);
+    res.status(500).json({ success: false, message: 'Error al subir la imagen' });
+  }
+};
+
 export const crearProducto = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { titulo, descripcion, costoPuntos, stock, imagenUrl, municipioId } = req.body;
+    const { titulo, descripcion, costoPuntos, stock, imagenUrl, municipioId, categoria } = req.body;
+
+    const categoriaFinal = categoria === undefined || categoria === null || categoria === '' ? 'Otros' : String(categoria).trim();
+    if (!CATEGORIAS_VALIDAS.includes(categoriaFinal)) {
+      res.status(400).json({
+        success: false,
+        message: `categoria inválida. Valores permitidos: ${CATEGORIAS_VALIDAS.join(', ')}`,
+      });
+      return;
+    }
 
     if (!titulo || !descripcion || costoPuntos === undefined || stock === undefined) {
       res.status(400).json({
@@ -142,6 +177,7 @@ export const crearProducto = async (req: Request, res: Response): Promise<void> 
         descripcion: String(descripcion).trim(),
         costoPuntos: puntos,
         stock: stockNum,
+        categoria: categoriaFinal,
         imagenUrl: imagenUrl ? String(imagenUrl).trim() : null,
         activo: true,
         municipioId: resolvedMunicipioId,
@@ -169,7 +205,7 @@ export const crearProducto = async (req: Request, res: Response): Promise<void> 
 export const actualizarProducto = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { titulo, descripcion, costoPuntos, stock, imagenUrl, activo } = req.body;
+    const { titulo, descripcion, costoPuntos, stock, imagenUrl, activo, categoria } = req.body;
 
     const productoExistente = await prisma.producto.findUnique({
       where: { id },
@@ -201,6 +237,14 @@ export const actualizarProducto = async (req: Request, res: Response): Promise<v
         return;
       }
       updateData.stock = s;
+    }
+    if (categoria !== undefined) {
+      const cat = String(categoria).trim();
+      if (!CATEGORIAS_VALIDAS.includes(cat)) {
+        res.status(400).json({ success: false, message: 'categoria inválida' });
+        return;
+      }
+      updateData.categoria = cat;
     }
     if (imagenUrl !== undefined) updateData.imagenUrl = imagenUrl ? String(imagenUrl).trim() : null;
     if (activo !== undefined) updateData.activo = Boolean(activo);
@@ -260,6 +304,109 @@ export const desactivarProducto = async (req: Request, res: Response): Promise<v
       success: false,
       message: 'Error al desactivar el producto',
     });
+  }
+};
+
+/**
+ * DELETE /api/productos/:id/permanente
+ * Eliminación del producto. Devuelve los puntos de los canjes pendientes y notifica a los ciudadanos.
+ * Si el producto conserva historial de canjes, queda con baja lógica en lugar de borrarse.
+ */
+export const eliminarProducto = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    const producto = await prisma.producto.findUnique({ where: { id } });
+    if (!producto) {
+      res.status(404).json({ success: false, message: 'Producto no encontrado' });
+      return;
+    }
+
+    const resultado = await prisma.$transaction(async (tx) => {
+      const itemsAfectados = await tx.itemCanje.findMany({
+        where: {
+          productoId: id,
+          canje: { estado: { in: ['PENDIENTE_RETIRO', 'RESERVADO_PENDIENTE'] } },
+        },
+        include: { canje: true },
+      });
+
+      let canjesReembolsados = 0;
+      let puntosDevueltos = 0;
+
+      for (const item of itemsAfectados) {
+        const { canje } = item;
+        const puntosItem = item.puntosUnit * item.cantidad;
+        const itemsRestantes = await tx.itemCanje.count({
+          where: { canjeId: canje.id, id: { not: item.id } },
+        });
+
+        await tx.itemCanje.delete({ where: { id: item.id } });
+        await tx.canje.update({
+          where: { id: canje.id },
+          data: {
+            totalPuntos: { decrement: puntosItem },
+            ...(itemsRestantes === 0 ? { estado: 'CANCELADO', bloqueadoHasta: null } : {}),
+          },
+        });
+
+        // Solo los canjes confirmados tienen los puntos ya descontados; las reservas (5 min) no.
+        if (canje.estado !== 'PENDIENTE_RETIRO') continue;
+
+        await tx.user.update({
+          where: { id: canje.ciudadanoId },
+          data: { puntos: { increment: puntosItem } },
+        });
+
+        const detalle =
+          itemsRestantes === 0
+            ? `tu canje ${canje.codigoRetiro} fue cancelado`
+            : `lo quitamos de tu canje ${canje.codigoRetiro} (el resto de tus productos sigue disponible para retirar)`;
+        await tx.notificacion.create({
+          data: {
+            usuarioId: canje.ciudadanoId,
+            titulo: 'Tu canje fue modificado',
+            mensaje:
+              `Lamentamos informarte que el producto "${producto.titulo}" dejó de estar disponible en la tienda, ` +
+              `por lo que ${detalle}. Te devolvimos ${puntosItem} puntos a tu saldo. ` +
+              'Te pedimos disculpas por las molestias ocasionadas.',
+          },
+        });
+
+        canjesReembolsados += 1;
+        puntosDevueltos += puntosItem;
+      }
+
+      // Si queda historial (entregados o cancelados) no se puede borrar físicamente: baja lógica.
+      const historial = await tx.itemCanje.count({ where: { productoId: id } });
+      if (historial > 0) {
+        await tx.producto.update({ where: { id }, data: { activo: false } });
+      } else {
+        await tx.producto.delete({ where: { id } });
+      }
+
+      return { eliminado: historial === 0, canjesReembolsados, puntosDevueltos };
+    });
+
+    const partes = [
+      resultado.eliminado
+        ? 'Producto eliminado definitivamente.'
+        : 'El producto tiene historial de canjes, por lo que se dio de baja (oculto en la tienda) en lugar de borrarse.',
+    ];
+    if (resultado.canjesReembolsados > 0) {
+      partes.push(
+        `Se devolvieron ${resultado.puntosDevueltos} puntos en ${resultado.canjesReembolsados} canje(s) pendiente(s) y se notificó a los usuarios.`
+      );
+    }
+
+    res.status(200).json({
+      success: true,
+      data: resultado,
+      message: partes.join(' '),
+    });
+  } catch (error) {
+    console.error('Error al eliminar producto:', error);
+    res.status(500).json({ success: false, message: 'Error al eliminar el producto' });
   }
 };
 

@@ -10,6 +10,7 @@ import productosRoutes from './routes/productos.routes';
 import sucursalesRoutes from './routes/sucursales.routes';
 import canjesRoutes from './routes/canjes.routes';
 import adminUsersRoutes from './routes/adminUsers.routes';
+import notificacionesRoutes from './routes/notificaciones.routes';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -24,6 +25,7 @@ app.use('/api/agentes', agentesRoutes);
 app.use('/api/productos', productosRoutes);
 app.use('/api/sucursales', sucursalesRoutes);
 app.use('/api/canjes', canjesRoutes);
+app.use('/api/notificaciones', notificacionesRoutes);
 app.use('/api/admin/usuarios', adminUsersRoutes);
 
 app.listen(Number(PORT), '0.0.0.0', () => {

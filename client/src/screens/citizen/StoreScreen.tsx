@@ -48,14 +48,10 @@ export const StoreScreen: React.FC = () => {
         municipioId: (user as any)?.municipioId,
       });
 
-      // Filtrado local por categoría si aplica
+      // Filtrado local por categoría asignada al producto
       if (categoriaSeleccionada !== 'Todos') {
         const cat = categoriaSeleccionada.toLowerCase();
-        const filtrados = datos.filter(
-          (p) =>
-            p.titulo.toLowerCase().includes(cat) ||
-            p.descripcion.toLowerCase().includes(cat)
-        );
+        const filtrados = datos.filter((p) => (p.categoria || 'Otros').toLowerCase() === cat);
         setProductos(filtrados);
       } else {
         setProductos(datos);

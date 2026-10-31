@@ -1,5 +1,8 @@
 // src/navigation/AppNavigator.tsx
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { CommonActions, NavigationProp, ParamListBase } from '@react-navigation/native';
+import OnboardingPantalla from '../screens/auth/OnboardingPantalla';
+import { obtenerOnboardingVisto } from '../utils/storage';
 import { View, ActivityIndicator, StyleSheet, Text } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -20,6 +23,18 @@ export type AuthStackParamList = {
 
 const Stack = createNativeStackNavigator();
 
+const OnboardingRuta: React.FC<{ navigation: NavigationProp<ParamListBase> }> = ({ navigation }) => {
+  const irA = (destino: 'Register' | 'Login') =>
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 1,
+        routes: [{ name: 'MainApp' }, { name: destino }],
+      }),
+    );
+
+  return <OnboardingPantalla alFinalizar={() => irA('Register')} alIrAlLogin={() => irA('Login')} />;
+};
+
 export const AppNavigator: React.FC = () => {
   const { user, isLoading, logoutDestination } = useAuth();
   const previousUser = useRef(user);
@@ -36,7 +51,16 @@ export const AppNavigator: React.FC = () => {
     }
   }, [logoutDestination, user]);
 
-  if (isLoading) {
+  // Se lee una sola vez al abrir la app; la pantalla de onboarding persiste el flag al cerrarse.
+  const [onboardingVisto, setOnboardingVisto] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    obtenerOnboardingVisto()
+      .then(setOnboardingVisto)
+      .catch(() => setOnboardingVisto(true));
+  }, []);
+
+  if (isLoading || onboardingVisto === null) {
     return (
       <View style={styles.loadingContainer}>
         <MaterialCommunityIcons name="leaf" size={48} color={COLORS.botonPrincipal} style={styles.leafIcon} />
@@ -49,12 +73,13 @@ export const AppNavigator: React.FC = () => {
   return (
     <Stack.Navigator
       key={user ? `${user.role}:${user.id}` : 'guest'}
-      initialRouteName={user === null ? 'MainApp' : undefined}
+      initialRouteName={user === null ? (onboardingVisto ? 'MainApp' : 'Onboarding') : undefined}
       screenOptions={{ headerShown: false, animation: 'fade' }}
     >
       {user === null ? (
         // Inicio público como invitado; las pantallas de autenticación se abren bajo demanda.
         <>
+          <Stack.Screen name="Onboarding" component={OnboardingRuta} />
           <Stack.Screen name="MainApp" component={MainNavigator} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={RegisterScreen} />

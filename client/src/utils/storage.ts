@@ -7,7 +7,14 @@ const STORAGE_KEYS = {
   LEGACY_CURRENT_USER: '@ecoalerta_current_user',
   AUTH_TOKEN: '@ecoalerta_token',
   USERS_LIST: '@ecoalerta_users_database',
+  ONBOARDING_VISTO: 'vistoOnboarding',
 };
+
+export const marcarOnboardingVisto = async (): Promise<void> =>
+  AsyncStorage.setItem(STORAGE_KEYS.ONBOARDING_VISTO, 'true');
+
+export const obtenerOnboardingVisto = async (): Promise<boolean> =>
+  (await AsyncStorage.getItem(STORAGE_KEYS.ONBOARDING_VISTO)) === 'true';
 
 export interface StoredUserAccount {
   user: User;

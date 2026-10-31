@@ -2,6 +2,7 @@
 
 import {
   ConfirmRedemptionResponse,
+  DeleteProductResult,
   IStoreRepository,
   RedemptionDetail,
   ReservationItem,
@@ -38,6 +39,10 @@ export const storeRepository: IStoreRepository = {
 
   deactivateProduct(id: string): Promise<StoreProduct> {
     return remoteStoreRepo.deactivateProduct(id);
+  },
+
+  deleteProduct(id: string): Promise<DeleteProductResult> {
+    return remoteStoreRepo.deleteProduct(id);
   },
 
   getBranches(params?: { municipioId?: string; todas?: boolean }): Promise<StoreBranch[]> {

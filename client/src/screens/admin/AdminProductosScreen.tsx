@@ -14,11 +14,14 @@ import {
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as ImagePicker from 'expo-image-picker';
+import { subirImagenProducto } from '../../services/imagenProductoService';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { storeRepository, StoreProduct, StoreBranch } from '../../repositories/store';
 import { TransactionLoaderModal } from '../../components/common/TransactionLoaderModal';
 import { COLORS, SPACING, BORDER_RADIUS, ICON_SIZE } from '../../utils/theme';
 import Header from '../../components/Header';
+import { CATEGORIAS_PRODUCTO, CATEGORIA_POR_DEFECTO } from '../../utils/categoriasProducto';
 
 export const AdminProductosScreen: React.FC = () => {
   const [seccionActiva, setSeccionActiva] = useState<'productos' | 'sucursales'>('productos');
@@ -37,6 +40,7 @@ export const AdminProductosScreen: React.FC = () => {
   const [formPuntos, setFormPuntos] = useState('');
   const [formStock, setFormStock] = useState('');
   const [formImagenUrl, setFormImagenUrl] = useState('');
+  const [formCategoria, setFormCategoria] = useState<string>(CATEGORIA_POR_DEFECTO);
 
   // Modal Sucursales
   const [modalSucursalVisible, setModalSucursalVisible] = useState<boolean>(false);
@@ -74,6 +78,7 @@ export const AdminProductosScreen: React.FC = () => {
     setFormPuntos('');
     setFormStock('');
     setFormImagenUrl('');
+    setFormCategoria(CATEGORIA_POR_DEFECTO);
     setModalProductoVisible(true);
   };
 
@@ -84,7 +89,34 @@ export const AdminProductosScreen: React.FC = () => {
     setFormPuntos(String(prod.costoPuntos));
     setFormStock(String(prod.stock));
     setFormImagenUrl(prod.imagenUrl || '');
+    setFormCategoria(prod.categoria || CATEGORIA_POR_DEFECTO);
     setModalProductoVisible(true);
+  };
+
+  const seleccionarImagenProducto = async () => {
+    const permiso = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permiso.granted) {
+      Alert.alert('Permiso requerido', 'Necesitamos acceso a tus fotos para adjuntar la imagen del producto.');
+      return;
+    }
+
+    const resultado = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+    if (resultado.canceled || !resultado.assets[0]?.uri) return;
+
+    try {
+      setMensajeMutacion('Subiendo imagen...');
+      setMutando(true);
+      setFormImagenUrl(await subirImagenProducto(resultado.assets[0].uri));
+    } catch (error: any) {
+      Alert.alert('No se pudo subir la imagen', error?.message || 'Intentá nuevamente.');
+    } finally {
+      setMutando(false);
+    }
   };
 
   const guardarProducto = async () => {
@@ -111,6 +143,7 @@ export const AdminProductosScreen: React.FC = () => {
           descripcion: formDescripcion.trim(),
           costoPuntos: puntosNum,
           stock: stockNum,
+          categoria: formCategoria,
           imagenUrl: formImagenUrl.trim() || null,
         });
       } else {
@@ -119,6 +152,7 @@ export const AdminProductosScreen: React.FC = () => {
           descripcion: formDescripcion.trim(),
           costoPuntos: puntosNum,
           stock: stockNum,
+          categoria: formCategoria,
           imagenUrl: formImagenUrl.trim() || null,
         });
       }
@@ -157,6 +191,33 @@ export const AdminProductosScreen: React.FC = () => {
               await cargarDatos();
             } catch (error: any) {
               Alert.alert('Error', error?.message || 'No se pudo modificar el estado del producto');
+            } finally {
+              setMutando(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const eliminarProductoDefinitivo = (prod: StoreProduct) => {
+    Alert.alert(
+      'Eliminar producto',
+      `¿Eliminar "${prod.titulo}"? Si algún usuario lo tiene canjeado y pendiente de retiro, se le devolverán los puntos y se le avisará con una notificación. Esta acción no se puede deshacer.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setMensajeMutacion('Eliminando producto...');
+              setMutando(true);
+              const resultado = await storeRepository.deleteProduct(prod.id);
+              await cargarDatos();
+              Alert.alert('Listo', resultado.mensaje);
+            } catch (error: any) {
+              Alert.alert('No se pudo eliminar', error?.message || 'Error al eliminar el producto');
             } finally {
               setMutando(false);
             }
@@ -323,7 +384,12 @@ export const AdminProductosScreen: React.FC = () => {
             {productos.length === 0 ? (
               <Text style={styles.textoVacio}>No hay productos registrados en el catálogo.</Text>
             ) : (
-              productos.map((prod) => (
+              [...productos]
+                .sort((a, b) => {
+                  const rango = (p: StoreProduct) => (!p.activo ? 2 : p.stock > 0 ? 0 : 1);
+                  return rango(a) - rango(b);
+                })
+                .map((prod) => (
                 <View
                   key={prod.id}
                   style={[styles.tarjetaAdmin, !prod.activo && styles.tarjetaInactiva]}
@@ -367,6 +433,7 @@ export const AdminProductosScreen: React.FC = () => {
                         <Text style={styles.puntosItem}>⭐ {prod.costoPuntos} EcoPuntos</Text>
                         <Text style={styles.stockItem}>📦 Stock: {prod.stock}</Text>
                       </View>
+                      <Text style={styles.categoriaItem}>🏷️ {prod.categoria || CATEGORIA_POR_DEFECTO}</Text>
                     </View>
                   </View>
 
@@ -402,6 +469,15 @@ export const AdminProductosScreen: React.FC = () => {
                       >
                         {prod.activo ? 'Baja Lógica' : 'Reactivar'}
                       </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.botonAccionToggle, styles.botonToggleBaja]}
+                      onPress={() => eliminarProductoDefinitivo(prod)}
+                      activeOpacity={0.7}
+                    >
+                      <MaterialCommunityIcons name="trash-can-outline" size={15} color={COLORS.textoPeligro} />
+                      <Text style={[styles.textoAccionToggle, styles.textoToggleBaja]}>Eliminar</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -539,13 +615,41 @@ export const AdminProductosScreen: React.FC = () => {
                 </View>
               </View>
 
-              <Text style={styles.labelInput}>URL de Imagen (opcional)</Text>
-              <TextInput
-                style={styles.inputForm}
-                placeholder="https://images.unsplash.com/..."
-                value={formImagenUrl}
-                onChangeText={setFormImagenUrl}
-              />
+              <Text style={styles.labelInput}>Categoría *</Text>
+              <View style={styles.contenedorChipsCategoria}>
+                {CATEGORIAS_PRODUCTO.map((cat) => {
+                  const seleccionada = formCategoria === cat;
+                  return (
+                    <TouchableOpacity
+                      key={cat}
+                      style={[styles.chipCategoria, seleccionada && styles.chipCategoriaActivo]}
+                      onPress={() => setFormCategoria(cat)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={[styles.textoChipCategoria, seleccionada && styles.textoChipCategoriaActivo]}>
+                        {cat}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              <Text style={styles.labelInput}>Imagen del producto (opcional)</Text>
+              {formImagenUrl ? (
+                <Image source={{ uri: formImagenUrl }} style={styles.vistaPreviaImagen} />
+              ) : null}
+              <View style={styles.filaImagen}>
+                <TouchableOpacity style={styles.botonImagen} onPress={seleccionarImagenProducto} activeOpacity={0.7}>
+                  <MaterialCommunityIcons name="image-plus" size={18} color={COLORS.botonPrincipal} />
+                  <Text style={styles.textoBotonImagen}>{formImagenUrl ? 'Cambiar imagen' : 'Adjuntar imagen'}</Text>
+                </TouchableOpacity>
+                {formImagenUrl ? (
+                  <TouchableOpacity style={styles.botonImagen} onPress={() => setFormImagenUrl('')} activeOpacity={0.7}>
+                    <MaterialCommunityIcons name="delete-outline" size={18} color={COLORS.textoPeligro} />
+                    <Text style={[styles.textoBotonImagen, { color: COLORS.textoPeligro }]}>Quitar</Text>
+                  </TouchableOpacity>
+                ) : null}
+              </View>
 
               <TouchableOpacity
                 style={styles.botonGuardarForm}
@@ -923,6 +1027,62 @@ const styles = StyleSheet.create({
   filaDosColumnas: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  contenedorChipsCategoria: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: SPACING.xs,
+  },
+  vistaPreviaImagen: {
+    width: 120,
+    height: 120,
+    borderRadius: BORDER_RADIUS.md,
+    marginBottom: SPACING.sm,
+    alignSelf: 'center',
+  },
+  filaImagen: {
+    flexDirection: 'row',
+    gap: SPACING.sm,
+    marginBottom: SPACING.md,
+  },
+  botonImagen: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    borderRadius: BORDER_RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.borde,
+  },
+  textoBotonImagen: {
+    color: COLORS.botonPrincipal,
+    fontWeight: '600',
+  },
+  chipCategoria: {
+    paddingHorizontal: SPACING.sm + 2,
+    paddingVertical: 6,
+    borderRadius: BORDER_RADIUS.lg,
+    borderWidth: 1,
+    borderColor: COLORS.bordeSuave,
+    backgroundColor: COLORS.superficieTarjeta,
+  },
+  chipCategoriaActivo: {
+    backgroundColor: COLORS.botonPrincipal,
+    borderColor: COLORS.botonPrincipal,
+  },
+  textoChipCategoria: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.textoVerde,
+  },
+  textoChipCategoriaActivo: {
+    color: COLORS.blanco,
+  },
+  categoriaItem: {
+    fontSize: 11,
+    color: COLORS.textoSecundario,
+    marginTop: 2,
   },
   botonGuardarForm: {
     backgroundColor: COLORS.botonPrincipal,

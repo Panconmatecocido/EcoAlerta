@@ -12,6 +12,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CitizenReport, reportRepository } from '../../repositories/reports';
 import { RedemptionDetail, storeRepository } from '../../repositories/store';
 import { getRedemptionReadyAt, isRedemptionReady } from '../../utils/citizenNotifications';
+import { NotificacionServidor, obtenerNotificacionesCiudadano } from '../../services/notificacionesService';
 import { BORDER_RADIUS, COLORS, SPACING } from '../../utils/theme';
 
 interface Props {
@@ -52,8 +53,18 @@ const formatDate = (date: Date): string =>
 const buildNotifications = (
   reports: CitizenReport[],
   redemptions: RedemptionDetail[],
+  avisos: NotificacionServidor[],
   now: Date
 ): NotificationItem[] => {
+  const avisoNotifications: NotificationItem[] = avisos.map((aviso) => ({
+    id: `aviso-${aviso.id}`,
+    title: aviso.titulo,
+    message: aviso.mensaje,
+    date: aviso.creadoEn,
+    icon: 'alert-circle-outline',
+    color: COLORS.textoAdvertencia,
+  }));
+
   const reportNotifications: NotificationItem[] = reports.map((report) => ({
     id: `report-${report.id}`,
     title: `Reporte ${report.codigo}`,
@@ -110,7 +121,7 @@ const buildNotifications = (
     };
   });
 
-  return [...reportNotifications, ...redemptionNotifications].sort((first, second) => {
+  return [...avisoNotifications, ...reportNotifications, ...redemptionNotifications].sort((first, second) => {
     const firstTime = first.date ? new Date(first.date).getTime() : 0;
     const secondTime = second.date ? new Date(second.date).getTime() : 0;
     return secondTime - firstTime;
@@ -124,6 +135,7 @@ export const CitizenNotificationsModal: React.FC<Props> = ({
 }) => {
   const [reports, setReports] = useState<CitizenReport[]>([]);
   const [redemptions, setRedemptions] = useState<RedemptionDetail[]>([]);
+  const [avisos, setAvisos] = useState<NotificacionServidor[]>([]);
   const [loading, setLoading] = useState(false);
   const [reportError, setReportError] = useState<string | null>(null);
   const [redemptionError, setRedemptionError] = useState<string | null>(null);
@@ -132,6 +144,7 @@ export const CitizenNotificationsModal: React.FC<Props> = ({
     if (!ciudadanoId) {
       setReports([]);
       setRedemptions([]);
+      setAvisos([]);
       setReportError(null);
       setRedemptionError(null);
       return;
@@ -141,10 +154,14 @@ export const CitizenNotificationsModal: React.FC<Props> = ({
     setReportError(null);
     setRedemptionError(null);
 
-    const [reportResult, redemptionResult] = await Promise.allSettled([
+    const [reportResult, redemptionResult, avisosResult] = await Promise.allSettled([
       reportRepository.getCitizenReports(ciudadanoId),
       storeRepository.getCitizenRedemptions(ciudadanoId),
+      obtenerNotificacionesCiudadano(ciudadanoId),
     ]);
+
+    // Los avisos son complementarios: si fallan no se bloquea el resto de las notificaciones.
+    setAvisos(avisosResult.status === 'fulfilled' ? avisosResult.value : []);
 
     if (reportResult.status === 'fulfilled') {
       setReports(reportResult.value);
@@ -178,8 +195,8 @@ export const CitizenNotificationsModal: React.FC<Props> = ({
   }, [loadNotifications, visible]);
 
   const notifications = useMemo(
-    () => buildNotifications(reports, redemptions, new Date()),
-    [reports, redemptions]
+    () => buildNotifications(reports, redemptions, avisos, new Date()),
+    [reports, redemptions, avisos]
   );
 
   return (
