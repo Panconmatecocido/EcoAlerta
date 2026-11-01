@@ -472,6 +472,9 @@ export const confirmarCanje = async (req: Request, res: Response): Promise<void>
         },
         avisoDisponibilidad: 'Disponible para retiro a partir de las 48 hs hábiles',
       };
+    }, {
+      maxWait: 15000,
+      timeout: 30000,
     });
 
     res.status(200).json({
@@ -728,6 +731,9 @@ export const confirmarEntregaCanje = async (req: Request, res: Response): Promis
       });
 
       return canjeEntregado;
+    }, {
+      maxWait: 15000,
+      timeout: 30000,
     });
 
     res.status(200).json({

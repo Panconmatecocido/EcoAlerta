@@ -458,7 +458,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"titulo\": \"Reporte sin coordenadas\",\n  \"categoria\": \"BASURAL\",\n  \"descripcion\": \"Reporte sin coordenadas geogr\\u00e1ficas para inducir rechazo 400 Bad Request.\",\n  \"direccion\": \"Calle Falsa 123\",\n  \"imagenUrl\": \"https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=600&q=80\",\n  \"ciudadanoId\": \"{{ciudadanoId}}\"\n}"
+              "raw": "{\n  \"titulo\": \"Reporte con coordenadas inv\\u00e1lidas\",\n  \"categoria\": \"BASURAL\",\n  \"descripcion\": \"Reporte con coordenadas fuera de rango para verificar rechazo 400 Bad Request.\",\n  \"direccion\": \"Calle Falsa 123\",\n  \"latitud\": \"coordenada_invalida\",\n  \"longitud\": -58.2981,\n  \"imagenUrl\": \"https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=600&q=80\",\n  \"ciudadanoId\": \"{{ciudadanoId}}\",\n  \"municipioId\": \"{{municipioId}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/denuncias",
@@ -476,6 +476,10 @@
           "request": {
             "method": "PATCH",
             "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
               {
                 "key": "Authorization",
                 "value": "Bearer {{tokenCitizen}}"
@@ -895,7 +899,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Agente Inspector Ramos\",\n  \"email\": \"marcos.ramos@pilar.gob.ar\",\n  \"password\": \"clave-segura-123\",\n  \"rol\": \"AGENT\",\n  \"fotoPerfilUri\": \"data:image/jpeg;base64,/9j/2Q==\"\n}"
+              "raw": "{\n  \"nombre\": \"Agente Inspector Ramos\",\n  \"email\": \"agente_{{$timestamp}}@pilar.gob.ar\",\n  \"password\": \"clave-segura-123\",\n  \"rol\": \"AGENT\",\n  \"fotoPerfilUri\": \"data:image/jpeg;base64,/9j/2Q==\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/admin/usuarios",
@@ -908,7 +912,26 @@
               ]
             },
             "description": "Crea una cuenta de Agente de Campo con foto obligatoria de cámara asociada al municipio del administrador."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    var id = (res.data && res.data.id) || res.id;",
+                  "    if (id) {",
+                  "        pm.environment.set(\"nuevoAgenteId\", id);",
+                  "        pm.collectionVariables.set(\"nuevoAgenteId\", id);",
+                  "        console.log(\"nuevoAgenteId guardado:\", id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Alta de Colaborador con Foto de Cámara",
@@ -926,7 +949,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Comercio Verde Pilar\",\n  \"email\": \"contacto@comercioverde.com\",\n  \"password\": \"clave-segura-123\",\n  \"rol\": \"COLLABORATOR\",\n  \"fotoPerfilUri\": \"data:image/jpeg;base64,/9j/2Q==\"\n}"
+              "raw": "{\n  \"nombre\": \"Comercio Verde Pilar\",\n  \"email\": \"colaborador_{{$timestamp}}@comercioverde.com\",\n  \"password\": \"clave-segura-123\",\n  \"rol\": \"COLLABORATOR\",\n  \"fotoPerfilUri\": \"data:image/jpeg;base64,/9j/2Q==\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/admin/usuarios",
@@ -939,7 +962,26 @@
               ]
             },
             "description": "Crea una cuenta de Colaborador (Comercio de Canje) con foto obligatoria y disponible=true por defecto."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    var id = (res.data && res.data.id) || res.id;",
+                  "    if (id) {",
+                  "        pm.environment.set(\"nuevoColaboradorId\", id);",
+                  "        pm.collectionVariables.set(\"nuevoColaboradorId\", id);",
+                  "        console.log(\"nuevoColaboradorId guardado:\", id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Rechazo de Alta sin Foto (400 Bad Request)",
@@ -1015,7 +1057,7 @@
               "raw": "{\n  \"disponible\": false\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/admin/usuarios/colaboradores/:id/disponibilidad",
+              "raw": "{{baseUrl}}/admin/usuarios/colaboradores/{{nuevoColaboradorId}}/disponibilidad",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1023,18 +1065,26 @@
                 "admin",
                 "usuarios",
                 "colaboradores",
-                ":id",
+                "{{nuevoColaboradorId}}",
                 "disponibilidad"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "colaborador-id"
-                }
               ]
             },
             "description": "Permite habilitar o suspender temporalmente la atención de canjes en el local comercial."
-          }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get(\"nuevoColaboradorId\") && !pm.collectionVariables.get(\"nuevoColaboradorId\")) {",
+                  "    var fallback = pm.environment.get(\"colaboradorId\") || \"6e7885e8-38f8-4dad-8fea-879314c81466\";",
+                  "    pm.environment.set(\"nuevoColaboradorId\", fallback);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Baja Transaccional de Agente y Liberación de Denuncias",
@@ -1047,24 +1097,31 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/admin/usuarios/:id",
+              "raw": "{{baseUrl}}/admin/usuarios/{{nuevoAgenteId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "admin",
                 "usuarios",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "agente-id"
-                }
+                "{{nuevoAgenteId}}"
               ]
             },
             "description": "Elimina la cuenta y desasigna automáticamente las denuncias activas devolviéndolas a la bolsa general."
-          }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get(\"nuevoAgenteId\") && !pm.collectionVariables.get(\"nuevoAgenteId\")) {",
+                  "    console.warn(\"nuevoAgenteId no detectado, se requiere ejecutar antes el Alta de Agente\");",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Actualizar Perfil de Administrador (Nombre y Foto)",

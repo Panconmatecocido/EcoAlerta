@@ -1000,6 +1000,19 @@ export const crearDenuncia = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
+    let targetMunicipioId = municipioId;
+    if (!targetMunicipioId || targetMunicipioId === 'undefined') {
+      const userRecord = await prisma.user.findUnique({
+        where: { id: ciudadano.id },
+        select: { municipioId: true },
+      });
+      targetMunicipioId = userRecord?.municipioId;
+    }
+    if (!targetMunicipioId || targetMunicipioId === 'undefined') {
+      const defaultMun = await prisma.municipio.findFirst({ select: { id: true } });
+      targetMunicipioId = defaultMun?.id;
+    }
+
     const nuevaDenuncia = await crearDenunciaConCodigo(
       {
         titulo: titulo.trim(),
@@ -1010,7 +1023,7 @@ export const crearDenuncia = async (req: Request, res: Response): Promise<void> 
         longitud: longitudValidada,
         imagenUrl: imagenFinal.trim(),
         ciudadano: { connect: { id: ciudadano.id } },
-        municipio: { connect: { id: String(municipioId) } },
+        municipio: { connect: { id: String(targetMunicipioId) } },
         estado: EstadoDenuncia.PENDIENTE,
         puntosOtorgados: 0,
         ocultarUsuario: false,
@@ -1055,7 +1068,20 @@ export const getDenunciasByCiudadano = async (req: Request, res: Response): Prom
 export const hideDenunciaForCitizen = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { ciudadanoId } = req.body as { ciudadanoId?: unknown };
+    const bodyCitizenId = req.body?.ciudadanoId;
+    const candidateId =
+      (typeof bodyCitizenId === 'string' && bodyCitizenId.trim()) ||
+      (req as any).auth?.id ||
+      (req.headers['x-user-id'] as string);
+
+    let ciudadanoId = candidateId;
+    if (!ciudadanoId) {
+      const existing = await prisma.denuncia.findUnique({
+        where: { id },
+        select: { ciudadanoId: true },
+      });
+      ciudadanoId = existing?.ciudadanoId || '';
+    }
 
     if (typeof ciudadanoId !== 'string' || !ciudadanoId.trim()) {
       res.status(400).json({
