@@ -40,6 +40,36 @@
       "key": "codigoRetiro",
       "value": "ECO-2026-7142",
       "type": "string"
+    },
+    {
+      "key": "ciudadanoId",
+      "value": "d9e8d761-0678-46d5-a904-d69b42875115",
+      "type": "string"
+    },
+    {
+      "key": "municipioId",
+      "value": "4efb8ffe-f9a6-4643-8224-66b4a42da22d",
+      "type": "string"
+    },
+    {
+      "key": "agenteId",
+      "value": "95caee4a-9a99-4c07-ba71-63b7842da650",
+      "type": "string"
+    },
+    {
+      "key": "productoId",
+      "value": "71e36e1e-8321-4338-bf0e-ffc2bc7d4e1c",
+      "type": "string"
+    },
+    {
+      "key": "sucursalId",
+      "value": "b22f67c5-ba0e-45ac-a078-474e3c012ae4",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -82,7 +112,11 @@
                   "    if (tok) {",
                   "        pm.environment.set(\"tokenCitizen\", tok);",
                   "        pm.collectionVariables.set(\"tokenCitizen\", tok);",
-                  "        console.log(\"tokenCitizen guardado:\", tok.substring(0, 15) + \"...\");",
+                  "    }",
+                  "    var usr = res.user || (res.data && res.data.user);",
+                  "    if (usr) {",
+                  "        if (usr.id) { pm.environment.set(\"ciudadanoId\", usr.id); pm.collectionVariables.set(\"ciudadanoId\", usr.id); }",
+                  "        if (usr.municipioId) { pm.environment.set(\"municipioId\", usr.municipioId); pm.collectionVariables.set(\"municipioId\", usr.municipioId); }",
                   "    }",
                   "}"
                 ],
@@ -153,7 +187,11 @@
                   "    if (tok) {",
                   "        pm.environment.set(\"tokenCitizen\", tok);",
                   "        pm.collectionVariables.set(\"tokenCitizen\", tok);",
-                  "        console.log(\"tokenCitizen actualizado:\", tok.substring(0, 15) + \"...\");",
+                  "    }",
+                  "    var usr = res.user || (res.data && res.data.user);",
+                  "    if (usr) {",
+                  "        if (usr.id) { pm.environment.set(\"ciudadanoId\", usr.id); pm.collectionVariables.set(\"ciudadanoId\", usr.id); }",
+                  "        if (usr.municipioId) { pm.environment.set(\"municipioId\", usr.municipioId); pm.collectionVariables.set(\"municipioId\", usr.municipioId); }",
                   "    }",
                   "}"
                 ],
@@ -270,7 +308,11 @@
                   "    if (tok) {",
                   "        pm.environment.set(\"tokenAgent\", tok);",
                   "        pm.collectionVariables.set(\"tokenAgent\", tok);",
-                  "        console.log(\"tokenAgent guardado:\", tok.substring(0, 15) + \"...\");",
+                  "    }",
+                  "    var usr = res.user || (res.data && res.data.user);",
+                  "    if (usr && usr.id) {",
+                  "        pm.environment.set(\"agenteId\", usr.id);",
+                  "        pm.collectionVariables.set(\"agenteId\", usr.id);",
                   "    }",
                   "}"
                 ],
@@ -368,7 +410,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"categoria\": \"BASURAL\",\n  \"descripcion\": \"Acumulaci\\u00f3n de residuos y escombros en la esquina del boulevard.\",\n  \"latitud\": -26.8654,\n  \"longitud\": -58.2981,\n  \"direccion\": \"Av. Costanera y Calle 14, Pilar\",\n  \"fotoUrl\": \"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD...\"\n}"
+              "raw": "{\n  \"titulo\": \"Microbasural en esquina c\\u00e9ntrica\",\n  \"categoria\": \"BASURAL\",\n  \"descripcion\": \"Acumulaci\\u00f3n de residuos y escombros en la esquina del boulevard.\",\n  \"direccion\": \"Av. Costanera y Calle 14, Pilar\",\n  \"latitud\": -26.8654,\n  \"longitud\": -58.2981,\n  \"imagenUrl\": \"https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=600&q=80\",\n  \"ciudadanoId\": \"{{ciudadanoId}}\",\n  \"municipioId\": \"{{municipioId}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/denuncias",
@@ -387,7 +429,7 @@
                 "exec": [
                   "if (pm.response.code === 201 || pm.response.code === 200) {",
                   "    var res = pm.response.json();",
-                  "    var dId = (res.denuncia && res.denuncia.id) || (res.data && res.data.id) || res.id;",
+                  "    var dId = (res.data && res.data.id) || (res.denuncia && res.denuncia.id) || res.id;",
                   "    if (dId) {",
                   "        pm.environment.set(\"denunciaId\", dId.toString());",
                   "        pm.collectionVariables.set(\"denunciaId\", dId.toString());",
@@ -416,7 +458,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"categoria\": \"BASURAL\",\n  \"descripcion\": \"Reporte sin coordenadas geogr\\u00e1ficas para inducir error.\",\n  \"direccion\": \"Sin GPS\"\n}"
+              "raw": "{\n  \"titulo\": \"Reporte sin coordenadas\",\n  \"categoria\": \"BASURAL\",\n  \"descripcion\": \"Reporte sin coordenadas geogr\\u00e1ficas para inducir rechazo 400 Bad Request.\",\n  \"direccion\": \"Calle Falsa 123\",\n  \"imagenUrl\": \"https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=600&q=80\",\n  \"ciudadanoId\": \"{{ciudadanoId}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/denuncias",
@@ -432,7 +474,7 @@
         {
           "name": "CP-RF-REP-06-01: Soft-Delete Ocultamiento Visual del Vecino (200 OK)",
           "request": {
-            "method": "DELETE",
+            "method": "PATCH",
             "header": [
               {
                 "key": "Authorization",
@@ -440,22 +482,26 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/denuncias/{{denunciaId}}/soft-delete",
+              "raw": "{{baseUrl}}/denuncias/{{denunciaId}}/ocultar",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "denuncias",
                 "{{denunciaId}}",
-                "soft-delete"
+                "ocultar"
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ciudadanoId\": \"{{ciudadanoId}}\"\n}"
             }
           }
         },
         {
           "name": "CP-RF-ADM-01-01: Triaje Municipal - Aprobar y Asignar Prioridad (200 OK)",
           "request": {
-            "method": "POST",
+            "method": "PATCH",
             "header": [
               {
                 "key": "Content-Type",
@@ -468,7 +514,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"accion\": \"APROBAR\",\n  \"prioridad\": \"ALTA\",\n  \"observaciones\": \"Foco verificado preliminarmente por cercan\\u00eda a escuela.\"\n}"
+              "raw": "{\n  \"accion\": \"APROBAR\",\n  \"prioridad\": \"ALTA\",\n  \"observacionesAdmin\": \"Foco verificado conforme a triaje de prioridad.\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/denuncias/{{denunciaId}}/triaje",
@@ -486,7 +532,7 @@
         {
           "name": "CP-RF-AGE-02-01: Agente Toma Caso de la Bolsa con Bloqueo 1 a 1 (200 OK)",
           "request": {
-            "method": "POST",
+            "method": "PATCH",
             "header": [
               {
                 "key": "Authorization",
@@ -503,13 +549,17 @@
                 "{{denunciaId}}",
                 "tomar"
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agenteId\": \"{{agenteId}}\"\n}"
             }
           }
         },
         {
           "name": "CP-RF-AGE-05-01: Verificación In Situ - Carga Foto Contraprueba Real (200 OK)",
           "request": {
-            "method": "POST",
+            "method": "PATCH",
             "header": [
               {
                 "key": "Content-Type",
@@ -522,17 +572,17 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"resultado\": \"REAL\",\n  \"fotoContraprueba\": \"https://storage.ecoalerta.gob.ar/evidencias/contraprueba_01.jpg\",\n  \"observaciones\": \"Foco constatado en el lugar. Requiere cuadrilla pesada.\"\n}"
+              "raw": "{\n  \"resultado\": \"REAL\",\n  \"fotoVerificacionUrl\": \"https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=600&q=80\",\n  \"observaciones\": \"Inspecci\\u00f3n ocular realizada. Se constata microbasural activo.\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/denuncias/{{denunciaId}}/visita",
+              "raw": "{{baseUrl}}/denuncias/{{denunciaId}}/verificar",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "denuncias",
                 "{{denunciaId}}",
-                "visita"
+                "verificar"
               ]
             }
           }
@@ -540,7 +590,7 @@
         {
           "name": "CP-RF-ADM-04-01: Admin Acredita Puntos Atómicos por Baremo (200 OK)",
           "request": {
-            "method": "POST",
+            "method": "PATCH",
             "header": [
               {
                 "key": "Content-Type",
@@ -553,17 +603,17 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"puntos\": 250,\n  \"motivo\": \"Foco de prioridad ALTA verificado conforme a baremo 200-300 pts.\"\n}"
+              "raw": "{\n  \"decision\": \"APROBAR_VERACIDAD\",\n  \"puntos\": 250,\n  \"observacionesAdmin\": \"Foco de prioridad ALTA verificado conforme a baremo 200-300 pts.\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/denuncias/{{denunciaId}}/puntos",
+              "raw": "{{baseUrl}}/denuncias/{{denunciaId}}/validar-veracidad",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "denuncias",
                 "{{denunciaId}}",
-                "puntos"
+                "validar-veracidad"
               ]
             }
           }
@@ -571,7 +621,7 @@
         {
           "name": "CP-RF-AGE-08-01: Agente Reporta Limpieza y Foto Después (200 OK)",
           "request": {
-            "method": "POST",
+            "method": "PATCH",
             "header": [
               {
                 "key": "Content-Type",
@@ -584,17 +634,17 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fotoSolucionUrl\": \"https://storage.ecoalerta.gob.ar/evidencias/despues_01.jpg\",\n  \"informeSolucion\": \"Se removieron 1.5 toneladas de escombros y se desinfect\\u00f3 la zona.\"\n}"
+              "raw": "{\n  \"fotoSolucionUrl\": \"https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=600&q=80\",\n  \"informeSolucion\": \"Saneamiento y retiro completo de residuos finalizado con \\u00e9xito.\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/denuncias/{{denunciaId}}/saneamiento",
+              "raw": "{{baseUrl}}/denuncias/{{denunciaId}}/cierre-tecnico",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "denuncias",
                 "{{denunciaId}}",
-                "saneamiento"
+                "cierre-tecnico"
               ]
             }
           }
@@ -602,7 +652,7 @@
         {
           "name": "CP-RF-ADM-07-01: Admin Certifica Doble Foto Antes vs Después y Cierra (200 OK)",
           "request": {
-            "method": "POST",
+            "method": "PATCH",
             "header": [
               {
                 "key": "Content-Type",
@@ -615,7 +665,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"decision\": \"CERTIFICADO\",\n  \"dictamen\": \"Limpieza integral validada. Terreno recuperado exitosamente.\"\n}"
+              "raw": "{\n  \"decision\": \"CERTIFICAR\",\n  \"observacionesAdmin\": \"Limpieza integral validada y terreno recuperado con \\u00e9xito.\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/denuncias/{{denunciaId}}/certificar",
@@ -666,7 +716,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"items\": [\n    {\n      \"productoId\": 1,\n      \"cantidad\": 1\n    }\n  ],\n  \"sucursalId\": 1\n}"
+              "raw": "{\n  \"ciudadanoId\": \"{{ciudadanoId}}\",\n  \"items\": [\n    {\n      \"productoId\": \"{{productoId}}\",\n      \"cantidad\": 1\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/canjes/reservar",
@@ -678,7 +728,25 @@
                 "reservar"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    var res = pm.response.json();",
+                  "    var cId = (res.canje && res.canje.id) || (res.data && res.data.id) || res.id;",
+                  "    if (cId) {",
+                  "        pm.environment.set(\"canjeId\", cId.toString());",
+                  "        pm.collectionVariables.set(\"canjeId\", cId.toString());",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "CP-RF-TIE-05-04: Confirmación Transaccional de Canje y Código Retiro (201)",
@@ -696,16 +764,17 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"items\": [\n    {\n      \"productoId\": 1,\n      \"cantidad\": 1\n    }\n  ],\n  \"sucursalId\": 1\n}"
+              "raw": "{\n  \"ciudadanoId\": \"{{ciudadanoId}}\",\n  \"sucursalId\": \"{{sucursalId}}\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/canjes/checkout",
+              "raw": "{{baseUrl}}/canjes/{{canjeId}}/confirmar",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "canjes",
-                "checkout"
+                "{{canjeId}}",
+                "confirmar"
               ]
             }
           },
@@ -714,7 +783,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
                   "    var res = pm.response.json();",
                   "    var code = (res.canje && res.canje.codigoRetiro) || (res.data && res.data.codigoRetiro) || res.codigoRetiro;",
                   "    if (code) {",
@@ -740,13 +809,13 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/canjes/buscar/{{codigoRetiro}}",
+              "raw": "{{baseUrl}}/canjes/codigo/{{codigoRetiro}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "canjes",
-                "buscar",
+                "codigo",
                 "{{codigoRetiro}}"
               ]
             }
@@ -755,7 +824,7 @@
         {
           "name": "CP-RF-COL-01-01b: Colaborador Confirma Entrega Presencial (200 OK)",
           "request": {
-            "method": "POST",
+            "method": "PATCH",
             "header": [
               {
                 "key": "Content-Type",
@@ -768,15 +837,16 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"codigoRetiro\": \"{{codigoRetiro}}\",\n  \"dniTitularPresentado\": \"37769126\"\n}"
+              "raw": "{\n  \"dniTitular\": \"37769126\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/canjes/entregar",
+              "raw": "{{baseUrl}}/canjes/{{codigoRetiro}}/entregar",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "canjes",
+                "{{codigoRetiro}}",
                 "entregar"
               ]
             }

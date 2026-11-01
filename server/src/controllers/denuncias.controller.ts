@@ -947,15 +947,19 @@ export const crearDenuncia = async (req: Request, res: Response): Promise<void> 
       latitud,
       longitud,
       imagenUrl,
+      fotoUrl,
       ciudadanoId,
       municipioId,
-    } = req.body;
+    } = req.body || {};
 
     const direccionFinal = direccion || ubicacion;
     const categoriaNormalizada =
       typeof categoria === 'string' ? CATEGORIAS_DENUNCIA[categoria.trim()] : undefined;
     const latitudValidada = parseCoordinate(latitud, -90, 90);
     const longitudValidada = parseCoordinate(longitud, -180, 180);
+    const imagenFinal =
+      (typeof imagenUrl === 'string' && imagenUrl.trim()) ||
+      (typeof fotoUrl === 'string' && fotoUrl.trim());
 
     if (
       typeof titulo !== 'string' ||
@@ -965,8 +969,7 @@ export const crearDenuncia = async (req: Request, res: Response): Promise<void> 
       !categoriaNormalizada ||
       typeof direccionFinal !== 'string' ||
       !direccionFinal.trim() ||
-      typeof imagenUrl !== 'string' ||
-      !imagenUrl.trim() ||
+      !imagenFinal ||
       typeof ciudadanoId !== 'string' ||
       !ciudadanoId.trim() ||
       latitudValidada === undefined ||
@@ -1005,7 +1008,7 @@ export const crearDenuncia = async (req: Request, res: Response): Promise<void> 
         direccion: direccionFinal.trim(),
         latitud: latitudValidada,
         longitud: longitudValidada,
-        imagenUrl: imagenUrl.trim(),
+        imagenUrl: imagenFinal.trim(),
         ciudadano: { connect: { id: ciudadano.id } },
         municipio: { connect: { id: String(municipioId) } },
         estado: EstadoDenuncia.PENDIENTE,
