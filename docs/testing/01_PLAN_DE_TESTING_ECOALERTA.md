@@ -141,7 +141,7 @@ Se adopta el modelo de la **Pirámide de Pruebas** adaptado a desarrollo ágil y
 | **Frontend Mobile** | React Native Expo SDK 52, TypeScript, React Navigation |
 | **Dispositivos de Prueba** | Emulador Android (Pixel 7 - Android 14), Emulador iOS (iPhone 15 - iOS 17.4), Dispositivo Físico Android vía Expo Go |
 | **Herramientas de Test** | Jest v29.7.0, Supertest v7.0.0, Node:test runner, Postman Collection v2.1 |
-| **Red & Servicios Mock** | Localhost / Staging IP local con latencia simulada de 50 ms a 300 ms |
+| **Red & Servicios Mock** | Localhost (Puerto 4000 - Express API) / Staging IP local con latencia simulada de 50 ms a 300 ms |
 
 ---
 

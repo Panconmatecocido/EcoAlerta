@@ -52,7 +52,7 @@ Cada una de las pruebas cuenta con su precondición exacta, pack de datos sumini
 - **Petición Enviada (Request):**
   ```http
   POST /api/auth/register HTTP/1.1
-  Host: localhost:3000
+  Host: localhost:4000
   Content-Type: application/json
 
   {
@@ -97,7 +97,7 @@ Cada una de las pruebas cuenta con su precondición exacta, pack de datos sumini
 - **Petición Enviada (Request):**
   ```http
   POST /api/auth/register HTTP/1.1
-  Host: localhost:3000
+  Host: localhost:4000
   Content-Type: application/json
 
   {
@@ -135,7 +135,7 @@ Cada una de las pruebas cuenta con su precondición exacta, pack de datos sumini
 - **Petición Enviada (Request):**
   ```http
   POST /api/denuncias HTTP/1.1
-  Host: localhost:3000
+  Host: localhost:4000
   Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
   Content-Type: application/json
 
@@ -192,7 +192,7 @@ Cada una de las pruebas cuenta con su precondición exacta, pack de datos sumini
 - **Petición Enviada (Request):**
   ```http
   POST /api/denuncias/84/triaje HTTP/1.1
-  Host: localhost:3000
+  Host: localhost:4000
   Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Token Admin)
   Content-Type: application/json
 
@@ -237,7 +237,7 @@ Cada una de las pruebas cuenta con su precondición exacta, pack de datos sumini
 - **Petición Enviada (Request):**
   ```http
   POST /api/denuncias/84/puntos HTTP/1.1
-  Host: localhost:3000
+  Host: localhost:4000
   Authorization: Bearer {{tokenAdmin}}
   Content-Type: application/json
 
@@ -287,7 +287,7 @@ Cada una de las pruebas cuenta con su precondición exacta, pack de datos sumini
 - **Petición Enviada (Request):**
   ```http
   POST /api/canjes/checkout HTTP/1.1
-  Host: localhost:3000
+  Host: localhost:4000
   Authorization: Bearer {{tokenCitizen}}
   Content-Type: application/json
 
@@ -346,7 +346,7 @@ Cada una de las pruebas cuenta con su precondición exacta, pack de datos sumini
 - **Petición Enviada (Request):**
   ```http
   POST /api/canjes/entregar HTTP/1.1
-  Host: localhost:3000
+  Host: localhost:4000
   Authorization: Bearer {{tokenCollaborator}}
   Content-Type: application/json
 

@@ -8,7 +8,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:3000/api",
+      "value": "http://localhost:4000/api",
       "type": "string"
     },
     {
@@ -70,7 +70,26 @@
                 "register"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    var tok = res.token || (res.data && res.data.token);",
+                  "    if (tok) {",
+                  "        pm.environment.set(\"tokenCitizen\", tok);",
+                  "        pm.collectionVariables.set(\"tokenCitizen\", tok);",
+                  "        console.log(\"tokenCitizen guardado:\", tok.substring(0, 15) + \"...\");",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "CP-RF-AUT-01-02: Rechazo Registro Email Duplicado (409 Conflict)",
@@ -122,7 +141,26 @@
                 "login"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    var tok = res.token || (res.data && res.data.token);",
+                  "    if (tok) {",
+                  "        pm.environment.set(\"tokenCitizen\", tok);",
+                  "        pm.collectionVariables.set(\"tokenCitizen\", tok);",
+                  "        console.log(\"tokenCitizen actualizado:\", tok.substring(0, 15) + \"...\");",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "CP-RF-AUT-03-02: Login Fallido Credenciales Inválidas (401)",
@@ -171,6 +209,143 @@
               ]
             }
           }
+        },
+        {
+          "name": "Login Exitoso Rol Administrador (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    var tok = res.token || (res.data && res.data.token);",
+                  "    if (tok) {",
+                  "        pm.environment.set(\"tokenAdmin\", tok);",
+                  "        pm.collectionVariables.set(\"tokenAdmin\", tok);",
+                  "        pm.environment.set(\"admin_token\", tok);",
+                  "        pm.collectionVariables.set(\"admin_token\", tok);",
+                  "        console.log(\"tokenAdmin guardado:\", tok.substring(0, 15) + \"...\");",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@ecoalerta.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login Exitoso Rol Agente Operativo (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    var tok = res.token || (res.data && res.data.token);",
+                  "    if (tok) {",
+                  "        pm.environment.set(\"tokenAgent\", tok);",
+                  "        pm.collectionVariables.set(\"tokenAgent\", tok);",
+                  "        console.log(\"tokenAgent guardado:\", tok.substring(0, 15) + \"...\");",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"agente1@ecoalerta.com\",\n  \"password\": \"agente123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login Exitoso Rol Colaborador Comercio (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    var tok = res.token || (res.data && res.data.token);",
+                  "    if (tok) {",
+                  "        pm.environment.set(\"tokenCollaborator\", tok);",
+                  "        pm.collectionVariables.set(\"tokenCollaborator\", tok);",
+                  "        console.log(\"tokenCollaborator guardado:\", tok.substring(0, 15) + \"...\");",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"colaborador@ecoalerta.com\",\n  \"password\": \"colaborador123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
         }
       ]
     },
@@ -204,7 +379,26 @@
                 "denuncias"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    var dId = (res.denuncia && res.denuncia.id) || (res.data && res.data.id) || res.id;",
+                  "    if (dId) {",
+                  "        pm.environment.set(\"denunciaId\", dId.toString());",
+                  "        pm.collectionVariables.set(\"denunciaId\", dId.toString());",
+                  "        console.log(\"denunciaId guardado:\", dId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "CP-RF-REP-03-01: Rechazo Reporte sin Coordenadas GPS (400 Bad Request)",
@@ -514,7 +708,26 @@
                 "checkout"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    var res = pm.response.json();",
+                  "    var code = (res.canje && res.canje.codigoRetiro) || (res.data && res.data.codigoRetiro) || res.codigoRetiro;",
+                  "    if (code) {",
+                  "        pm.environment.set(\"codigoRetiro\", code);",
+                  "        pm.collectionVariables.set(\"codigoRetiro\", code);",
+                  "        console.log(\"codigoRetiro guardado:\", code);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "CP-RF-COL-01-01: Colaborador Busca Voucher por Código (200 OK)",
@@ -607,7 +820,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
+                "value": "Bearer {{tokenAdmin}}"
               }
             ],
             "body": {
@@ -615,12 +828,11 @@
               "raw": "{\n  \"nombre\": \"Agente Inspector Ramos\",\n  \"email\": \"marcos.ramos@pilar.gob.ar\",\n  \"password\": \"clave-segura-123\",\n  \"rol\": \"AGENT\",\n  \"fotoPerfilUri\": \"data:image/jpeg;base64,/9j/2Q==\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/admin/usuarios",
+              "raw": "{{baseUrl}}/admin/usuarios",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
                 "admin",
                 "usuarios"
               ]
@@ -639,7 +851,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
+                "value": "Bearer {{tokenAdmin}}"
               }
             ],
             "body": {
@@ -647,12 +859,11 @@
               "raw": "{\n  \"nombre\": \"Comercio Verde Pilar\",\n  \"email\": \"contacto@comercioverde.com\",\n  \"password\": \"clave-segura-123\",\n  \"rol\": \"COLLABORATOR\",\n  \"fotoPerfilUri\": \"data:image/jpeg;base64,/9j/2Q==\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/admin/usuarios",
+              "raw": "{{baseUrl}}/admin/usuarios",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
                 "admin",
                 "usuarios"
               ]
@@ -671,7 +882,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
+                "value": "Bearer {{tokenAdmin}}"
               }
             ],
             "body": {
@@ -679,12 +890,11 @@
               "raw": "{\n  \"nombre\": \"Personal Sin Foto\",\n  \"email\": \"sinfoto@pilar.gob.ar\",\n  \"password\": \"clave-segura-123\",\n  \"rol\": \"AGENT\",\n  \"fotoPerfilUri\": null\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/admin/usuarios",
+              "raw": "{{baseUrl}}/admin/usuarios",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
                 "admin",
                 "usuarios"
               ]
@@ -699,16 +909,15 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
+                "value": "Bearer {{tokenAdmin}}"
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/admin/usuarios/colaboradores",
+              "raw": "{{baseUrl}}/admin/usuarios/colaboradores",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
                 "admin",
                 "usuarios",
                 "colaboradores"
@@ -728,7 +937,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
+                "value": "Bearer {{tokenAdmin}}"
               }
             ],
             "body": {
@@ -736,12 +945,11 @@
               "raw": "{\n  \"disponible\": false\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/admin/usuarios/colaboradores/:id/disponibilidad",
+              "raw": "{{baseUrl}}/admin/usuarios/colaboradores/:id/disponibilidad",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
                 "admin",
                 "usuarios",
                 "colaboradores",
@@ -765,16 +973,15 @@
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
+                "value": "Bearer {{tokenAdmin}}"
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/admin/usuarios/:id",
+              "raw": "{{baseUrl}}/admin/usuarios/:id",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
                 "admin",
                 "usuarios",
                 ":id"
@@ -800,7 +1007,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
+                "value": "Bearer {{tokenAdmin}}"
               }
             ],
             "body": {
@@ -808,12 +1015,11 @@
               "raw": "{\n  \"nombre\": \"Administrador General Actualizado\",\n  \"fotoPerfilUri\": \"data:image/jpeg;base64,/9j/2Q==\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/auth/profile",
+              "raw": "{{baseUrl}}/auth/profile",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
                 "auth",
                 "profile"
               ]
