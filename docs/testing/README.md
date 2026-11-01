@@ -46,6 +46,7 @@ La documentación de aseguramiento de calidad del proyecto EcoAlerta ha sido est
 | ⚙️ | **Entorno de Variables Postman (JSON)** | Environment oficial con `baseUrl` local y variables de token para los 4 roles del sistema. | [📥 EcoAlerta_Environment.postman_environment.json](EcoAlerta_Environment.postman_environment.json) |
 | 📊 | **Libro Maestro de Testware (Excel)** | Planilla integral de 8 hojas parametrizadas con estilos corporativos adaptadas al stack real de la app (React Native + Node/Express): Resumen, Casos de Prueba, Casos - Jest y RNTL, Casos - Postman y Supertest, Planilla de Ejecución, Trazabilidad, Requerimientos y Criterios. | [📥 EcoAlerta_Testware_Matriz_Casos_Ejecucion.xlsx](EcoAlerta_Testware_Matriz_Casos_Ejecucion.xlsx) |
 | 📅 | **Exportación Cronograma MS Project (CSV)** | Tabla estructurada de tareas, dependencias, duraciones estimadas y fechas para importar en Microsoft Project o GanttProject. | [📥 Gantt_Tareas_MSProject_EcoAlerta.csv](Gantt_Tareas_MSProject_EcoAlerta.csv) |
+| 🚦 | **Cronograma Oficial MS Project con Semáforos (.MPP)** | Archivo Microsoft Project (.mpp) con cálculo automatizado de semáforos de avance (EVM/desvío), 45 tareas jerárquicas (WBS L1 a L3), línea base fijada, asignación nominal de los 5 integrantes e hitos de control. | [📥 Plantilla semaforos.mpp](Plantilla%20semaforos.mpp) |
 
 ---
 
