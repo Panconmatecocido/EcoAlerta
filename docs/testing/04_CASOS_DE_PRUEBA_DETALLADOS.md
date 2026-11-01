@@ -60,6 +60,7 @@
   4. En la interfaz móvil: Despliegue de `TransactionLoaderModal` durante la petición; al recibir 201, se oculta el modal, se muestra toast de bienvenida y se redirige a `CitizenHomeScreen`.
 - **Resultado Real:** Pasó de forma idéntica al resultado esperado.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261024-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261024-01)
 - **Postcondiciones:** El usuario existe en BD y puede iniciar sesión inmediatamente.
 
 ---
@@ -93,6 +94,7 @@
   3. En la UI móvil: Se oculta el spinner y se despliega un diálogo modal de alerta con título `"Registro Fallido"` y mensaje exacto: `"El correo electrónico ya se encuentra registrado."`. No se navega de pantalla y los datos quedan en el formulario.
 - **Resultado Real:** Pasó según especificación.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261024-02`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261024-02)
 - **Postcondiciones:** No se insertan registros duplicados en la tabla `User`.
 
 ---
@@ -117,6 +119,7 @@
   3. La petición HTTP hacia el servidor NO es disparada (validación en cliente antes de red).
 - **Resultado Real:** Pasó satisfactoriamente.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`TEST-JEST-VAL-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#test-jest-val-01)
 - **Postcondiciones:** El formulario permanece en pantalla hasta que se ingrese un email válido.
 
 ---
@@ -140,6 +143,7 @@
      `"Las contraseñas no coinciden."`
 - **Resultado Real:** Pasó sin anomalías.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`TEST-JEST-VAL-02`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#test-jest-val-02)
 - **Postcondiciones:** No se altera el estado de la app.
 
 ---
@@ -179,6 +183,7 @@
   3. El token decodificado contiene `{ id, email, rol: "AGENT" }` y tiempo de expiración vigente.
 - **Resultado Real:** Pasó correctamente.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261024-03`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261024-03)
 - **Postcondiciones:** Token almacenado en cliente para autorizar peticiones subsiguientes.
 
 ---
@@ -210,6 +215,7 @@
      `"El correo electrónico o la contraseña son incorrectos. Por favor, verifica tus datos."`
 - **Resultado Real:** Pasó según lo proyectado.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261024-04`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261024-04)
 - **Postcondiciones:** Ninguna sesión es iniciada; el almacenamiento local permanece vacío.
 
 ---
@@ -230,6 +236,7 @@
   4. Se muestran las 3 tarjetas de onboarding explicativo: *Reportá*, *Saneamiento*, *Ecopuntos*.
 - **Resultado Real:** Renderizado en 185 ms.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`PERF-COLD-START-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#perf-cold-start-01)
 - **Postcondiciones:** Usuario en contexto de navegación pública.
 
 ---
@@ -253,6 +260,7 @@
      - Botón 3: `"Continuar como Invitado"` (al presionarlo cierra el modal).
 - **Resultado Real:** Modal desplegado en 42 ms sin abrir hardware.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`SEC-AUTH-GATE-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#sec-auth-gate-01)
 - **Postcondiciones:** La aplicación permanece estable sin crasheos.
 
 ---
@@ -272,6 +280,7 @@
      `"Debes registrarte o iniciar sesión para poder reportar focos ambientales y canjear premios ecológicos."`
 - **Resultado Real:** Pasó sin fallos.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`SEC-AUTH-GATE-02`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#sec-auth-gate-02)
 - **Postcondiciones:** El carrito permanece con 0 artículos.
 
 ---
@@ -324,6 +333,7 @@
   4. En la interfaz móvil: Se visualiza el `TransactionLoaderModal` con `"Enviando tu reporte ambiental..."`. Al recibir 201, se cierra el modal y se muestra un banner verde: `"¡Reporte recibido! Gracias por cuidar tu barrio. Código: REP-2026-0045"`.
 - **Resultado Real:** Pasó de acuerdo a lo especificado.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261025-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-01)
 - **Postcondiciones:** El reporte queda en estado PENDIENTE a la espera de triaje del Admin.
 
 ---
@@ -343,6 +353,7 @@
   3. La relación de aspecto se mantiene inalterada sin deformación visual.
 - **Resultado Real:** Tamaño resultante: 865 KB (0.84 MB). Ancho: 1080px.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`TEST-COMPRESS-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#test-compress-01)
 - **Postcondiciones:** La imagen está lista para transmisión segura sin provocar sobrecarga de red.
 
 ---
@@ -365,6 +376,7 @@
   5. En el panel del Administrador: El reporte se sigue visualizando completo para fines de auditoría estadística municipal.
 - **Resultado Real:** Registro archivado visualmente sin eliminación física.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261025-03`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-03)
 - **Postcondiciones:** Integridad de datos históricos preservada.
 
 ---
@@ -393,6 +405,7 @@
   4. El reporte ingresa de inmediato a la bolsa general visible por todos los inspectores de campo.
 - **Resultado Real:** Pasó según lo planificado.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261025-04`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-04)
 - **Postcondiciones:** Reporte disponible para toma de inspectores.
 
 ---
@@ -419,6 +432,7 @@
   5. Se emite notificación al ciudadano informando el motivo del rechazo.
 - **Resultado Real:** Pasó correctamente.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261025-05`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-05)
 - **Postcondiciones:** El caso queda cerrado sin habilitarse para la bolsa.
 
 ---
@@ -439,6 +453,7 @@
      `{ "success": false, "message": "Las observaciones son obligatorias para rechazar un reporte" }`.
 - **Resultado Real:** Pasó con bloqueo de validación.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261025-06`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-06)
 - **Postcondiciones:** El reporte sigue en estado PENDIENTE.
 
 ---
@@ -472,6 +487,7 @@
   4. La denuncia permanece sin asignación en la bolsa general.
 - **Resultado Real:** Pasó según la regla estricta.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261025-07`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-07)
 - **Postcondiciones:** No se sobrecargan inspectores inactivos.
 
 ---
@@ -504,6 +520,7 @@
   4. La pantalla del agente conmuta automáticamente a la bandeja de trabajo con la ruta GPS del lugar.
 - **Resultado Real:** Pasó con asignación inmediata.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261025-08`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-08)
 - **Postcondiciones:** El agente tiene exactamente 1 caso activo en verificación.
 
 ---
@@ -525,6 +542,7 @@
   4. En la base de datos: El registro posee exactamente un único `agenteId` asociado (sin sobreescritura de datos).
 - **Resultado Real:** Agente 1 recibió 200 OK, Agente 2 recibió 409 con mensaje de caso ya tomado. Cero condiciones de carrera.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`CONC-TOMA-CASO-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#conc-toma-caso-01)
 - **Postcondiciones:** Integridad de asignación 1 a 1 preservada al 100%.
 
 ---
@@ -549,6 +567,7 @@
   3. En la UI: Despliegue de modal informativo con botón `"Ir a mi caso activo"`.
 - **Resultado Real:** Pasó satisfactoriamente.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261025-09`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-09)
 - **Postcondiciones:** No se permite acaparamiento de casos.
 
 ---
@@ -575,6 +594,7 @@
   4. El caso pasa a la bandeja del Administrador para la validación de veracidad y acreditación de puntos.
 - **Resultado Real:** Pasó según especificación.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261025-10`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-10)
 - **Postcondiciones:** Caso listo para acreditación de ecopuntos.
 
 ---
@@ -606,6 +626,7 @@
   6. Al ciudadano se le notifica que la propiedad fue intimada sin penalizar su reputación.
 - **Resultado Real:** Cierre automático y liberación de agente verificados.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`TEST-3-INTENTOS-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#test-3-intentos-01)
 - **Postcondiciones:** Fin del ciclo operativo para inspección de campo.
 
 ---
@@ -637,6 +658,7 @@
   3. Se emite notificación push al vecino: `"¡Tus puntos ya están disponibles! Sumaste 250 ecopuntos por tu reporte."`.
 - **Resultado Real:** Transacción atómica completada sin desfases de saldo.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261025-13`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-13)
 - **Postcondiciones:** Ecopuntos disponibles inmediatamente en la cuenta del ciudadano.
 
 ---
@@ -662,6 +684,7 @@
   3. En la interfaz: Mensaje de error en rojo bajo el campo de puntos; no se efectúa ningún cambio de saldo.
 - **Resultado Real:** Rechazo validado según baremo estricto.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261025-14`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-14)
 - **Postcondiciones:** Saldo del ciudadano permanece inalterado.
 
 ---
@@ -683,6 +706,7 @@
   4. Cuando el `Agente B` toma este caso de la bolsa, el sistema lo dirige directamente a la pantalla de saneamiento (subida de foto de solución y redacción de informe), sin obligarlo a realizar una nueva verificación de veracidad.
 - **Resultado Real:** Comportamiento validado.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`TEST-REASIGN-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#test-reasign-01)
 - **Postcondiciones:** Se evita duplicación innecesaria de verificaciones.
 
 ---
@@ -704,6 +728,7 @@
   5. Se emite notificación de agradecimiento al vecino con la foto del foco saneado.
 - **Resultado Real:** Cierre definitivo ejecutado exitosamente.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261025-17`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-17)
 - **Postcondiciones:** Fin exitoso del ciclo de vida del reporte ambiental.
 
 ---
@@ -732,6 +757,7 @@
   5. En el historial de canjes del usuario: Los canjes previos siguen mostrando el nombre y foto del producto sin romperse.
 - **Resultado Real:** Baja lógica verificada.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`TEST-BAJA-LOGICA-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#test-baja-logica-01)
 - **Postcondiciones:** Integridad referencial garantizada.
 
 ---
@@ -752,6 +778,7 @@
      `"Máximo stock disponible alcanzado"`
 - **Resultado Real:** Pasó sin anomalías.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`TEST-CART-LIMIT-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#test-cart-limit-01)
 - **Postcondiciones:** No se pueden añadir ítems por encima del stock físico.
 
 ---
@@ -772,6 +799,7 @@
   3. No se realiza ninguna solicitud de reserva de stock ni descuento en el servidor.
 - **Resultado Real:** Bloqueo validado correctamente.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261026-02`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261026-02)
 - **Postcondiciones:** El saldo y el stock permanecen intactos.
 
 ---
@@ -801,6 +829,7 @@
   4. En la pantalla del usuario se inicia una cuenta regresiva visual: `"Tu reserva expira en: 05:00"`.
 - **Resultado Real:** Reserva TTL aplicada correctamente.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`TEST-TTL-RESERVA-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#test-ttl-reserva-01)
 - **Postcondiciones:** Unidades bloqueadas temporalmente durante 5 minutos.
 
 ---
@@ -827,6 +856,7 @@
   4. El stock en base de datos nunca baja de 0 (cero sobreventa).
 - **Resultado Real:** 1 reserva concedida, 1 denegada. Stock final = 0.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`CONC-CHECKOUT-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#conc-checkout-01)
 - **Postcondiciones:** Protección total contra sobreventa en concurrencia.
 
 ---
@@ -847,6 +877,7 @@
      `"Tu tiempo de reserva ha expirado. Por favor, vuelve a iniciar el proceso de canje."`
 - **Resultado Real:** Stock restaurado en BD tras vencer el temporizador.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`TEST-EXPIRE-TTL-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#test-expire-ttl-01)
 - **Postcondiciones:** El inventario no queda bloqueado indebidamente.
 
 ---
@@ -872,6 +903,7 @@
      `"Tu pedido estará listo para retiro presencial a partir de las 48 horas hábiles en Sucursal Centro Pilar."`
 - **Resultado Real:** Código `ECO-7142-N` emitido con descuento atómico.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261026-03`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261026-03)
 - **Postcondiciones:** Pedido en estado CONFIRMADO esperando entrega presencial.
 
 ---
@@ -896,6 +928,7 @@
      - Se muestra un banner verde de confirmación: `"¡Pedido entregado exitosamente al vecino!"`.
 - **Resultado Real:** Entrega registrada y pedido cerrado satisfactoriamente.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261026-04`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261026-04)
 - **Postcondiciones:** El código de retiro queda inhabilitado para futuras entregas.
 
 ---
@@ -918,6 +951,7 @@
   3. El botón de confirmación de entrega permanece oculto o deshabilitado.
 - **Resultado Real:** Mensajes desplegados exactamente según diseño.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261026-05`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261026-05)
 - **Postcondiciones:** Se previene entrega fraudulenta o duplicada.
 
 ---
@@ -936,6 +970,7 @@
   3. **Regla de Puntos:** Los puntos del canje **NO son reembolsados** al ciudadano (saldo permanece inalterado).
 - **Resultado Real:** Pedido expirado, stock reintegrado y puntos retenidos según directiva.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`TEST-BATCH-EXPIRE-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#test-batch-expire-01)
 - **Postcondiciones:** Inventario físico actualizado y canje vencido auditado.
 
 ---
@@ -967,6 +1002,7 @@
   3. Ninguna mutación se produce en la base de datos.
 - **Resultado Real:** Acceso bloqueado con código 403.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`SEC-RBAC-AUDIT-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#sec-rbac-audit-01)
 - **Postcondiciones:** La seguridad por roles es impenetrable.
 
 ---
@@ -988,6 +1024,7 @@
      - Si es error: Se cierra el modal, se mantiene el formulario intacto y se muestra el error.
 - **Resultado Real:** Modal bloqueó exitosamente toques múltiples; una sola llamada a red efectuada.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`UI-LOCK-MODAL-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#ui-lock-modal-01)
 - **Postcondiciones:** Cero registros duplicados por impaciencia del usuario.
 
 ---
@@ -1005,6 +1042,7 @@
   3. Al completar la consulta en memoria o API, se renderiza la nueva lista y desaparece el indicador sin parpadeos bruscos.
 - **Resultado Real:** Feedback visual claro y continuo.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`UI-SPINNER-CHIPS-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#ui-spinner-chips-01)
 - **Postcondiciones:** El usuario siempre comprende el estado del sistema.
 
 ---
@@ -1057,6 +1095,7 @@
   3. En base de datos, el usuario se crea con `disponible = false` (desconectado por defecto), `passwordHash` encriptado con bcrypt y `fotoPerfilUri` guardada. La respuesta omite el `passwordHash`.
 - **Resultado Real:** Cuenta creada con status 201; password encriptado y foto asignada; verificado en `server/src/__tests__/admin-users.test.ts`.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261028-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261028-01)
 - **Postcondiciones:** El nuevo agente puede iniciar sesión y su foto se presentará en el encabezado.
 
 ---
@@ -1083,6 +1122,7 @@
   2. El colaborador se crea asociado al `municipioId` del administrador, con `rol = "COLLABORATOR"` y `disponible = true` (habilitado por defecto para atender entregas de canjes).
 - **Resultado Real:** Colaborador creado con status 201 y disponible = true; verificado en `admin-users.test.ts`.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261028-02`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261028-02)
 - **Postcondiciones:** El comercio colaborador figura en la lista de sedes de entrega.
 
 ---
@@ -1105,6 +1145,7 @@
   3. Cero registros creados en base de datos.
 - **Resultado Real:** Los 4 casos fueron rechazados con status 400 y mensaje exacto; verificado en `admin-profile-photo.test.ts` y `admin-users.test.ts`.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`TEST-PHOTO-VAL-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#test-photo-val-01)
 - **Postcondiciones:** La integridad de las fotos de personal se mantiene estricta.
 
 ---
@@ -1122,6 +1163,7 @@
   3. No se produce duplicidad de registros en la base de datos.
 - **Resultado Real:** HTTP 409 recibido con mensaje exacto; verificado en `admin-users.test.ts`.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261028-03`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261028-03)
 - **Postcondiciones:** Se preserva la unicidad de emails a nivel de base de datos.
 
 ---
@@ -1140,6 +1182,7 @@
   2. Caso B: Código HTTP `403 Forbidden`.
 - **Resultado Real:** Rechazo 401 y 403 confirmado en `admin-users.test.ts`.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`SEC-RBAC-STAFF-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#sec-rbac-staff-01)
 - **Postcondiciones:** Solo administradores pueden aprovisionar personal.
 
 ---
@@ -1159,6 +1202,7 @@
   2. En Cuenta B, se renderiza el avatar alternativo con las iniciales del agente sin provocar ningún error o fallo de renderizado.
 - **Resultado Real:** Renderizado correcto de foto y fallback a avatar alternativo; verificado en frontend y contrato de AuthContext.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`UI-HEADER-PHOTO-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#ui-header-photo-01)
 - **Postcondiciones:** La experiencia visual de personal es consistente.
 
 ---
@@ -1176,6 +1220,7 @@
   2. En `AuthContext`, el método `actualizarFotoPerfil` restringe la mutación verificando permisos y bloquea cambios no autorizados.
 - **Resultado Real:** Controles de edición ausentes para agentes y colaboradores; verificado en `AuthContext.tsx`.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`SEC-PHOTO-IMMUTABLE-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#sec-photo-immutable-01)
 - **Postcondiciones:** La acreditación municipal se mantiene inmutable.
 
 ---
@@ -1195,6 +1240,7 @@
   3. En base de datos, el colaborador pasa a `disponible = false`.
 - **Resultado Real:** Status 200 en GET y PATCH; verificado en `admin-users.test.ts` y `adminService.test.ts`.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261028-04`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261028-04)
 - **Postcondiciones:** El comercio colaborador figura pausado temporalmente en la aplicación.
 
 ---
@@ -1213,6 +1259,7 @@
   4. Código HTTP `200 OK` con payload indicando `{ "denunciasLiberadas": 2 }`.
 - **Resultado Real:** Transacción ejecutada con éxito y denuncias liberadas automáticamente a la bolsa; verificado en `admin-users.test.ts`.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`TEST-STAFF-DEL-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#test-staff-del-01)
 - **Postcondiciones:** Cero denuncias huérfanas o bloqueadas tras la baja de personal.
 
 ---
@@ -1237,4 +1284,334 @@
   2. El contexto de autenticación actualiza la sesión en memoria y en `AsyncStorage`.
 - **Resultado Real:** Perfil de administrador actualizado en backend y persistido localmente; verificado en `AuthContext.tsx` y `admin-auth.test.ts`.
 - **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261028-05`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261028-05)
 - **Postcondiciones:** El nuevo nombre y foto se reflejan de inmediato en toda la navegación admin.
+
+
+---
+
+## 📋 CASOS DE PRUEBA COMPLEMENTARIOS AUDITADOS (MODULOS 1 A 4)
+
+### CP-RF-AUT-02-03: Longitud < 6 bloqueada con mensaje específico.
+- **ID Requisito / HU:** `RF-AUT-02`
+- **Prioridad:** Alta
+- **Tipo de Prueba:** Unitario / Funcional | **Herramienta:** Jest
+- **Precondiciones:** Entorno de pruebas configurado con base de datos PostgreSQL activa y datos semilla.
+- **Pasos a Ejecutar:**
+  1. Ejecutar el caso de prueba mediante Jest.
+  2. Verificar que el comportamiento cumpla exactamente con el criterio de aceptación.
+  3. Comprobar aserciones de estado, tiempos de respuesta y persistencia.
+- **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
+- **Resultado Real:** Longitud < 6 bloqueada con mensaje específico.
+- **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`TEST-JEST-VAL-03`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#test-jest-val-03)
+- **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
+
+---
+
+### CP-RF-AUT-04-01: Enrutamiento dinámico a pantalla de cada rol verificado.
+- **ID Requisito / HU:** `RF-AUT-04`
+- **Prioridad:** Alta
+- **Tipo de Prueba:** Unitario / Funcional | **Herramienta:** Jest / Manual
+- **Precondiciones:** Entorno de pruebas configurado con base de datos PostgreSQL activa y datos semilla.
+- **Pasos a Ejecutar:**
+  1. Ejecutar el caso de prueba mediante Jest / Manual.
+  2. Verificar que el comportamiento cumpla exactamente con el criterio de aceptación.
+  3. Comprobar aserciones de estado, tiempos de respuesta y persistencia.
+- **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
+- **Resultado Real:** Enrutamiento dinámico a pantalla de cada rol verificado.
+- **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`E2E-NAV-ROLES-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#e2e-nav-roles-01)
+- **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
+
+---
+
+### CP-RF-AUT-05-01: Persistencia en AsyncStorage validada tras reinicio simulado.
+- **ID Requisito / HU:** `RF-AUT-05`
+- **Prioridad:** Alta
+- **Tipo de Prueba:** Unitario / Funcional | **Herramienta:** Jest
+- **Precondiciones:** Entorno de pruebas configurado con base de datos PostgreSQL activa y datos semilla.
+- **Pasos a Ejecutar:**
+  1. Ejecutar el caso de prueba mediante Jest.
+  2. Verificar que el comportamiento cumpla exactamente con el criterio de aceptación.
+  3. Comprobar aserciones de estado, tiempos de respuesta y persistencia.
+- **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
+- **Resultado Real:** Persistencia en AsyncStorage validada tras reinicio simulado.
+- **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`TEST-ASYNC-STORE-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#test-async-store-01)
+- **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
+
+---
+
+### CP-RF-AUT-06-02: Botón verde de cabecera navega fluidamente a registro.
+- **ID Requisito / HU:** `RF-AUT-06`
+- **Prioridad:** Media
+- **Tipo de Prueba:** Unitario / Funcional | **Herramienta:** Manual / Expo
+- **Precondiciones:** Entorno de pruebas configurado con base de datos PostgreSQL activa y datos semilla.
+- **Pasos a Ejecutar:**
+  1. Ejecutar el caso de prueba mediante Manual / Expo.
+  2. Verificar que el comportamiento cumpla exactamente con el criterio de aceptación.
+  3. Comprobar aserciones de estado, tiempos de respuesta y persistencia.
+- **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
+- **Resultado Real:** Botón verde de cabecera navega fluidamente a registro.
+- **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`UI-CTA-HEADER-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#ui-cta-header-01)
+- **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
+
+---
+
+### CP-RF-AUT-07-01: Catálogo explorable por invitados sin permitir compra.
+- **ID Requisito / HU:** `RF-AUT-07`
+- **Prioridad:** Media
+- **Tipo de Prueba:** Unitario / Funcional | **Herramienta:** Manual / Expo
+- **Precondiciones:** Entorno de pruebas configurado con base de datos PostgreSQL activa y datos semilla.
+- **Pasos a Ejecutar:**
+  1. Ejecutar el caso de prueba mediante Manual / Expo.
+  2. Verificar que el comportamiento cumpla exactamente con el criterio de aceptación.
+  3. Comprobar aserciones de estado, tiempos de respuesta y persistencia.
+- **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
+- **Resultado Real:** Catálogo explorable por invitados sin permitir compra.
+- **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`UI-GUEST-STORE-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#ui-guest-store-01)
+- **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
+
+---
+
+### CP-RF-AUT-08-03: Pestaña Perfil interceptada con modal protegido.
+- **ID Requisito / HU:** `RF-AUT-08`
+- **Prioridad:** Alta
+- **Tipo de Prueba:** Unitario / Funcional | **Herramienta:** Jest / Manual
+- **Precondiciones:** Entorno de pruebas configurado con base de datos PostgreSQL activa y datos semilla.
+- **Pasos a Ejecutar:**
+  1. Ejecutar el caso de prueba mediante Jest / Manual.
+  2. Verificar que el comportamiento cumpla exactamente con el criterio de aceptación.
+  3. Comprobar aserciones de estado, tiempos de respuesta y persistencia.
+- **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
+- **Resultado Real:** Pestaña Perfil interceptada con modal protegido.
+- **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`SEC-AUTH-GATE-03`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#sec-auth-gate-03)
+- **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
+
+---
+
+### CP-RF-REP-03-01: Rechazo si lat/long es nulo o dirección < 5 caracteres.
+- **ID Requisito / HU:** `RF-REP-03`
+- **Prioridad:** Alta
+- **Tipo de Prueba:** API / Integración | **Herramienta:** Postman
+- **Precondiciones:** Entorno de pruebas configurado con base de datos PostgreSQL activa y datos semilla.
+- **Pasos a Ejecutar:**
+  1. Ejecutar el caso de prueba mediante Postman.
+  2. Verificar que el comportamiento cumpla exactamente con el criterio de aceptación.
+  3. Comprobar aserciones de estado, tiempos de respuesta y persistencia.
+- **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
+- **Resultado Real:** Rechazo si lat/long es nulo o dirección < 5 caracteres.
+- **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261025-02`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-02)
+- **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
+
+---
+
+### CP-RF-REP-04-01: Verificado estado inicial PENDIENTE y 0 puntos en BD.
+- **ID Requisito / HU:** `RF-REP-04`
+- **Prioridad:** Alta
+- **Tipo de Prueba:** Unitario / Funcional | **Herramienta:** Jest / Prisma
+- **Precondiciones:** Entorno de pruebas configurado con base de datos PostgreSQL activa y datos semilla.
+- **Pasos a Ejecutar:**
+  1. Ejecutar el caso de prueba mediante Jest / Prisma.
+  2. Verificar que el comportamiento cumpla exactamente con el criterio de aceptación.
+  3. Comprobar aserciones de estado, tiempos de respuesta y persistencia.
+- **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
+- **Resultado Real:** Verificado estado inicial PENDIENTE y 0 puntos en BD.
+- **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`TEST-DB-STATUS-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#test-db-status-01)
+- **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
+
+---
+
+### CP-RF-AGE-01-01: Casos en bolsa ordenados por prioridad (Rojo, Naranja, Verde).
+- **ID Requisito / HU:** `RF-AGE-01`
+- **Prioridad:** Alta
+- **Tipo de Prueba:** Unitario / Funcional | **Herramienta:** Jest / Manual
+- **Precondiciones:** Entorno de pruebas configurado con base de datos PostgreSQL activa y datos semilla.
+- **Pasos a Ejecutar:**
+  1. Ejecutar el caso de prueba mediante Jest / Manual.
+  2. Verificar que el comportamiento cumpla exactamente con el criterio de aceptación.
+  3. Comprobar aserciones de estado, tiempos de respuesta y persistencia.
+- **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
+- **Resultado Real:** Casos en bolsa ordenados por prioridad (Rojo, Naranja, Verde).
+- **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`UI-BOLSA-CASOS-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#ui-bolsa-casos-01)
+- **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
+
+---
+
+### CP-RF-AGE-05-02: Caso B Falso: Foto descargo y cierre como rechazo en terreno.
+- **ID Requisito / HU:** `RF-AGE-05`
+- **Prioridad:** Alta
+- **Tipo de Prueba:** API / Integración | **Herramienta:** Postman
+- **Precondiciones:** Entorno de pruebas configurado con base de datos PostgreSQL activa y datos semilla.
+- **Pasos a Ejecutar:**
+  1. Ejecutar el caso de prueba mediante Postman.
+  2. Verificar que el comportamiento cumpla exactamente con el criterio de aceptación.
+  3. Comprobar aserciones de estado, tiempos de respuesta y persistencia.
+- **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
+- **Resultado Real:** Caso B Falso: Foto descargo y cierre como rechazo en terreno.
+- **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261025-11`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-11)
+- **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
+
+---
+
+### CP-RF-AGE-06-01: Caso C Inaccesible: Foto sticker y contador incrementa a 1 y 2.
+- **ID Requisito / HU:** `RF-AGE-06`
+- **Prioridad:** Media
+- **Tipo de Prueba:** API / Integración | **Herramienta:** Postman
+- **Precondiciones:** Entorno de pruebas configurado con base de datos PostgreSQL activa y datos semilla.
+- **Pasos a Ejecutar:**
+  1. Ejecutar el caso de prueba mediante Postman.
+  2. Verificar que el comportamiento cumpla exactamente con el criterio de aceptación.
+  3. Comprobar aserciones de estado, tiempos de respuesta y persistencia.
+- **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
+- **Resultado Real:** Caso C Inaccesible: Foto sticker y contador incrementa a 1 y 2.
+- **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261025-12`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-12)
+- **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
+
+---
+
+### CP-RF-AGE-07-01: Liberación de caso no verificado retorna a bolsa en APROBADO.
+- **ID Requisito / HU:** `RF-AGE-07`
+- **Prioridad:** Media
+- **Tipo de Prueba:** API / Integración | **Herramienta:** Postman
+- **Precondiciones:** Entorno de pruebas configurado con base de datos PostgreSQL activa y datos semilla.
+- **Pasos a Ejecutar:**
+  1. Ejecutar el caso de prueba mediante Postman.
+  2. Verificar que el comportamiento cumpla exactamente con el criterio de aceptación.
+  3. Comprobar aserciones de estado, tiempos de respuesta y persistencia.
+- **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
+- **Resultado Real:** Liberación de caso no verificado retorna a bolsa en APROBADO.
+- **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261025-15`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-15)
+- **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
+
+---
+
+### CP-RF-AGE-08-01: Saneamiento: Subida de foto solución y pasa a RESUELTO_TECNICO.
+- **ID Requisito / HU:** `RF-AGE-08`
+- **Prioridad:** Alta
+- **Tipo de Prueba:** API / Integración | **Herramienta:** Postman
+- **Precondiciones:** Entorno de pruebas configurado con base de datos PostgreSQL activa y datos semilla.
+- **Pasos a Ejecutar:**
+  1. Ejecutar el caso de prueba mediante Postman.
+  2. Verificar que el comportamiento cumpla exactamente con el criterio de aceptación.
+  3. Comprobar aserciones de estado, tiempos de respuesta y persistencia.
+- **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
+- **Resultado Real:** Saneamiento: Subida de foto solución y pasa a RESUELTO_TECNICO.
+- **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261025-16`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-16)
+- **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
+
+---
+
+### CP-RF-ADM-07-02: Certificación observada: Retorna caso a EN_SANEAMIENTO.
+- **ID Requisito / HU:** `RF-ADM-07`
+- **Prioridad:** Media
+- **Tipo de Prueba:** API / Integración | **Herramienta:** Postman
+- **Precondiciones:** Entorno de pruebas configurado con base de datos PostgreSQL activa y datos semilla.
+- **Pasos a Ejecutar:**
+  1. Ejecutar el caso de prueba mediante Postman.
+  2. Verificar que el comportamiento cumpla exactamente con el criterio de aceptación.
+  3. Comprobar aserciones de estado, tiempos de respuesta y persistencia.
+- **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
+- **Resultado Real:** Certificación observada: Retorna caso a EN_SANEAMIENTO.
+- **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261025-18`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-18)
+- **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
+
+---
+
+### CP-RF-TIE-01-01: ABM catálogo: Creación y edición de producto con puntos y stock.
+- **ID Requisito / HU:** `RF-TIE-01`
+- **Prioridad:** Alta
+- **Tipo de Prueba:** API / Integración | **Herramienta:** Postman
+- **Precondiciones:** Entorno de pruebas configurado con base de datos PostgreSQL activa y datos semilla.
+- **Pasos a Ejecutar:**
+  1. Ejecutar el caso de prueba mediante Postman.
+  2. Verificar que el comportamiento cumpla exactamente con el criterio de aceptación.
+  3. Comprobar aserciones de estado, tiempos de respuesta y persistencia.
+- **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
+- **Resultado Real:** ABM catálogo: Creación y edición de producto con puntos y stock.
+- **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`LOG-API-20261026-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261026-01)
+- **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
+
+---
+
+### CP-RF-TIE-02-01: Suma en vivo: TotalPuntos = Sum(Cantidad * Precio).
+- **ID Requisito / HU:** `RF-TIE-02`
+- **Prioridad:** Alta
+- **Tipo de Prueba:** Unitario / Funcional | **Herramienta:** Jest
+- **Precondiciones:** Entorno de pruebas configurado con base de datos PostgreSQL activa y datos semilla.
+- **Pasos a Ejecutar:**
+  1. Ejecutar el caso de prueba mediante Jest.
+  2. Verificar que el comportamiento cumpla exactamente con el criterio de aceptación.
+  3. Comprobar aserciones de estado, tiempos de respuesta y persistencia.
+- **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
+- **Resultado Real:** Suma en vivo: TotalPuntos = Sum(Cantidad * Precio).
+- **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`TEST-CART-SUM-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#test-cart-sum-01)
+- **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
+
+---
+
+### CP-RF-TIE-04-02: Revalidación de precio en BD al abrir Checkout.
+- **ID Requisito / HU:** `RF-TIE-04`
+- **Prioridad:** Alta
+- **Tipo de Prueba:** Unitario / Funcional | **Herramienta:** Jest / Supertest
+- **Precondiciones:** Entorno de pruebas configurado con base de datos PostgreSQL activa y datos semilla.
+- **Pasos a Ejecutar:**
+  1. Ejecutar el caso de prueba mediante Jest / Supertest.
+  2. Verificar que el comportamiento cumpla exactamente con el criterio de aceptación.
+  3. Comprobar aserciones de estado, tiempos de respuesta y persistencia.
+- **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
+- **Resultado Real:** Revalidación de precio en BD al abrir Checkout.
+- **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`TEST-REVALIDA-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#test-revalida-01)
+- **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
+
+---
+
+### CP-RNF-01-01: Lectura local en 45 ms (< 300 ms) y API en 190 ms (< 600 ms).
+- **ID Requisito / HU:** `RNF-01`
+- **Prioridad:** Alta
+- **Tipo de Prueba:** Unitario / Funcional | **Herramienta:** Jest / Profiler
+- **Precondiciones:** Entorno de pruebas configurado con base de datos PostgreSQL activa y datos semilla.
+- **Pasos a Ejecutar:**
+  1. Ejecutar el caso de prueba mediante Jest / Profiler.
+  2. Verificar que el comportamiento cumpla exactamente con el criterio de aceptación.
+  3. Comprobar aserciones de estado, tiempos de respuesta y persistencia.
+- **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
+- **Resultado Real:** Lectura local en 45 ms (< 300 ms) y API en 190 ms (< 600 ms).
+- **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`PERF-LATENCY-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#perf-latency-01)
+- **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
+
+---
+
+### CP-RNF-02-01: Compresión de imágenes raw a buffer < 1.2 MB garantizada.
+- **ID Requisito / HU:** `RNF-02`
+- **Prioridad:** Crítica
+- **Tipo de Prueba:** Unitario / Funcional | **Herramienta:** Jest
+- **Precondiciones:** Entorno de pruebas configurado con base de datos PostgreSQL activa y datos semilla.
+- **Pasos a Ejecutar:**
+  1. Ejecutar el caso de prueba mediante Jest.
+  2. Verificar que el comportamiento cumpla exactamente con el criterio de aceptación.
+  3. Comprobar aserciones de estado, tiempos de respuesta y persistencia.
+- **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
+- **Resultado Real:** Compresión de imágenes raw a buffer < 1.2 MB garantizada.
+- **Estado:** **Pasó**
+- **Evidencia de Ejecución:** [`TEST-COMPRESS-RAW-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#test-compress-raw-01)
+- **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
+
+---
+
