@@ -1,7 +1,7 @@
 # 🔗 MATRIZ DE TRAZABILIDAD DE REQUISITOS (RTM)
 ## Proyecto: EcoAlerta — Aplicación Móvil de Gestión Ambiental Ciudadana y Tienda de Recompensas
 **Cátedra:** Testing & Calidad de Software — UNPilar 2026  
-**Profesor Titular:** Mg. Pedro Brest  
+**Fecha de Entrega:** 02 de noviembre de 2026  
 **Equipo de Proyecto (5 integrantes):**  
 - **Escobar Raul** (Scrum Master - Responsable de RTM y Gobernabilidad)  
 - **Benitez Facundo** (Analista de QA - Verificación y Ejecución de Casos)  

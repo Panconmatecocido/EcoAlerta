@@ -2,10 +2,11 @@
 
 > **Cátedra:** Testing & Calidad de Software — Año Lectivo 2026  
 > **Universidad:** Universidad Nacional de Pilar (UNPilar)  
-> **Profesor Titular:** Mg. Pedro Brest  
+> **Fecha de Entrega:** 02 de noviembre de 2026  
 > **Proyecto Evaluado:** EcoAlerta (Aplicación Móvil React Native + Backend Express/TypeScript + PostgreSQL/Prisma)  
 > **Fecha de Inicio Oficial:** 25 de agosto de 2026 (Creación del repositorio en GitHub)  
-> **Fecha de Entrega Final:** 02 de noviembre de 2026  
+> **Fecha de Entrega:** 02 de noviembre de 2026  
+> **Fecha de Cierre del Proyecto:** Martes 03 de noviembre de 2026  
 > **Metodología y Estándares:** IEEE 829 / ISO/IEC/IEEE 29119, Modelo de Calidad ISO/IEC 25010 (como marco de referencia interna), Spec-Driven Testing (SDD) y PMBOK (PERT-CPM).
 
 > [!NOTE]
@@ -57,7 +58,7 @@ La documentación de aseguramiento de calidad del proyecto EcoAlerta ha sido est
                       ECOALERTA — MÉTRICAS CONSOLIDADAS DE TESTING
 ========================================================================================
   • Integrantes del Equipo:                  5 Miembros (Scrum Master, UI/UX, Front, Back, QA)
-  • Período Histórico del Proyecto:          25/08/2026 al 02/11/2026 (10 Semanas Calendario)
+  • Período Histórico del Proyecto:          25/08/2026 al 03/11/2026 (Entrega: 02/11/2026 - 10 Semanas Calendario)
   • Historias de Usuario Analizadas:         18 HUs (100% con criterios BDD Gherkin)
   • Requisitos Funcionales Validados:         32 RFs
   • Requisitos No Funcionales (RNF):          6 RNFs (Seguridad, Concurrencia, UX, Perf)
@@ -66,7 +67,7 @@ La documentación de aseguramiento de calidad del proyecto EcoAlerta ha sido est
   • Defectos Detectados y Trazados:          2 Bugs (BUG-101 S3 y BUG-102 S1)
   • Defectos Corregidos y Re-testeados:       2 Bugs (100% Resueltos por Dev Responsable)
   • Defectos Críticos (S1/S2) Pendientes:     0 Abiertos
-  • Estado Global de la Entrega:              🟢 APROBADO PARA CERTIFICACIÓN (02/11/2026)
+  • Estado Global de la Entrega:              🟢 APROBADO PARA ENTREGA (02/11/2026 - Cierre: 03/11/2026)
 ========================================================================================
 ```
 

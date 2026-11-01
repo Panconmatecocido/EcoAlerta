@@ -1,7 +1,7 @@
 # 🧪 ESPECIFICACIÓN DETALLADA DE CASOS DE PRUEBA (TEST CASES)
 ## Proyecto: EcoAlerta — Aplicación Móvil de Gestión Ambiental Ciudadana y Tienda de Recompensas
 **Cátedra:** Testing & Calidad de Software — UNPilar 2026  
-**Profesor:** Mg. Pedro Brest  
+**Fecha de Entrega:** 02 de noviembre de 2026  
 **Equipo de Proyecto (5 integrantes):**  
 - **Escobar Raul** (Scrum Master - Aprobador y Auditor de Testware)  
 - **Benitez Facundo** (Analista de QA - Diseñador y Ejecutor de Casos de Prueba)  

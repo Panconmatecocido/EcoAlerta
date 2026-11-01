@@ -1,7 +1,7 @@
 # 📊 PLANILLA DE REGISTRO DE EJECUCIÓN Y MÉTRICAS DE PROGRESO DE QA
 ## Proyecto: EcoAlerta — Aplicación Móvil de Gestión Ambiental Ciudadana y Tienda de Recompensas
 **Cátedra:** Testing & Calidad de Software — UNPilar 2026  
-**Profesor:** Mg. Pedro Brest  
+**Fecha de Entrega:** 02 de noviembre de 2026  
 **Equipo de Proyecto (5 integrantes):**  
 - **Escobar Raul** (Scrum Master - Auditor y Control de Avance)  
 - **Benitez Facundo** (Analista de QA - Diseñador y Ejecutor de Pruebas)  
@@ -9,7 +9,7 @@
 - **Benitez Angel** (Desarrollador BackEnd - Resolución de BUG-102 y BD)  
 - **Kuhn Joaquin** (Diseñador UI/UX - Validación Visual y Usabilidad)  
 **Estándar:** IEEE 829 / ISO 29119 Test Execution Reporting  
-**Período del Proyecto:** 25 de agosto de 2026 al 02 de noviembre de 2026  
+**Período del Proyecto:** 25 de agosto de 2026 al 03 de noviembre de 2026 (Entrega: 02/11/2026)  
 **Fecha de Corte de Ejecución:** 28 de Octubre de 2026  
 
 ---

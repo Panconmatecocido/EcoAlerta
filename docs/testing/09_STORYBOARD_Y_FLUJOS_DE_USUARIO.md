@@ -2,7 +2,7 @@
 
 > **Proyecto:** EcoAlerta — Aplicación Móvil de Gestión Ambiental Ciudadana y Tienda de Recompensas  
 > **Cátedra:** Testing & Calidad de Software — UNPilar 2026  
-> **Profesor Titular:** Mg. Pedro Brest  
+> **Fecha de Entrega:** 02 de noviembre de 2026  
 > **Responsables de Diseño y Usabilidad:** **Kuhn Joaquin** (Diseñador UI/UX) & **Rodriguez Iván** (Desarrollador FrontEnd)  
 > **Auditoría de Testware:** **Escobar Raul** (Scrum Master) & **Benitez Facundo** (Analista de QA)  
 > **Estándar:** Storyboard UX / IEEE 829 & ISO/IEC 25010 (Usabilidad y Adecuación Funcional)  

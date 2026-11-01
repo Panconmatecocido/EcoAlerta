@@ -1,7 +1,7 @@
 # ✅ LISTAS DE COMPROBACIÓN (CHECKLISTS) DE CALIDAD Y PEER REVIEW
 ## Proyecto: EcoAlerta — Aplicación Móvil de Gestión Ambiental Ciudadana y Tienda de Recompensas
 **Cátedra:** Testing & Calidad de Software — UNPilar 2026  
-**Profesor Titular:** Mg. Pedro Brest  
+**Fecha de Entrega:** 02 de noviembre de 2026  
 **Unidad Temática:** Unidad 4 / 5 — Herramientas de Calidad, Indicadores y Testware (ISO/IEC 25010)  
 **Equipo Evaluador (5 integrantes):**  
 - **Escobar Raul** (Scrum Master - Moderador del Peer Review)  
@@ -83,4 +83,4 @@
 
 ## 3. 🎯 Dictamen Final de Conformidad de Calidad
 - **Evaluación Global:** **APROBADO CON DISTINCIÓN (100% DE CONFORMIDAD)**.
-- **Observación del Auditor:** El producto EcoAlerta y su testware asociado satisfacen exhaustivamente los estándares académicos de la cátedra de Testing & Calidad de Software (UNPilar 2026 - Mg. Pedro Brest), superando los requisitos de trazabilidad, exactitud de datos, robustez concurrente y documentación metodológica.
+- **Observación del Auditor:** El producto EcoAlerta y su testware asociado satisfacen exhaustivamente los estándares académicos de la cátedra de Testing & Calidad de Software (UNPilar 2026 - Entrega: 02/11/2026), superando los requisitos de trazabilidad, exactitud de datos, robustez concurrente y documentación metodológica.

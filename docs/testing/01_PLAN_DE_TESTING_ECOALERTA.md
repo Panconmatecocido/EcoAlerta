@@ -2,7 +2,6 @@
 ## Proyecto: EcoAlerta — Aplicación Móvil de Gestión Ambiental Ciudadana y Tienda de Recompensas
 **Institución:** Universidad Nacional de Pilar (UNPilar)  
 **Cátedra:** Testing & Calidad de Software — Año 2026  
-**Profesor Titular:** Mg. Pedro Brest  
 **Equipo de Proyecto (5 integrantes):**  
 - **Escobar Raul** (Scrum Master / Delivery Lead - DNI: 37.769.126)  
 - **Kuhn Joaquin** (Diseñador UI/UX)  

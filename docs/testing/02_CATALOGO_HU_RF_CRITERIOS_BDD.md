@@ -1,7 +1,7 @@
 # 📋 CATÁLOGO MAESTRO DE HISTORIAS DE USUARIO (HU), REQUISITOS FUNCIONALES (RF) Y CRITERIOS DE ACEPTACIÓN BDD (GHERKIN)
 ## Proyecto: EcoAlerta — Aplicación Móvil de Gestión Ambiental Ciudadana y Tienda de Recompensas
 **Cátedra:** Testing & Calidad de Software — UNPilar 2026  
-**Profesor:** Mg. Pedro Brest  
+**Fecha de Entrega:** 02 de noviembre de 2026  
 **Equipo de Proyecto (5 integrantes):**  
 - **Escobar Raul** (Scrum Master - Coordinación y RTM)  
 - **Kuhn Joaquin** (Diseñador UI/UX - Experiencia y Maquetación)  

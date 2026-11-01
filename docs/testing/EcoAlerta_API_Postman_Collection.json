@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "ecoalerta-testware-collection-2026",
     "name": "EcoAlerta API — Colección Oficial de Testing y Evidencias",
-    "description": "Colección completa de endpoints para pruebas funcionales, seguridad RBAC, concurrencia y validación de respuestas del sistema EcoAlerta (UNPilar 2026 - Mg. Pedro Brest).",
+    "description": "Colección completa de endpoints para pruebas funcionales, seguridad RBAC, concurrencia y validación de respuestas del sistema EcoAlerta (UNPilar 2026 - Entrega: 02/11/2026).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [

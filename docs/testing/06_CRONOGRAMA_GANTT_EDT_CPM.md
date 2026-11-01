@@ -2,7 +2,7 @@
 
 > **Proyecto:** EcoAlerta — Aplicación Móvil de Gestión Ambiental Ciudadana y Tienda de Recompensas  
 > **Institución:** Universidad Nacional de Pilar (UNPilar) — Testing & Calidad de Software 2026  
-> **Profesor Titular:** Mg. Pedro Brest  
+> **Fecha de Entrega:** 02 de noviembre de 2026  
 > **Equipo de Proyecto (5 integrantes):**  
 > - **Escobar Raul** (Scrum Master — Coordinación, Gestión del Alcance, Tiempo PMBOK y RTM)  
 > - **Kuhn Joaquin** (Diseñador UI/UX — Prototipado, Interfaces, HomeScreen y Usabilidad ISO 25010)  
@@ -10,9 +10,9 @@
 > - **Benitez Angel** (Desarrollador BackEnd — API REST, Prisma ORM, PostgreSQL, Concurrencia y Resolución de BUG-102)  
 > - **Benitez Facundo** (Analista de QA — Diseño y Ejecución de 67 Casos de Prueba, Regresión y Bug Tracker)  
 > **Metodología:** Gestión del Alcance y Tiempo (PMBOK / PERT-CPM) & Spec-Driven Testing (SDD)  
-> **Duración Total:** 10 Semanas Calendario (70 Días / 50 Días Laborables)  
+> **Duración Total:** 10 Semanas Calendario (71 Días / 51 Días Laborables)  
 > **Fecha de Inicio Oficial:** 25 de agosto de 2026 (Creación del repositorio en GitHub)  
-> **Fecha de Entrega Final:** 02 de noviembre de 2026 (Defensa Académica)  
+> **Fecha de Entrega Final:** 03 de noviembre de 2026 (Entrega: 02/11/2026)  
 > **Fecha de Corte / Estado Actual:** 28 de octubre de 2026  
 > **Garantía:** Cobertura 100% de Requerimientos, 0 Defectos Críticos (S1/S2) abiertos y conformidad con ISO/IEC 25010.
 
@@ -22,7 +22,7 @@
 
 ```mermaid
 gantt
-    title Roadmap Macro EcoAlerta - Ciclo de Vida del Proyecto (25/08 al 02/11/2026)
+    title Roadmap Macro EcoAlerta - Ciclo de Vida del Proyecto (25/08 al 03/11/2026)
     dateFormat  YYYY-MM-DD
     axisFormat  %d/%m
     section Fase 1 (100% Completado)
@@ -86,7 +86,8 @@ gantt
     section Fase 6 - Evaluacion ISO 25010 & Entrega (31/10 - 02/11)
     Evaluacion Checklists ISO 25010 y Peer Review (Equipo)       :t27, 2026-10-31, 2d
     Consolidacion Testware Final y Excel en Drive (Escobar Raul) :t28, 2026-11-01, 1d
-    Presentacion y Entrega Final al Mg Pedro Brest (Equipo)      :crit, t29, 2026-11-02, 1d
+    Entrega de Documentacion y Testware Final (Equipo)          :t28b, 2026-11-02, 1d
+    Cierre del Proyecto y Evaluacion Final (Equipo)              :crit, t29, 2026-11-03, 1d
 ```
 
 ---
@@ -95,7 +96,7 @@ gantt
 
 | Métrica del Proyecto | Estado Actual (Corte: 28-10) | Período Histórico (Inicio: 25-08) | Diagnóstico de Cumplimiento |
 | :--- | :--- | :--- | :--- |
-| **Progreso Global del Proyecto** | **88% Realizado** (28 / 32 Tareas) | 25/08 al 02/11/2026 (Semana 9 de 10) | 🟢 **100% en fecha (On Track)** |
+| **Progreso Global del Proyecto** | **88% Realizado** (28 / 32 Tareas) | 25/08 al 03/11/2026 (Semana 9 de 10) | 🟢 **100% en fecha (On Track)** |
 | **Fase 1: Setup, Arquitectura & UI** | **100% Completado** `[██████████]` | **25/08 al 07/09/2026** | 🟢 Cimientos aprobados |
 | **Fase 2: Desarrollo Core Front** | **100% Completado** `[██████████]` | **08/09 al 30/09/2026** | 🟢 Vistas y mockups integrados |
 | **Fase 3: SDD, Base de Datos & Back** | **100% Completado** `[██████████]` | **01/10 al 18/10/2026** | 🟢 PostgreSQL + Supabase funcional |
@@ -122,7 +123,7 @@ gantt
 
 ---
 
-## 🏃 Desglose Detallado de las Fases del Proyecto (25/08 al 02/11)
+## 🏃 Desglose Detallado de las Fases del Proyecto (25/08 al 03/11)
 
 ### FASE 1 (25/08 al 07/09/2026): Inicialización, Arquitectura y Prototipado UI/UX
 * **Objetivo**: Establecer la arquitectura del monorepo (`client/` y `server/`), base de datos SQLite inicial con Prisma, HomeScreen y estándares Scrum.
@@ -166,7 +167,7 @@ gantt
 * **Plan de Trabajo**:
   - `31/10 - 01/11`: Evaluación formal de calidad de producto bajo ISO/IEC 25010 y Peer Review por el equipo completo.
   - `01/11`: Consolidación del libro Excel (`EcoAlerta_Testware_Matriz_Casos_Ejecucion.xlsx`) y subida a Google Drive por Escobar Raul.
-  - `02/11`: **Hito de Entrega Final y Defensa Académica** ante el profesor Mg. Pedro Brest (Equipo Completo: Escobar Raul, Kuhn Joaquin, Rodriguez Iván, Benitez Angel, Benitez Facundo).
+  - `02/11`: **Hito de Entrega Final y Defensa Académica** en la plataforma institucional (Equipo Completo: Escobar Raul, Kuhn Joaquin, Rodriguez Iván, Benitez Angel, Benitez Facundo).
 
 ---
 
@@ -198,6 +199,6 @@ $$\mathbf{Ruta\ Crítica\ Principal:\ A \rightarrow C \rightarrow D \rightarrow 
 ---
 
 ## ⚡ Estrategias de Compresión del Cronograma (Schedule Compression)
-*Conforme a las diapositivas de la Unidad 6 (Mg. Pedro Brest):*
+*Conforme a las directivas metodológicas de la cátedra:*
 1. **Ejecución Rápida (Fast-Tracking):** Solapamiento en paralelo del diseño de interfaces de Kuhn Joaquin (`B`) con la construcción de backend de Benitez Angel (`C`), y de la corrección de defectos de FrontEnd (`BUG-101`) con la de BackEnd (`BUG-102`), absorbiendo varianzas sin alterar la fecha final de entrega.
 2. **Intensificación (Crashing):** Ante los hallazgos de concurrencia y límites de imagen en la Fase 4, se asignó dedicación exclusiva a los desarrolladores responsables de cada función (**Rodriguez Iván** y **Benitez Angel**) con verificación inmediata por el Analista de QA (**Benitez Facundo**), cerrando ambos bugs en menos de 48 horas para garantizar la entrega del 02 de noviembre.

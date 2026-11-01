@@ -2,7 +2,7 @@
 
 > **Proyecto:** EcoAlerta — Aplicación Móvil de Gestión Ambiental Ciudadana y Tienda de Recompensas  
 > **Institución:** Universidad Nacional de Pilar (UNPilar) — Testing & Calidad de Software 2026  
-> **Profesor Titular:** Mg. Pedro Brest  
+> **Fecha de Entrega:** 02 de noviembre de 2026  
 > **Equipo de Proyecto (5 integrantes):**  
 > - **Escobar Raul** (Scrum Master — Coordinación, RTM y Auditoría de Evidencias)  
 > - **Benitez Facundo** (Analista de QA — Ejecutor de Pruebas y Emisor de Evidencias)  

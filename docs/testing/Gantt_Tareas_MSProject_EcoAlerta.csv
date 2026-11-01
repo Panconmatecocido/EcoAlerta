@@ -1,5 +1,5 @@
 ID,Nombre_de_Tarea,Duracion,Comienzo,Fin,Predecesoras,Nombres_de_los_recursos,Semaforo
-1,Proyecto EcoAlerta - Ciclo de Vida y Testware de Calidad,70 d,25/08/2026,02/11/2026,,Equipo Completo,Verde
+1,Proyecto EcoAlerta - Ciclo de Vida y Testware de Calidad,70 d,25/08/2026,03/11/2026,,Equipo Completo,Verde
 2,FASE 1: Setup Arquitectura y Prototipos UI/UX,14 d,25/08/2026,07/09/2026,,Rodriguez / Kuhn / Benitez A / Escobar,Verde
 3,A: Setup inicial y arquitectura client/server monorepo,4 d,25/08/2026,28/08/2026,,Rodriguez Iván,Verde
 4,B: Wireframes y maquetacion UI/UX HomeScreen inicial,5 d,26/08/2026,30/08/2026,3,Kuhn Joaquin,Verde
@@ -39,5 +39,6 @@ ID,Nombre_de_Tarea,Duracion,Comienzo,Fin,Predecesoras,Nombres_de_los_recursos,Se
 38,FASE 6: Certificacion ISO 25010 y Entrega Final Academica,3 d,31/10/2026,02/11/2026,,Equipo Completo,Azul
 39,AA: Evaluacion Checklists ISO 25010 y Peer Review,2 d,31/10/2026,01/11/2026,37,Equipo Completo,Azul
 40,AB: Consolidacion de Testware Final y Planilla Excel en Drive,1 d,01/11/2026,01/11/2026,39,Escobar Raul / Benitez Facundo,Azul
-41,AC: Presentacion y Entrega Final ante la Catedra,1 d,02/11/2026,02/11/2026,40,Equipo Completo / Mg. Pedro Brest,Azul
-42,Hito 6: Dictamen de Aprobacion de Calidad,0 d,02/11/2026,02/11/2026,41,Mg. Pedro Brest,Azul
+41,AC: Entrega de Documentacion y Testware Final,1 d,02/11/2026,02/11/2026,40,Equipo Completo,Azul
+42,AD: Cierre del Proyecto y Evaluacion Final,1 d,03/11/2026,03/11/2026,41,Equipo Completo,Azul
+43,Hito 6: Dictamen de Aprobacion y Finalizacion,0 d,03/11/2026,03/11/2026,42,Equipo Completo,Azul
