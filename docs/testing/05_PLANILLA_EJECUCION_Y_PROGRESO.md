@@ -112,6 +112,7 @@
 
 ## 3. 🔍 Registro Histórico de Defectos Corregidos (Bugs Auditados)
 
+<a id="bug-101"></a>
 ### Defecto BUG-101
 - **Caso Asociado:** `CP-RF-REP-02-01` | **Módulo:** Módulo 2A (Reporte Ciudadano)
 - **Severidad:** S2 (Alta) | **Prioridad de Corrección:** Alta
@@ -121,6 +122,7 @@
 - **Solución Implementada:** Implementación de algoritmo iterativo en `imageCompressor.ts` que reduce progresivamente la calidad (0.8 -> 0.65 -> 0.5) hasta asegurar estrictamente `< 1.2 MB`.
 - **Estado Actual:** **Verificado y Cerrado**. Re-test exitoso por Benitez Facundo.
 
+<a id="bug-102"></a>
 ### Defecto BUG-102
 - **Caso Asociado:** `CP-RF-TIE-05-02` | **Módulo:** Módulo 3A (Tienda & Carrito)
 - **Severidad:** S1 (Crítica) | **Prioridad de Corrección:** Inmediata

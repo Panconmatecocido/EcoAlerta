@@ -18,6 +18,7 @@
 
 ---
 
+<a id="cp-rf-aut-01-01"></a>
 ### CP-RF-AUT-01-01: Registro Ciudadano Exitoso (Camino Feliz)
 - **ID Requisito / HU:** `RF-AUT-01` / `HU-01`
 - **Prioridad:** Alta
@@ -65,6 +66,7 @@
 
 ---
 
+<a id="cp-rf-aut-01-02"></a>
 ### CP-RF-AUT-01-02: Rechazo de Registro por Correo Electrónico Duplicado (Negativa)
 - **ID Requisito / HU:** `RF-AUT-02` / `HU-01`
 - **Prioridad:** Alta
@@ -99,6 +101,7 @@
 
 ---
 
+<a id="cp-rf-aut-02-01"></a>
 ### CP-RF-AUT-02-01: Validación de Formato de Email Regex en Formulario Móvil (UI)
 - **ID Requisito / HU:** `RF-AUT-02`
 - **Prioridad:** Alta
@@ -124,6 +127,7 @@
 
 ---
 
+<a id="cp-rf-aut-02-02"></a>
 ### CP-RF-AUT-02-02: Validación de Discrepancia entre Contraseñas (UI)
 - **ID Requisito / HU:** `RF-AUT-02`
 - **Prioridad:** Alta
@@ -148,6 +152,7 @@
 
 ---
 
+<a id="cp-rf-aut-03-01"></a>
 ### CP-RF-AUT-03-01: Login Exitoso con Credenciales Válidas y Emisión de JWT
 - **ID Requisito / HU:** `RF-AUT-03`
 - **Prioridad:** Alta
@@ -188,6 +193,7 @@
 
 ---
 
+<a id="cp-rf-aut-03-02"></a>
 ### CP-RF-AUT-03-02: Login Fallido por Contraseña Incorrecta (Negativa)
 - **ID Requisito / HU:** `RF-AUT-03`
 - **Prioridad:** Alta
@@ -220,6 +226,7 @@
 
 ---
 
+<a id="cp-rf-aut-06-01"></a><a id="cp-rnf-09-01"></a>
 ### CP-RF-AUT-06-01: Arranque en Frío en Modo Invitado y Rendimiento (RNF-09)
 - **ID Requisito / HU:** `HU-INV-01` / `RF-AUT-06` / `RNF-09`
 - **Prioridad:** Alta
@@ -241,6 +248,7 @@
 
 ---
 
+<a id="cp-rf-aut-08-01"></a>
 ### CP-RF-AUT-08-01: Intercepción Auth Gate al Presionar Cámara / Reportar Foco (Seguridad)
 - **ID Requisito / HU:** `HU-INV-03` / `RF-AUT-08` / `RNF-09`
 - **Prioridad:** Alta
@@ -265,6 +273,7 @@
 
 ---
 
+<a id="cp-rf-aut-08-02"></a>
 ### CP-RF-AUT-08-02: Intercepción Auth Gate al Pulsar "Agregar al Carrito" en Tienda
 - **ID Requisito / HU:** `HU-INV-03` / `RF-AUT-08`
 - **Prioridad:** Alta
@@ -293,6 +302,7 @@
 
 ---
 
+<a id="cp-rf-rep-01-01"></a>
 ### CP-RF-REP-01-01: Creación Exitosa de Reporte Ciudadano con GPS y Multimedia (Camino Feliz)
 - **ID Requisito / HU:** `HU-03` / `RF-REP-01` / `RF-REP-04`
 - **Prioridad:** Alta
@@ -338,6 +348,7 @@
 
 ---
 
+<a id="cp-rf-rep-02-01"></a>
 ### CP-RF-REP-02-01: Compresión de Imagen de Alta Resolución a Buffer `< 1.2 MB` (RNF-02)
 - **ID Requisito / HU:** `RF-REP-02` / `RNF-02`
 - **Prioridad:** Crítica
@@ -358,6 +369,7 @@
 
 ---
 
+<a id="cp-rf-rep-06-01"></a>
 ### CP-RF-REP-06-01: Soft Delete Visual de Reporte por Ciudadano (Archivado)
 - **ID Requisito / HU:** `HU-VEC01` / `RF-REP-06` / `RF-REP-07`
 - **Prioridad:** Media
@@ -381,6 +393,7 @@
 
 ---
 
+<a id="cp-rf-adm-01-01"></a>
 ### CP-RF-ADM-01-01: Triaje Administrativo — Aprobación en Bolsa General con Prioridad
 - **ID Requisito / HU:** `HU-05` / `RF-ADM-01`
 - **Prioridad:** Alta
@@ -410,6 +423,7 @@
 
 ---
 
+<a id="cp-rf-adm-02-01"></a>
 ### CP-RF-ADM-02-01: Triaje Administrativo — Rechazo de Reporte Improcedente con Motivo
 - **ID Requisito / HU:** `HU-05` / `RF-ADM-02`
 - **Prioridad:** Alta
@@ -437,6 +451,7 @@
 
 ---
 
+<a id="cp-rf-adm-02-02"></a>
 ### CP-RF-ADM-02-02: Rechazo Administrativo Fallido por Observaciones Vacías (Validación)
 - **ID Requisito / HU:** `RF-ADM-02`
 - **Prioridad:** Media
@@ -458,6 +473,7 @@
 
 ---
 
+<a id="cp-rf-adm-03-01"></a>
 ### CP-RF-ADM-03-01: Bloqueo de Asignación si Inspector No Está Disponible (RF-ADM-03b)
 - **ID Requisito / HU:** `RF-ADM-03b`
 - **Prioridad:** Alta
@@ -492,6 +508,7 @@
 
 ---
 
+<a id="cp-rf-age-02-01"></a>
 ### CP-RF-AGE-02-01: Toma de Caso Atómica 1 a 1 por Agente de Campo (Camino Feliz)
 - **ID Requisito / HU:** `HU-08` / `RF-AGE-02`
 - **Prioridad:** Crítica
@@ -525,6 +542,7 @@
 
 ---
 
+<a id="cp-rf-age-02-02"></a>
 ### CP-RF-AGE-02-02: Concurrencia — Intento Simultáneo de Toma del Mismo Caso por 2 Agentes
 - **ID Requisito / HU:** `HU-08` / `RF-AGE-02` / `RNF-03`
 - **Prioridad:** Crítica
@@ -547,6 +565,7 @@
 
 ---
 
+<a id="cp-rf-age-03-01"></a>
 ### CP-RF-AGE-03-01: Bloqueo de Toma de Caso si el Agente Ya Posee un Caso Activo
 - **ID Requisito / HU:** `RF-AGE-03`
 - **Prioridad:** Alta
@@ -572,6 +591,7 @@
 
 ---
 
+<a id="cp-rf-age-05-01"></a>
 ### CP-RF-AGE-05-01: Verificación In Situ Caso A (Foco Real Confirmado)
 - **ID Requisito / HU:** `HU-09` / `RF-AGE-05`
 - **Prioridad:** Alta
@@ -599,6 +619,7 @@
 
 ---
 
+<a id="cp-rf-age-06-02"></a>
 ### CP-RF-AGE-06-02: Protocolo de Inaccesibilidad — Cierre Automático al 3.er Intento Fallido
 - **ID Requisito / HU:** `HU-09` / `RF-AGE-06`
 - **Prioridad:** Alta
@@ -631,6 +652,7 @@
 
 ---
 
+<a id="cp-rf-adm-04-01"></a>
 ### CP-RF-ADM-04-01: Validación de Veracidad y Acreditación Atómica de Ecopuntos
 - **ID Requisito / HU:** `RF-ADM-04` / `RF-ADM-05`
 - **Prioridad:** Crítica
@@ -663,6 +685,7 @@
 
 ---
 
+<a id="cp-rf-adm-04-02"></a>
 ### CP-RF-ADM-04-02: Rechazo de Asignación de Puntos Fuera del Baremo de Prioridad
 - **ID Requisito / HU:** `RF-ADM-04`
 - **Prioridad:** Media
@@ -689,6 +712,7 @@
 
 ---
 
+<a id="cp-rf-age-07-02"></a>
 ### CP-RF-AGE-07-02: Liberación de Caso Ya Verificado — Retorno Directo a Saneamiento
 - **ID Requisito / HU:** `HU-10` / `RF-AGE-07`
 - **Prioridad:** Alta
@@ -711,6 +735,7 @@
 
 ---
 
+<a id="cp-rf-adm-07-01"></a>
 ### CP-RF-ADM-07-01: Doble Certificación Comparativa — Cierre a RESUELTO Definitivo
 - **ID Requisito / HU:** `HU-07` / `RF-ADM-07` / `RF-ADM-08`
 - **Prioridad:** Alta
@@ -740,6 +765,7 @@
 
 ---
 
+<a id="cp-rf-tie-01-02"></a>
 ### CP-RF-TIE-01-02: Baja Lógica de Producto en Catálogo Preservando Historial (ABM)
 - **ID Requisito / HU:** `RF-TIE-01`
 - **Prioridad:** Alta
@@ -762,6 +788,7 @@
 
 ---
 
+<a id="cp-rf-tie-03-01"></a>
 ### CP-RF-TIE-03-01: Restricción de Agregar al Carrito si Supera el Stock Físico Disponible
 - **ID Requisito / HU:** `RF-TIE-03`
 - **Prioridad:** Media
@@ -783,6 +810,7 @@
 
 ---
 
+<a id="cp-rf-tie-04-01"></a>
 ### CP-RF-TIE-04-01: Bloqueo de Checkout por Saldo de Ecopuntos Insuficiente
 - **ID Requisito / HU:** `HU-08` / `RF-TIE-04`
 - **Prioridad:** Alta
@@ -804,6 +832,7 @@
 
 ---
 
+<a id="cp-rf-tie-05-01"></a>
 ### CP-RF-TIE-05-01: Checkout — Reserva Temporal de Stock por 5 Minutos (TTL)
 - **ID Requisito / HU:** `HU-08` / `RF-TIE-05`
 - **Prioridad:** Crítica
@@ -834,6 +863,7 @@
 
 ---
 
+<a id="cp-rf-tie-05-02"></a>
 ### CP-RF-TIE-05-02: Concurrencia — Intento Simultáneo de Reserva de la Última Unidad de Stock
 - **ID Requisito / HU:** `HU-08` / `RF-TIE-05` / `RNF-03`
 - **Prioridad:** Crítica
@@ -861,6 +891,7 @@
 
 ---
 
+<a id="cp-rf-tie-05-03"></a>
 ### CP-RF-TIE-05-03: Expiración Automática de Reserva TTL de 5 Minutos (Restauración de Stock)
 - **ID Requisito / HU:** `HU-08` / `RF-TIE-05`
 - **Prioridad:** Alta
@@ -882,6 +913,7 @@
 
 ---
 
+<a id="cp-rf-tie-05-04"></a>
 ### CP-RF-TIE-05-04: Confirmación Atómica de Canje y Emisión de Código de Retiro
 - **ID Requisito / HU:** `HU-08` / `RF-TIE-05`
 - **Prioridad:** Crítica
@@ -908,6 +940,7 @@
 
 ---
 
+<a id="cp-rf-col-01-01"></a>
 ### CP-RF-COL-01-01: Búsqueda Exitosa y Entrega Presencial por Colaborador Municipal
 - **ID Requisito / HU:** `RF-COL-01`
 - **Prioridad:** Alta
@@ -933,6 +966,7 @@
 
 ---
 
+<a id="cp-rf-col-01-02"></a>
 ### CP-RF-COL-01-02: Búsqueda de Código Inexistente o Canje Ya Entregado (Negativa)
 - **ID Requisito / HU:** `RF-COL-01`
 - **Prioridad:** Media
@@ -956,6 +990,7 @@
 
 ---
 
+<a id="cp-rf-tie-06-01"></a>
 ### CP-RF-TIE-06-01: Expiración de Canje tras 30 Días sin Retiro (Restauración sin Reembolso)
 - **ID Requisito / HU:** `RF-TIE-06`
 - **Prioridad:** Alta
@@ -982,6 +1017,7 @@
 
 ---
 
+<a id="cp-rnf-07-01"></a>
 ### CP-RNF-07-01: Seguridad RBAC — Intento de Invocación con Token de Rol Inadecuado
 - **ID Requisito / HU:** `RNF-07`
 - **Prioridad:** Crítica
@@ -1007,6 +1043,7 @@
 
 ---
 
+<a id="cp-rnf-10-01"></a>
 ### CP-RNF-10-01: Bloqueo de UI con TransactionLoaderModal ante Mutaciones a BD
 - **ID Requisito / HU:** `RNF-10`
 - **Prioridad:** Alta
@@ -1029,6 +1066,7 @@
 
 ---
 
+<a id="cp-rnf-10-02"></a>
 ### CP-RNF-10-02: Feedback Visual con Spinner Contextual en Filtros de Listas
 - **ID Requisito / HU:** `RNF-10`
 - **Prioridad:** Media
@@ -1052,6 +1090,7 @@
 
 ---
 
+<a id="cp-rf-adm-08-01"></a>
 ### CP-RF-ADM-08-01: Alta Exitosa de Cuenta Agente Municipal con Foto de Cámara Obligatoria (Camino Feliz)
 - **ID Requisito / HU:** `RF-ADM-08` / `HU-ADM-01`
 - **Prioridad:** Crítica
@@ -1100,6 +1139,7 @@
 
 ---
 
+<a id="cp-rf-adm-08-02"></a>
 ### CP-RF-ADM-08-02: Alta Exitosa de Cuenta de Comercio Colaborador Municipal (Camino Feliz)
 - **ID Requisito / HU:** `RF-ADM-08` / `HU-ADM-01`
 - **Prioridad:** Alta
@@ -1127,6 +1167,7 @@
 
 ---
 
+<a id="cp-rf-adm-08-03"></a>
 ### CP-RF-ADM-08-03: Rechazo de Alta de Personal sin Foto o con Imagen Inválida (Negativo)
 - **ID Requisito / HU:** `RF-ADM-08` / `HU-ADM-01`
 - **Prioridad:** Alta
@@ -1150,6 +1191,7 @@
 
 ---
 
+<a id="cp-rf-adm-08-04"></a>
 ### CP-RF-ADM-08-04: Rechazo por Duplicidad de Correo Electrónico en Alta de Personal (Negativo)
 - **ID Requisito / HU:** `RF-ADM-08` / `HU-ADM-01`
 - **Prioridad:** Alta
@@ -1168,6 +1210,7 @@
 
 ---
 
+<a id="cp-rf-adm-08-05"></a>
 ### CP-RF-ADM-08-05: Control de Acceso RBAC en Alta de Personal (Seguridad)
 - **ID Requisito / HU:** `RF-ADM-08` / `HU-ADM-01`
 - **Prioridad:** Crítica
@@ -1187,6 +1230,7 @@
 
 ---
 
+<a id="cp-rf-adm-09-01"></a>
 ### CP-RF-ADM-09-01: Visualización de Foto en Header de Personal y Soporte de Avatar Alternativo
 - **ID Requisito / HU:** `RF-ADM-09` / `HU-ADM-02`
 - **Prioridad:** Media
@@ -1207,6 +1251,7 @@
 
 ---
 
+<a id="cp-rf-adm-09-02"></a>
 ### CP-RF-ADM-09-02: Inmutabilidad de Foto desde la Sesión del Personal (Seguridad)
 - **ID Requisito / HU:** `RF-ADM-09` / `HU-ADM-02`
 - **Prioridad:** Alta
@@ -1225,6 +1270,7 @@
 
 ---
 
+<a id="cp-rf-adm-10-01"></a>
 ### CP-RF-ADM-10-01: Consulta y Cambio de Disponibilidad de Comercio Colaborador (Camino Feliz)
 - **ID Requisito / HU:** `RF-ADM-10` / `HU-ADM-03`
 - **Prioridad:** Alta
@@ -1245,6 +1291,7 @@
 
 ---
 
+<a id="cp-rf-adm-10-02"></a>
 ### CP-RF-ADM-10-02: Baja Transaccional de Agente con Desasignación de Denuncias (Resiliencia)
 - **ID Requisito / HU:** `RF-ADM-10` / `HU-ADM-03`
 - **Prioridad:** Crítica
@@ -1264,6 +1311,7 @@
 
 ---
 
+<a id="cp-rf-adm-10-03"></a>
 ### CP-RF-ADM-10-03: Edición de Perfil de Administrador (Camino Feliz)
 - **ID Requisito / HU:** `RF-ADM-11` / `HU-ADM-01`
 - **Prioridad:** Media
@@ -1292,6 +1340,7 @@
 
 ## 📋 CASOS DE PRUEBA COMPLEMENTARIOS AUDITADOS (MODULOS 1 A 4)
 
+<a id="cp-rf-aut-02-03"></a>
 ### CP-RF-AUT-02-03: Longitud < 6 bloqueada con mensaje específico.
 - **ID Requisito / HU:** `RF-AUT-02`
 - **Prioridad:** Alta
@@ -1309,6 +1358,7 @@
 
 ---
 
+<a id="cp-rf-aut-04-01"></a>
 ### CP-RF-AUT-04-01: Enrutamiento dinámico a pantalla de cada rol verificado.
 - **ID Requisito / HU:** `RF-AUT-04`
 - **Prioridad:** Alta
@@ -1326,6 +1376,7 @@
 
 ---
 
+<a id="cp-rf-aut-05-01"></a>
 ### CP-RF-AUT-05-01: Persistencia en AsyncStorage validada tras reinicio simulado.
 - **ID Requisito / HU:** `RF-AUT-05`
 - **Prioridad:** Alta
@@ -1343,6 +1394,7 @@
 
 ---
 
+<a id="cp-rf-aut-06-02"></a>
 ### CP-RF-AUT-06-02: Botón verde de cabecera navega fluidamente a registro.
 - **ID Requisito / HU:** `RF-AUT-06`
 - **Prioridad:** Media
@@ -1360,6 +1412,7 @@
 
 ---
 
+<a id="cp-rf-aut-07-01"></a>
 ### CP-RF-AUT-07-01: Catálogo explorable por invitados sin permitir compra.
 - **ID Requisito / HU:** `RF-AUT-07`
 - **Prioridad:** Media
@@ -1377,6 +1430,7 @@
 
 ---
 
+<a id="cp-rf-aut-08-03"></a>
 ### CP-RF-AUT-08-03: Pestaña Perfil interceptada con modal protegido.
 - **ID Requisito / HU:** `RF-AUT-08`
 - **Prioridad:** Alta
@@ -1394,6 +1448,7 @@
 
 ---
 
+<a id="cp-rf-rep-03-01"></a>
 ### CP-RF-REP-03-01: Rechazo si lat/long es nulo o dirección < 5 caracteres.
 - **ID Requisito / HU:** `RF-REP-03`
 - **Prioridad:** Alta
@@ -1411,6 +1466,7 @@
 
 ---
 
+<a id="cp-rf-rep-04-01"></a>
 ### CP-RF-REP-04-01: Verificado estado inicial PENDIENTE y 0 puntos en BD.
 - **ID Requisito / HU:** `RF-REP-04`
 - **Prioridad:** Alta
@@ -1428,6 +1484,7 @@
 
 ---
 
+<a id="cp-rf-age-01-01"></a>
 ### CP-RF-AGE-01-01: Casos en bolsa ordenados por prioridad (Rojo, Naranja, Verde).
 - **ID Requisito / HU:** `RF-AGE-01`
 - **Prioridad:** Alta
@@ -1445,6 +1502,7 @@
 
 ---
 
+<a id="cp-rf-age-05-02"></a>
 ### CP-RF-AGE-05-02: Caso B Falso: Foto descargo y cierre como rechazo en terreno.
 - **ID Requisito / HU:** `RF-AGE-05`
 - **Prioridad:** Alta
@@ -1462,6 +1520,7 @@
 
 ---
 
+<a id="cp-rf-age-06-01"></a>
 ### CP-RF-AGE-06-01: Caso C Inaccesible: Foto sticker y contador incrementa a 1 y 2.
 - **ID Requisito / HU:** `RF-AGE-06`
 - **Prioridad:** Media
@@ -1479,6 +1538,7 @@
 
 ---
 
+<a id="cp-rf-age-07-01"></a>
 ### CP-RF-AGE-07-01: Liberación de caso no verificado retorna a bolsa en APROBADO.
 - **ID Requisito / HU:** `RF-AGE-07`
 - **Prioridad:** Media
@@ -1496,6 +1556,7 @@
 
 ---
 
+<a id="cp-rf-age-08-01"></a>
 ### CP-RF-AGE-08-01: Saneamiento: Subida de foto solución y pasa a RESUELTO_TECNICO.
 - **ID Requisito / HU:** `RF-AGE-08`
 - **Prioridad:** Alta
@@ -1513,6 +1574,7 @@
 
 ---
 
+<a id="cp-rf-adm-07-02"></a>
 ### CP-RF-ADM-07-02: Certificación observada: Retorna caso a EN_SANEAMIENTO.
 - **ID Requisito / HU:** `RF-ADM-07`
 - **Prioridad:** Media
@@ -1530,6 +1592,7 @@
 
 ---
 
+<a id="cp-rf-tie-01-01"></a>
 ### CP-RF-TIE-01-01: ABM catálogo: Creación y edición de producto con puntos y stock.
 - **ID Requisito / HU:** `RF-TIE-01`
 - **Prioridad:** Alta
@@ -1547,6 +1610,7 @@
 
 ---
 
+<a id="cp-rf-tie-02-01"></a>
 ### CP-RF-TIE-02-01: Suma en vivo: TotalPuntos = Sum(Cantidad * Precio).
 - **ID Requisito / HU:** `RF-TIE-02`
 - **Prioridad:** Alta
@@ -1564,6 +1628,7 @@
 
 ---
 
+<a id="cp-rf-tie-04-02"></a>
 ### CP-RF-TIE-04-02: Revalidación de precio en BD al abrir Checkout.
 - **ID Requisito / HU:** `RF-TIE-04`
 - **Prioridad:** Alta
@@ -1581,6 +1646,7 @@
 
 ---
 
+<a id="cp-rnf-01-01"></a>
 ### CP-RNF-01-01: Lectura local en 45 ms (< 300 ms) y API en 190 ms (< 600 ms).
 - **ID Requisito / HU:** `RNF-01`
 - **Prioridad:** Alta
@@ -1598,6 +1664,7 @@
 
 ---
 
+<a id="cp-rnf-02-01"></a>
 ### CP-RNF-02-01: Compresión de imágenes raw a buffer < 1.2 MB garantizada.
 - **ID Requisito / HU:** `RNF-02`
 - **Prioridad:** Crítica

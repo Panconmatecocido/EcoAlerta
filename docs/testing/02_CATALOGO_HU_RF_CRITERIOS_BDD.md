@@ -18,6 +18,7 @@
 
 ---
 
+<a id="hu-inv-01"></a><a id="hu-008-01"></a><a id="rf-aut-06"></a>
 ### HU-INV-01: Home de Bienvenida para Usuario No Logueado (Modo Invitado)
 - **Historia de Usuario:**
   > **Como** usuario no autenticado (Invitado),  
@@ -43,6 +44,7 @@ Escenario: Acceso directo al Home de Bienvenida en arranque en frío
 
 ---
 
+<a id="hu-inv-02"></a>
 ### HU-INV-02: Call to Action (CTA) de Registro en Cabecera de Invitado
 - **Historia de Usuario:**
   > **Como** usuario invitado navegando por el Home,  
@@ -65,6 +67,7 @@ Escenario: Visualización y redirección del CTA de bienvenida para invitados
 
 ---
 
+<a id="hu-inv-03"></a><a id="rf-aut-07"></a><a id="rf-aut-08"></a>
 ### HU-INV-03 & RF-AUT-08: Interceptor y Guardián de Rutas Protegidas (Auth Gate)
 - **Historia de Usuario:**
   > **Como** usuario invitado,  
@@ -97,6 +100,7 @@ Escenario: Intercepción de intento de reporte por usuario invitado
 
 ---
 
+<a id="rf-aut-01"></a><a id="rf-aut-02"></a>
 ### RF-AUT-01 & RF-AUT-02: Registro Ciudadano con Validaciones Exhaustivas
 - **Historia de Usuario:**
   > **Como** vecino de la comunidad,  
@@ -142,6 +146,7 @@ Escenario: Intento de registro con contraseñas que no coinciden (Negativo)
 
 ---
 
+<a id="rf-aut-03"></a><a id="rf-aut-04"></a>
 ### RF-AUT-03 & RF-AUT-04: Login Multi-Rol y Enrutamiento Dinámico
 - **Historia de Usuario:**
   > **Como** usuario registrado (Ciudadano, Agente de Campo, Administrador o Colaborador),  
@@ -171,6 +176,7 @@ Escenario: Intento de registro con contraseñas que no coinciden (Negativo)
 
 ---
 
+<a id="hu-03"></a><a id="rf-rep-01"></a><a id="rf-rep-02"></a><a id="rf-rep-03"></a><a id="rf-rep-04"></a><a id="rf-rep-05"></a>
 ### HU-03 & RF-REP-01 a 05: Creación de Reporte Ciudadano con Multimedia y GPS
 - **Historia de Usuario:**
   > **Como** ciudadano autenticado,  
@@ -206,6 +212,7 @@ Escenario: Creación exitosa de reporte con imagen comprimida (Camino Feliz)
 
 ---
 
+<a id="hu-05"></a><a id="rf-adm-01"></a><a id="rf-adm-02"></a><a id="rf-adm-03"></a><a id="rf-adm-03b"></a>
 ### HU-05 & RF-ADM-01 a 03b: Triaje Administrativo y Control de Disponibilidad
 - **Historia de Usuario:**
   > **Como** administrador municipal,  
@@ -220,6 +227,7 @@ Escenario: Creación exitosa de reporte con imagen comprimida (Camino Feliz)
 
 ---
 
+<a id="hu-08"></a><a id="rf-age-01"></a><a id="rf-age-02"></a><a id="rf-age-03"></a><a id="rf-age-04"></a>
 ### HU-08 & RF-AGE-01 a 04: Toma de Caso con Bloqueo Transaccional Atómico (1 a 1)
 - **Historia de Usuario:**
   > **Como** agente de campo en servicio,  
@@ -234,6 +242,7 @@ Escenario: Creación exitosa de reporte con imagen comprimida (Camino Feliz)
 
 ---
 
+<a id="hu-09"></a><a id="rf-age-05"></a><a id="rf-age-06"></a>
 ### HU-09 & RF-AGE-05 a 06: Verificación In Situ y Protocolo de 3 Intentos por Inaccesibilidad
 - **Historia de Usuario:**
   > **Como** agente de campo en el lugar del hecho,  
@@ -255,6 +264,7 @@ Escenario: Creación exitosa de reporte con imagen comprimida (Camino Feliz)
 
 ---
 
+<a id="rf-adm-04"></a><a id="rf-adm-05"></a>
 ### RF-ADM-04 a 05: Validación de Veracidad y Acreditación Atómica de Ecopuntos
 - **Historia de Usuario:**
   > **Como** administrador municipal,  
@@ -275,6 +285,7 @@ Escenario: Creación exitosa de reporte con imagen comprimida (Camino Feliz)
 
 ---
 
+<a id="hu-10"></a><a id="rf-age-07"></a><a id="rf-adm-06"></a>
 ### HU-10 / RF-AGE-07 & RF-ADM-06: Abandono / Liberación y Desasignación de Caso
 - **Reglas de Retorno a Bolsa General:**
   - Si un agente presiona `"Liberar Caso"` por rotura de móvil o emergencia (o el Admin pulsa `"Forzar Desasignación"`):
@@ -284,6 +295,7 @@ Escenario: Creación exitosa de reporte con imagen comprimida (Camino Feliz)
 
 ---
 
+<a id="hu-11"></a><a id="hu-07"></a><a id="rf-age-08"></a><a id="rf-adm-07"></a>
 ### HU-11 / RF-AGE-08 & RF-ADM-07 a 08: Saneamiento Técnico y Doble Certificación Antes vs Después
 - **Saneamiento Técnico por Agente:**
   - Obligatorio subir foto de resolución limpia (`fotoSolucionUrl`) y texto de informe (`informeSolucion` con mínimo 10 caracteres).
@@ -295,6 +307,7 @@ Escenario: Creación exitosa de reporte con imagen comprimida (Camino Feliz)
 
 ---
 
+<a id="rf-rep-06"></a><a id="rf-rep-07"></a><a id="hu-vec01"></a>
 ### RF-REP-06 a 07: Soft Delete Ciudadano (Archivado Visual de Denuncias)
 - **Regla:** Cuando un ciudadano cobra sus puntos o el caso finaliza, puede pulsar el icono de papelera en su lista de reportes.
 - **Comportamiento:** Se actualiza `ocultarUsuario = true`. El reporte desaparece inmediatamente de la lista móvil del vecino, pero permanece 100% visible e intacto en el panel municipal y en los reportes estadísticos de gestión.
@@ -308,12 +321,14 @@ Escenario: Creación exitosa de reporte con imagen comprimida (Camino Feliz)
 
 ---
 
+<a id="rf-tie-01"></a>
 ### RF-TIE-01: ABM de Catálogo Municipal por Administrador
 - El Admin puede crear y actualizar productos (Nombre, Descripción, Categoría, Precio en Ecopuntos, Stock Físico, Imagen URL).
 - **Baja Lógica Obligatoria:** No se permite eliminar físicamente un producto de la base de datos si tiene canjes históricos asociados. Se actualiza `activo = false` para retirarlo de la tienda pública sin corromper la integridad referencial.
 
 ---
 
+<a id="rf-tie-02"></a><a id="rf-tie-03"></a>
 ### RF-TIE-02 a 03: Catálogo, Buscador y Carrito Reactivo
 - Lista de productos activos (`activo = true`) con buscador en vivo y filtros por categoría.
 - Al agregar un ítem, el carrito calcula en tiempo real:  
@@ -323,6 +338,7 @@ Escenario: Creación exitosa de reporte con imagen comprimida (Camino Feliz)
 
 ---
 
+<a id="hu-08-tie"></a><a id="hu-008-03"></a><a id="rf-tie-04"></a><a id="rf-tie-05"></a>
 ### HU-08 & RF-TIE-04 a 05: Checkout con Bloqueo Temporal de Stock por 5 Minutos (TTL)
 - **Historia de Usuario:**
   > **Como** ciudadano con ecopuntos acumulados,  
@@ -364,6 +380,7 @@ Escenario: Intento de canje con saldo de puntos insuficiente (Negativo)
 
 ---
 
+<a id="rf-col-01"></a>
 ### RF-COL-01: Panel de Colaborador y Retiro Presencial de Premios
 - **Historia de Usuario:**
   > **Como** colaborador de entrega municipal en la sucursal,  
@@ -382,6 +399,7 @@ Escenario: Intento de canje con saldo de puntos insuficiente (Negativo)
 
 ---
 
+<a id="rf-tie-06"></a>
 ### RF-TIE-06: Expiración Automática de Canjes a los 30 Días
 - Si un pedido con código emitido no es retirado en un plazo de **30 días corridos**:
 - El proceso batch / cron actualiza el estado a `EXPIRADO` (`CANCELADO`).
@@ -397,6 +415,7 @@ Escenario: Intento de canje con saldo de puntos insuficiente (Negativo)
 
 ---
 
+<a id="hu-adm-01"></a><a id="rf-adm-08"></a>
 ### HU-ADM-01: Aprovisionamiento de Cuentas de Personal Municipal con Foto Obligatoria por Administrador
 - **Historia de Usuario:**
   > **Como** administrador municipal autenticado,  
@@ -433,6 +452,7 @@ Escenario: Rechazo de alta por omisión o invalidez de la fotografía facial (Ne
 
 ---
 
+<a id="hu-adm-02"></a><a id="rf-adm-09"></a>
 ### HU-ADM-02: Visualización de Foto de Perfil en Header de Personal e Inmutabilidad de Identidad
 - **Historia de Usuario:**
   > **Como** Agente de Campo o Colaborador de Entrega,  
@@ -461,6 +481,7 @@ Escenario: Visualización de avatar alternativo para cuentas históricas sin fot
 
 ---
 
+<a id="hu-adm-03"></a><a id="rf-adm-10"></a>
 ### HU-ADM-03: Gestión de Comercios Colaboradores, Conmutación de Estado y Baja Transaccional
 - **Historia de Usuario:**
   > **Como** administrador municipal,  
@@ -491,9 +512,9 @@ Escenario: Baja de Agente y liberación atómica de incidentes asignados
 
 | ID | Nombre | Especificación Métrica y Comportamiento Esperado |
 | :---: | :--- | :--- |
-| **RNF-01** | **Rendimiento y Latencia** | Operaciones de persistencia local en `AsyncStorage` deben completarse en `< 300 ms`. Consultas a la API REST bajo condiciones normales deben responder en `< 600 ms`. |
-| **RNF-02** | **Compresión Multimedia** | Toda fotografía capturada por cámara o seleccionada de la galería debe ser procesada por `imageCompressor.ts` reduciendo su peso obligatoriamente a `< 1.2 MB` y dimensiones máximas de 1080px antes de transmitirse al backend. |
-| **RNF-03** | **Atomicidad Concurrente** | Las operaciones críticas (toma de caso de agente, acreditación de puntos a ciudadanos y reserva/confirmación de stock en Checkout) deben ejecutarse bajo transacciones atómicas aisladas (`prisma.$transaction`) con rollback automático ante cualquier fallo. |
-| **RNF-07** | **Seguridad de Credenciales** | Ninguna contraseña se almacenará en texto plano; deben ser encriptadas con algoritmo `bcrypt` (mínimo salt factor 10). La transmisión de datos debe realizarse mediante HTTPS/TLS con tokens JWT firmados. |
-| **RNF-09** | **Onboarding y Guardián de Invitado** | El cold start de la app en modo Invitado debe mostrar el Home en `< 300 ms` sin exigir login previo. El interceptor de rutas protegidas (*Auth Gate*) debe disparar el modal informativo en `< 100 ms`. |
-| **RNF-10** | **Feedback Visual y Modal Transaccional Bloqueante** | **1. Mutaciones a BD:** Cualquier petición de escritura a la base de datos (crear reporte, triaje, tomar/liberar caso, verificar, certificar, canjear, entregar) DEBE desplegar de forma reactiva en el ms 0 el componente `TransactionLoaderModal` bloqueando cualquier toque repetido del usuario. Si es exitosa, cierra el modal y muestra confirmación; si falla, cierra el modal manteniendo el formulario intacto y desplegando el error.<br>**2. Listas y Filtros:** Cualquier cambio de chip o pestaña en listas con filtros debe mostrar inmediatamente un `ActivityIndicator` contextual hasta completar el renderizado. |
+| <a id="rnf-01"></a>**RNF-01** | **Rendimiento y Latencia** | Operaciones de persistencia local en `AsyncStorage` deben completarse en `< 300 ms`. Consultas a la API REST bajo condiciones normales deben responder en `< 600 ms`. |
+| <a id="rnf-02"></a>**RNF-02** | **Compresión Multimedia** | Toda fotografía capturada por cámara o seleccionada de la galería debe ser procesada por `imageCompressor.ts` reduciendo su peso obligatoriamente a `< 1.2 MB` y dimensiones máximas de 1080px antes de transmitirse al backend. |
+| <a id="rnf-03"></a>**RNF-03** | **Atomicidad Concurrente** | Las operaciones críticas (toma de caso de agente, acreditación de puntos a ciudadanos y reserva/confirmación de stock en Checkout) deben ejecutarse bajo transacciones atómicas aisladas (`prisma.$transaction`) con rollback automático ante cualquier fallo. |
+| <a id="rnf-07"></a>**RNF-07** | **Seguridad de Credenciales** | Ninguna contraseña se almacenará en texto plano; deben ser encriptadas con algoritmo `bcrypt` (mínimo salt factor 10). La transmisión de datos debe realizarse mediante HTTPS/TLS con tokens JWT firmados. |
+| <a id="rnf-09"></a>**RNF-09** | **Onboarding y Guardián de Invitado** | El cold start de la app en modo Invitado debe mostrar el Home en `< 300 ms` sin exigir login previo. El interceptor de rutas protegidas (*Auth Gate*) debe disparar el modal informativo en `< 100 ms`. |
+| <a id="rnf-10"></a>**RNF-10** | **Feedback Visual y Modal Transaccional Bloqueante** | **1. Mutaciones a BD:** Cualquier petición de escritura a la base de datos (crear reporte, triaje, tomar/liberar caso, verificar, certificar, canjear, entregar) DEBE desplegar de forma reactiva en el ms 0 el componente `TransactionLoaderModal` bloqueando cualquier toque repetido del usuario. Si es exitosa, cierra el modal y muestra confirmación; si falla, cierra el modal manteniendo el formulario intacto y desplegando el error.<br>**2. Listas y Filtros:** Cualquier cambio de chip o pestaña en listas con filtros debe mostrar inmediatamente un `ActivityIndicator` contextual hasta completar el renderizado. |
