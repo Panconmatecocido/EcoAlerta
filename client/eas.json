@@ -1,0 +1,25 @@
+{
+  "cli": {
+    "version": ">= 12.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://ecoalerta-2cg3.onrender.com",
+        "EXPO_PUBLIC_MUNICIPIO_ID": "4efb8ffe-f9a6-4643-8224-66b4a42da22d"
+      }
+    },
+    "production": {}
+  },
+  "submit": {
+    "production": {}
+  }
+}

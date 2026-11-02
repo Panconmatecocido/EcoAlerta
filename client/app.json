@@ -8,13 +8,13 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.tuusuario.EcoAlerta"
+      "bundleIdentifier": "com.ecoalerta.app"
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
       },
-      "package": "com.tuusuario.EcoAlerta"
+      "package": "com.ecoalerta.app"
     },
     "plugins": [
       "expo-font",
