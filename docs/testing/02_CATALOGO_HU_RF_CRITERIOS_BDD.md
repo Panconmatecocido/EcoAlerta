@@ -18,7 +18,7 @@
 
 ---
 
-<a id="hu-inv-01"></a><a id="hu-008-01"></a><a id="rf-aut-06"></a>
+<a id="hu-inv-01"></a><a id="rf-aut-06"></a>
 ### HU-INV-01: Home de Bienvenida para Usuario No Logueado (Modo Invitado)
 - **Historia de Usuario:**
   > **Como** usuario no autenticado (Invitado),  
@@ -338,7 +338,7 @@ Escenario: Creación exitosa de reporte con imagen comprimida (Camino Feliz)
 
 ---
 
-<a id="hu-08-tie"></a><a id="hu-008-03"></a><a id="rf-tie-04"></a><a id="rf-tie-05"></a>
+<a id="hu-08-tie"></a><a id="rf-tie-04"></a><a id="rf-tie-05"></a>
 ### HU-08 & RF-TIE-04 a 05: Checkout con Bloqueo Temporal de Stock por 5 Minutos (TTL)
 - **Historia de Usuario:**
   > **Como** ciudadano con ecopuntos acumulados,  
