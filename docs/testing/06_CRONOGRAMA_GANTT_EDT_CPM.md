@@ -173,7 +173,17 @@ gantt
 
 ## 🧮 Estimación a 3 Puntos (PERT) y Cálculo de Camino Crítico (CPM)
 
-Conforme a las directrices metodológicas de la Unidad 6 (PMBOK / Cátedra Testing UNPilar):
+### 📌 Premisas Metodológicas de Estimación y Modelado del Cronograma
+
+1. **Estimación en Días Cerrados (Jornadas Laborables Enteras):**
+   * Las duraciones de las actividades en el cronograma de Microsoft Project (`Plantilla semaforos.mpp`) y en la red CPM se modelan y consolidan en **días cerrados (números enteros equivalentes a jornadas laborales estándar de 8 horas)**, adoptando el valor más probable ($b$).
+   * Esta convención elimina fracciones de hora intradiarias (evitando que una tarea termine a mitad de turno y desplace artificialmente el inicio de la siguiente), garantiza que las dependencias Fin a Comienzo (*FS*) arranquen limpiamente al inicio del siguiente día hábil y permite que los semáforos de control (EVM / variación respecto a la línea base) calculen desvíos de cronograma enteros y deterministas.
+
+2. **Definición y Naturaleza de los Hitos (Duración = 0 días):**
+   * En conformidad con las buenas prácticas de gestión de proyectos (PMBOK / ISO 21500), los **Hitos (Milestones)** representan **eventos o puntos de control en el tiempo** (checkpoints de auditoría de calidad, aprobaciones formales de fase o entregas finales), **no actividades de trabajo**.
+   * Al no insumir horas de trabajo, esfuerzo humano ni recursos presupuestarios, **su tiempo de ejecución es nulo (duración = 0 días)**.
+   * En Microsoft Project, toda tarea configurada con duración `0 d` es identificada automáticamente como un Hito y graficada en el diagrama de Gantt como un rombo negro (`◆`), señalando el instante exacto de cumplimiento sin alterar ni inflar la duración matemática del camino crítico.
+
 $$M = \frac{a + 4b + c}{6} \qquad \sigma = \frac{c - a}{6} \qquad \sigma^2 = \left(\frac{c - a}{6}\right)^2 \qquad \text{Holgura Total} = LS - ES = LF - EF$$
 
 | ID | Paquete de Trabajo / Actividad | Responsable | Predec. | $a$ | $b$ | $c$ | Esperada ($M$) | Varianza ($\sigma^2$) | ES | EF | LS | LF | Holgura | ¿Crítica? |
@@ -195,6 +205,19 @@ $$M = \frac{a + 4b + c}{6} \qquad \sigma = \frac{c - a}{6} \qquad \sigma^2 = \le
 | **O** | Evaluación ISO 25010 y Libro Excel Final | Equipo Completo | N | 1 d | 2 d | 3 d | **2.0 d** | 0.11 | Día 68 | Día 70 | Día 68 | Día 70 | **0 d** | **SÍ** |
 
 $$\mathbf{Ruta\ Crítica\ Principal:\ A \rightarrow C \rightarrow D \rightarrow E \rightarrow F \rightarrow G \rightarrow H \rightarrow I \rightarrow J \rightarrow K \rightarrow L \rightarrow M \rightarrow N \rightarrow O\ (70\ días\ calendario\ /\ 50\ días\ laborables)}$$
+
+
+### 📍 Hitos de Control del Proyecto (Duración = 0 días en MS Project / Gantt)
+
+| Hito | Nombre del Hito en MS Project | Duración | Fecha Planificada | Predecesora | Significado y Control de Calidad |
+| :---: | :--- | :---: | :---: | :---: | :--- |
+| **Hito 1** | Cimientos de Arquitectura y UI Aprobados | **0 d** | 07/09/2026 | Tarea 7 (E) | Fin de Fase 1: Setup inicial, monorepo y wireframes aprobados. |
+| **Hito 2** | Interfaces Core y Mockups Integrados | **0 d** | 30/09/2026 | Tarea 15 (K) | Fin de Fase 2: Vistas de agente, cámara nativa y Home admin validadas. |
+| **Hito 3** | Backend Supabase y Módulos 001-006 Conectados | **0 d** | 18/10/2026 | Tarea 22 (P) | Fin de Fase 3: Prisma ORM, PostgreSQL y endpoints REST transaccionales. |
+| **Hito 4** | Testware y Defectos 100% Corregidos | **0 d** | 28/10/2026 | Tareas 30 y 31 (V, W) | Fin de Fase 4: 0 defectos bloqueantes abiertos (S1/S2 resueltos) y 67 casos diseñados. |
+| **Hito 5** | Pruebas E2E y Regresión Conformes | **0 d** | 31/10/2026 | Tarea 36 (Z) | Fin de Fase 5: Suite completa ejecutada al 100% con evidencias vinculadas. |
+| **Hito 6** | Dictamen de Aprobación y Finalización | **0 d** | 03/11/2026 | Tarea 42 (AD) | Cierre definitivo del proyecto y entrega formal de la documentación. |
+
 
 ---
 
