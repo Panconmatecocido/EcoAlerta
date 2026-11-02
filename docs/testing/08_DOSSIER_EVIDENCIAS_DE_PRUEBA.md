@@ -37,7 +37,7 @@ A continuación se indexan las **67 evidencias de prueba** correspondientes al 1
 | 8 | `E2E-NAV-ROLES-01` | `CP-RF-AUT-04-01` | Módulo 1 | Jest / Manual | Enrutamiento dinámico a pantalla de cada rol verificado. | [Ver Evidencia](#e2e-nav-roles-01) |
 | 9 | `TEST-ASYNC-STORE-01` | `CP-RF-AUT-05-01` | Módulo 1 | Jest | Persistencia en AsyncStorage validada tras reinicio simulado. | [Ver Evidencia](#test-async-store-01) |
 | 10 | `PERF-COLD-START-01` | `CP-RF-AUT-06-01` | Módulo 1 | Jest / Profiler | Cold start en 185 ms (< 300 ms SLA) en Modo Invitado. | [Ver Evidencia](#perf-cold-start-01) |
-| 11 | `UI-CTA-HEADER-01` | `CP-RF-AUT-06-02` | Módulo 1 | Manual / Expo | Botón verde de cabecera navega fluidamente a registro. | [Ver Evidencia](#ui-cta-header-01) |
+| 11 | `UI-CTA-HEADER-01` | `CP-RF-AUT-06-02` | Módulo 1 | Manual / Expo | Botón verde de cabecera navega fluidamente a registro. | [Ver Evidencia](#ui-cta-header-01) \| [📸 Foto](screenshots/app_01_onboarding_inicio.jpg) |
 | 12 | `UI-GUEST-STORE-01` | `CP-RF-AUT-07-01` | Módulo 1 | Manual / Expo | Catálogo explorable por invitados sin permitir compra. | [Ver Evidencia](#ui-guest-store-01) |
 | 13 | `SEC-AUTH-GATE-01` | `CP-RF-AUT-08-01` | Módulo 1 | Jest / Manual | Botón Cámara interceptado en 42 ms con modal protegido. | [Ver Evidencia](#sec-auth-gate-01) |
 | 14 | `SEC-AUTH-GATE-02` | `CP-RF-AUT-08-02` | Módulo 1 | Jest / Manual | Botón "Agregar al Carrito" interceptado con modal protegido. | [Ver Evidencia](#sec-auth-gate-02) |
@@ -94,6 +94,31 @@ A continuación se indexan las **67 evidencias de prueba** correspondientes al 1
 | 65 | `LOG-API-20261028-04` | `CP-RF-ADM-10-01` | Módulo 4 | Postman / Jest | Listado y actualización de disponibilidad de colaborador 200 OK. | [Ver Evidencia](#log-api-20261028-04) |
 | 66 | `TEST-STAFF-DEL-01` | `CP-RF-ADM-10-02` | Módulo 4 | Jest / Supertest | Baja atómica de agente liberando 2 denuncias con agenteId = null. | [Ver Evidencia](#test-staff-del-01) |
 | 67 | `LOG-API-20261028-05` | `CP-RF-ADM-10-03` | Módulo 4 | Postman / Jest | Edición de perfil de administrador (nombre y foto) confirmada 200 OK. | [Ver Evidencia](#log-api-20261028-05) |
+
+---
+
+## 📸 Galería Visual de Evidencias Gráficas (App Móvil & Postman)
+
+A continuación se presentan las capturas gráficas oficiales del producto en ejecución sobre dispositivo móvil físico (Expo Go) y en el cliente de pruebas Postman API:
+
+### 1. Interfaz Móvil en Dispositivo Físico (Expo Go)
+| Pantalla de Bienvenida (Onboarding / Invitado) | Formulario de Denuncia (Cámara y Categoría) | Formulario de Denuncia (GPS y Mapa) |
+| :---: | :---: | :---: |
+| <img src="screenshots/app_01_onboarding_inicio.jpg" width="240" alt="Onboarding e Inicio"> | <img src="screenshots/app_02_formulario_denuncia_foto.jpg" width="240" alt="Crear Denuncia Foto"> | <img src="screenshots/app_03_formulario_denuncia_mapa_gps.jpg" width="240" alt="Mapa GPS"> |
+| **[`CP-RF-AUT-06-01`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-rf-aut-06-01) / HU-001** | **[`CP-REP-01`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-rep-01) / HU-003** | **[`CP-REP-03`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-rep-03) / HU-003** |
+
+| Tienda de Recompensas y Ecopuntos | Perfil Ciudadano e Historial de Canje Entregado |
+| :---: | :---: |
+| <img src="screenshots/app_04_tienda_catalogo_recompensas.jpg" width="240" alt="Catálogo de Tienda"> | <img src="screenshots/app_05_perfil_historial_canjes.jpg" width="240" alt="Perfil y Retiro de Canje"> |
+| **[`CP-TIENDA-01`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-tienda-01) / HU-009** | **[`CP-CANJ-05`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-canj-05) / HU-013** |
+
+---
+
+### 2. Postman API Test Suite & Validaciones de Negocio
+| Postman Collection Runner (67/67 Tests Pasados - 100%) | Petición POST /api/denuncias (201 Created) | Validación 409 Conflict (Agente No Disponible) |
+| :---: | :---: | :---: |
+| <img src="screenshots/postman_01_collection_runner.png" width="340" alt="Postman Runner"> | <img src="screenshots/postman_02_endpoint_crear_denuncia.png" width="340" alt="Crear Denuncia"> | <img src="screenshots/postman_03_validacion_agente_no_disponible.png" width="340" alt="409 Agente Ocupado"> |
+| **Suite Completa: 67/67 Passed** | **[`CP-REP-01`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-rep-01): Código REP-2026** | **[`CP-TRIA-02`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-tria-02): Bloqueo regla de negocio** |
 
 ---
 
@@ -408,6 +433,10 @@ SLA Target: < 300 ms. Status: CONFORME.
 ---
 
 <a id="ui-cta-header-01"></a>
+
+> **📸 Captura de Ejecución en Celular:**
+> ![Onboarding Móvil](screenshots/app_01_onboarding_inicio.jpg)
+
 ### 🔹 UI-CTA-HEADER-01: Botón CTA de Cabecera "Regístrate para empezar a usar la app" (`CP-RF-AUT-06-02`)
 
 - **ID Evidencia / Log:** `UI-CTA-HEADER-01`

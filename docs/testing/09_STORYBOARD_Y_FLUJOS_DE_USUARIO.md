@@ -33,7 +33,11 @@ flowchart TD
     S5 --> S6["Viñeta 1.6<br/>Pantalla de Registro<br/>Formulario Ciudadano"]
 ```
 
-#### 🖼️ Viñeta 1.1 a 1.3: Carrusel de Bienvenida (Onboarding)
+#### 🎬 Viñeta 1.1 a 1.3: Carrusel de Bienvenida (Onboarding)
+
+> **📸 Captura Real en Dispositivo Móvil:**  
+> <img src="screenshots/app_01_onboarding_inicio.jpg" width="260" alt="Pantalla Onboarding en Celular">
+
 * **Componente:** `OnboardingPantalla.tsx` (Autoplay cada 4 segundos, indicadores de paginación interactivos).
 ```
 +------------------------------------------+
@@ -107,7 +111,13 @@ flowchart TD
     R4 --> R5["Viñeta 2.5<br/>Comprobante REP-2026-XXXX<br/>Estado: REPORTADO (0 pts)"]
 ```
 
-#### 🖼️ Viñeta 2.2 y 2.3: Captura y Formulario de Alerta Ambiental
+#### 🎬 Viñeta 2.2 y 2.3: Captura y Formulario de Alerta Ambiental
+
+> **📸 Capturas Reales en Dispositivo Móvil:**  
+> | 1. Captura de Foto y Categoría | 2. Geolocalización GPS y Mapa Interactivo |
+> | :---: | :---: |
+> | <img src="screenshots/app_02_formulario_denuncia_foto.jpg" width="240" alt="Foto y Categoría"> | <img src="screenshots/app_03_formulario_denuncia_mapa_gps.jpg" width="240" alt="Mapa GPS"> |
+
 ```
 +------------------------------------------+
 | 📷 NUEVO REPORTE AMBIENTAL       [Volver]|

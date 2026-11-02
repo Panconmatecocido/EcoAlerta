@@ -333,7 +333,7 @@
   4. En la interfaz móvil: Se visualiza el `TransactionLoaderModal` con `"Enviando tu reporte ambiental..."`. Al recibir 201, se cierra el modal y se muestra un banner verde: `"¡Reporte recibido! Gracias por cuidar tu barrio. Código: REP-2026-0045"`.
 - **Resultado Real:** Pasó de acuerdo a lo especificado.
 - **Estado:** **Pasó**
-- **Evidencia de Ejecución:** [`LOG-API-20261025-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-01)
+- **Evidencia de Ejecución:** [`LOG-API-20261025-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-01) | [📸 Captura Celular](screenshots/app_02_formulario_denuncia_foto.jpg) | [📸 Postman 201](screenshots/postman_02_endpoint_crear_denuncia.png)
 - **Postcondiciones:** El reporte queda en estado PENDIENTE a la espera de triaje del Admin.
 
 ---
@@ -487,7 +487,7 @@
   4. La denuncia permanece sin asignación en la bolsa general.
 - **Resultado Real:** Pasó según la regla estricta.
 - **Estado:** **Pasó**
-- **Evidencia de Ejecución:** [`LOG-API-20261025-07`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-07)
+- **Evidencia de Ejecución:** [`LOG-API-20261025-07`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-07) | [📸 Postman 409](screenshots/postman_03_validacion_agente_no_disponible.png)
 - **Postcondiciones:** No se sobrecargan inspectores inactivos.
 
 ---
@@ -928,7 +928,7 @@
      - Se muestra un banner verde de confirmación: `"¡Pedido entregado exitosamente al vecino!"`.
 - **Resultado Real:** Entrega registrada y pedido cerrado satisfactoriamente.
 - **Estado:** **Pasó**
-- **Evidencia de Ejecución:** [`LOG-API-20261026-04`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261026-04)
+- **Evidencia de Ejecución:** [`LOG-API-20261026-04`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261026-04) | [📸 Captura Retiro](screenshots/app_05_perfil_historial_canjes.jpg)
 - **Postcondiciones:** El código de retiro queda inhabilitado para futuras entregas.
 
 ---
@@ -1355,7 +1355,7 @@
 - **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
 - **Resultado Real:** Botón verde de cabecera navega fluidamente a registro.
 - **Estado:** **Pasó**
-- **Evidencia de Ejecución:** [`UI-CTA-HEADER-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#ui-cta-header-01)
+- **Evidencia de Ejecución:** [`UI-CTA-HEADER-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#ui-cta-header-01) | [📸 Captura Celular](screenshots/app_01_onboarding_inicio.jpg)
 - **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
 
 ---
@@ -1406,7 +1406,7 @@
 - **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
 - **Resultado Real:** Rechazo si lat/long es nulo o dirección < 5 caracteres.
 - **Estado:** **Pasó**
-- **Evidencia de Ejecución:** [`LOG-API-20261025-02`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-02)
+- **Evidencia de Ejecución:** [`LOG-API-20261025-02`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-02) | [📸 Captura Mapa GPS](screenshots/app_03_formulario_denuncia_mapa_gps.jpg)
 - **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
 
 ---
@@ -1542,7 +1542,7 @@
 - **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
 - **Resultado Real:** ABM catálogo: Creación y edición de producto con puntos y stock.
 - **Estado:** **Pasó**
-- **Evidencia de Ejecución:** [`LOG-API-20261026-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261026-01)
+- **Evidencia de Ejecución:** [`LOG-API-20261026-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261026-01) | [📸 Captura Tienda](screenshots/app_04_tienda_catalogo_recompensas.jpg)
 - **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
 
 ---
