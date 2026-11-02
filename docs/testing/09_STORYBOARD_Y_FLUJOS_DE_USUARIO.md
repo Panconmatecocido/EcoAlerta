@@ -63,7 +63,13 @@ flowchart TD
 
 ---
 
-#### 🖼️ Viñeta 1.4 y 1.5: Home Invitado y Modal "Auth Gate"
+#### 🎬 Viñeta 1.4 y 1.5: Home Invitado y Modal "Auth Gate"
+
+> **📸 Capturas Reales en Dispositivo Móvil:**  
+> | 1. Home en Modo Invitado (Exploración Libre) | 2. Modal "Auth Gate" Interceptor (Al Tocar Cámara o Carrito) |
+> | :---: | :---: |
+> | <img src="screenshots/app_11_home_modo_invitado.jpg" width="240" alt="Home Modo Invitado"> | <img src="screenshots/app_12_modal_auth_gate_bloqueo.jpg" width="240" alt="Modal Auth Gate Bloqueo"> |
+
 * **Componente:** `CitizenHomeScreen.tsx` (Modo Invitado) + Modal Interceptor.
 ```
 +------------------------------------------+
@@ -142,7 +148,13 @@ flowchart TD
 +------------------------------------------+
 ```
 
-#### 🖼️ Viñeta 2.4 y 2.5: Modal Transaccional y Confirmación
+#### 🎬 Viñeta 2.4 y 2.5: Modal Transaccional y Confirmación
+
+> **📸 Capturas Reales en Dispositivo Móvil:**  
+> | 1. Envío en Progreso (Lock / Anti-duplicados) | 2. Comprobante de Reporte Recibido |
+> | :---: | :---: |
+> | <img src="screenshots/app_10_denuncia_envio_cargando.jpg" width="240" alt="Envío Cargando"> | <img src="screenshots/app_09_denuncia_modal_confirmacion_offline.jpg" width="240" alt="Reporte Recibido"> |
+
 ```
        (Al pulsar Enviar en ms 0)              (Respuesta 201 Created de la API)
 +------------------------------------------+  +------------------------------------------+

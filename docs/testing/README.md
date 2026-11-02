@@ -48,7 +48,7 @@ La documentación de aseguramiento de calidad del proyecto EcoAlerta ha sido est
 | 📊 | **Libro Maestro de Testware (Excel)** | Planilla integral de 8 hojas parametrizadas con estilos corporativos adaptadas al stack real de la app (React Native + Node/Express): Resumen, Casos de Prueba, Casos - Jest y RNTL, Casos - Postman y Supertest, Planilla de Ejecución, Trazabilidad, Requerimientos y Criterios. | [📥 EcoAlerta_Testware_Matriz_Casos_Ejecucion.xlsx](EcoAlerta_Testware_Matriz_Casos_Ejecucion.xlsx) |
 | 📅 | **Exportación Cronograma MS Project (CSV)** | Tabla estructurada de tareas, dependencias, duraciones estimadas y fechas para importar en Microsoft Project o GanttProject. | [📥 Gantt_Tareas_MSProject_EcoAlerta.csv](Gantt_Tareas_MSProject_EcoAlerta.csv) |
 | 🚦 | **Cronograma Oficial MS Project con Semáforos (.MPP)** | Archivo Microsoft Project (.mpp) con cálculo automatizado de semáforos de avance (EVM/desvío), 45 tareas jerárquicas (WBS L1 a L3), línea base fijada, asignación nominal de los 5 integrantes e hitos de control. | [📦 Plantilla semaforos.mpp](Plantilla%20semaforos.mpp) |
-| 📸 | **Galería de Evidencias Gráficas (Screenshots)** | 8 capturas en alta resolución: Onboarding, Formulario de Denuncia (Foto y GPS), Tienda de Recompensas, Perfil con Canje Entregado y Postman Runner (67/67 tests pasados). | [📸 Ver screenshots/](screenshots/) |
+| 📸 | **Galería de Evidencias Gráficas (Screenshots)** | 15 capturas en alta resolución: Onboarding, Home Modo Invitado, Modal Auth Gate, Formulario de Denuncia (Foto y GPS), Envío y Fallback Offline, Bolsa del Agente (Semáforo y Bloqueo 1 a 1), Caso Activo en Exclusividad, Tienda, Modal Canje Confirmado, Retiro Presencial y Postman Runner (67/67 tests pasados). | [📸 Ver screenshots/](screenshots/) |
 
 ---
 

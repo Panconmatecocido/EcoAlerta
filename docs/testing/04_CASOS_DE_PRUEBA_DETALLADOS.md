@@ -260,7 +260,7 @@
      - Botón 3: `"Continuar como Invitado"` (al presionarlo cierra el modal).
 - **Resultado Real:** Modal desplegado en 42 ms sin abrir hardware.
 - **Estado:** **Pasó**
-- **Evidencia de Ejecución:** [`SEC-AUTH-GATE-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#sec-auth-gate-01)
+- **Evidencia de Ejecución:** [`SEC-AUTH-GATE-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#sec-auth-gate-01) | [📸 Modal Auth Gate](screenshots/app_12_modal_auth_gate_bloqueo.jpg)
 - **Postcondiciones:** La aplicación permanece estable sin crasheos.
 
 ---
@@ -520,7 +520,7 @@
   4. La pantalla del agente conmuta automáticamente a la bandeja de trabajo con la ruta GPS del lugar.
 - **Resultado Real:** Pasó con asignación inmediata.
 - **Estado:** **Pasó**
-- **Evidencia de Ejecución:** [`LOG-API-20261025-08`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-08)
+- **Evidencia de Ejecución:** [`LOG-API-20261025-08`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261025-08) | [📸 Caso Activo Agente](screenshots/app_07_agente_caso_activo_en_verificacion.jpg)
 - **Postcondiciones:** El agente tiene exactamente 1 caso activo en verificación.
 
 ---
@@ -903,7 +903,7 @@
      `"Tu pedido estará listo para retiro presencial a partir de las 48 horas hábiles en Sucursal Centro Pilar."`
 - **Resultado Real:** Código `ECO-7142-N` emitido con descuento atómico.
 - **Estado:** **Pasó**
-- **Evidencia de Ejecución:** [`LOG-API-20261026-03`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261026-03)
+- **Evidencia de Ejecución:** [`LOG-API-20261026-03`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#log-api-20261026-03) | [📸 Canje Confirmado](screenshots/app_08_canje_confirmado_codigo_retiro.jpg)
 - **Postcondiciones:** Pedido en estado CONFIRMADO esperando entrega presencial.
 
 ---
@@ -1024,7 +1024,7 @@
      - Si es error: Se cierra el modal, se mantiene el formulario intacto y se muestra el error.
 - **Resultado Real:** Modal bloqueó exitosamente toques múltiples; una sola llamada a red efectuada.
 - **Estado:** **Pasó**
-- **Evidencia de Ejecución:** [`UI-LOCK-MODAL-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#ui-lock-modal-01)
+- **Evidencia de Ejecución:** [`UI-LOCK-MODAL-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#ui-lock-modal-01) | [📸 Envío Cargando](screenshots/app_10_denuncia_envio_cargando.jpg)
 - **Postcondiciones:** Cero registros duplicados por impaciencia del usuario.
 
 ---
@@ -1372,7 +1372,7 @@
 - **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
 - **Resultado Real:** Catálogo explorable por invitados sin permitir compra.
 - **Estado:** **Pasó**
-- **Evidencia de Ejecución:** [`UI-GUEST-STORE-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#ui-guest-store-01)
+- **Evidencia de Ejecución:** [`UI-GUEST-STORE-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#ui-guest-store-01) | [📸 Home Invitado](screenshots/app_11_home_modo_invitado.jpg)
 - **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
 
 ---
@@ -1440,7 +1440,7 @@
 - **Resultado Esperado:** Operación conforme; cumplimiento de la especificación técnica sin excepciones no controladas.
 - **Resultado Real:** Casos en bolsa ordenados por prioridad (Rojo, Naranja, Verde).
 - **Estado:** **Pasó**
-- **Evidencia de Ejecución:** [`UI-BOLSA-CASOS-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#ui-bolsa-casos-01)
+- **Evidencia de Ejecución:** [`UI-BOLSA-CASOS-01`](08_DOSSIER_EVIDENCIAS_DE_PRUEBA.md#ui-bolsa-casos-01) | [📸 Bolsa Semáforo](screenshots/app_06_agente_bolsa_prioridades_bloqueo1a1.jpg)
 - **Postcondiciones:** Estado del sistema consistente y conforme a la especificación.
 
 ---

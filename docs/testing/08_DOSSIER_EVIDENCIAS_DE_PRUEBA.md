@@ -38,8 +38,8 @@ A continuación se indexan las **67 evidencias de prueba** correspondientes al 1
 | 9 | `TEST-ASYNC-STORE-01` | `CP-RF-AUT-05-01` | Módulo 1 | Jest | Persistencia en AsyncStorage validada tras reinicio simulado. | [Ver Evidencia](#test-async-store-01) |
 | 10 | `PERF-COLD-START-01` | `CP-RF-AUT-06-01` | Módulo 1 | Jest / Profiler | Cold start en 185 ms (< 300 ms SLA) en Modo Invitado. | [Ver Evidencia](#perf-cold-start-01) |
 | 11 | `UI-CTA-HEADER-01` | `CP-RF-AUT-06-02` | Módulo 1 | Manual / Expo | Botón verde de cabecera navega fluidamente a registro. | [Ver Evidencia](#ui-cta-header-01) \| [📸 Foto](screenshots/app_01_onboarding_inicio.jpg) |
-| 12 | `UI-GUEST-STORE-01` | `CP-RF-AUT-07-01` | Módulo 1 | Manual / Expo | Catálogo explorable por invitados sin permitir compra. | [Ver Evidencia](#ui-guest-store-01) |
-| 13 | `SEC-AUTH-GATE-01` | `CP-RF-AUT-08-01` | Módulo 1 | Jest / Manual | Botón Cámara interceptado en 42 ms con modal protegido. | [Ver Evidencia](#sec-auth-gate-01) |
+| 12 | `UI-GUEST-STORE-01` | `CP-RF-AUT-07-01` | Módulo 1 | Manual / Expo | Catálogo explorable por invitados sin permitir compra. | [Ver Evidencia](#ui-guest-store-01) \| [📸 Home](screenshots/app_11_home_modo_invitado.jpg) |
+| 13 | `SEC-AUTH-GATE-01` | `CP-RF-AUT-08-01` | Módulo 1 | Jest / Manual | Botón Cámara interceptado en 42 ms con modal protegido. | [Ver Evidencia](#sec-auth-gate-01) \| [📸 Auth Gate](screenshots/app_12_modal_auth_gate_bloqueo.jpg) |
 | 14 | `SEC-AUTH-GATE-02` | `CP-RF-AUT-08-02` | Módulo 1 | Jest / Manual | Botón "Agregar al Carrito" interceptado con modal protegido. | [Ver Evidencia](#sec-auth-gate-02) |
 | 15 | `SEC-AUTH-GATE-03` | `CP-RF-AUT-08-03` | Módulo 1 | Jest / Manual | Pestaña Perfil interceptada con modal protegido. | [Ver Evidencia](#sec-auth-gate-03) |
 | 16 | `LOG-API-20261025-01` | `CP-RF-REP-01-01` | Módulo 2A | Postman | Reporte 201 Created emitiendo código `REP-2026-0045`. | [Ver Evidencia](#log-api-20261025-01) |
@@ -51,8 +51,8 @@ A continuación se indexan las **67 evidencias de prueba** correspondientes al 1
 | 22 | `LOG-API-20261025-05` | `CP-RF-ADM-02-01` | Módulo 2B | Postman | Triaje: Rechazado con motivo justificado y 0 ecopuntos. | [Ver Evidencia](#log-api-20261025-05) |
 | 23 | `LOG-API-20261025-06` | `CP-RF-ADM-02-02` | Módulo 2B | Postman | Rechazo bloqueado si observaciones están vacías. | [Ver Evidencia](#log-api-20261025-06) |
 | 24 | `LOG-API-20261025-07` | `CP-RF-ADM-03-01` | Módulo 2B | Postman | HTTP 400 "Agente no disponible" si disponible = false. | [Ver Evidencia](#log-api-20261025-07) |
-| 25 | `UI-BOLSA-CASOS-01` | `CP-RF-AGE-01-01` | Módulo 2B | Jest / Manual | Casos en bolsa ordenados por prioridad (Rojo, Naranja, Verde). | [Ver Evidencia](#ui-bolsa-casos-01) |
-| 26 | `LOG-API-20261025-08` | `CP-RF-AGE-02-01` | Módulo 2B | Postman | Toma de caso atómica 1 a 1 pasando a EN_VERIFICACION. | [Ver Evidencia](#log-api-20261025-08) |
+| 25 | `UI-BOLSA-CASOS-01` | `CP-RF-AGE-01-01` | Módulo 2B | Jest / Manual | Casos en bolsa ordenados por prioridad (Rojo, Naranja, Verde). | [Ver Evidencia](#ui-bolsa-casos-01) \| [📸 Bolsa](screenshots/app_06_agente_bolsa_prioridades_bloqueo1a1.jpg) |
+| 26 | `LOG-API-20261025-08` | `CP-RF-AGE-02-01` | Módulo 2B | Postman | Toma de caso atómica 1 a 1 pasando a EN_VERIFICACION. | [Ver Evidencia](#log-api-20261025-08) \| [📸 Agente](screenshots/app_07_agente_caso_activo_en_verificacion.jpg) |
 | 27 | `CONC-TOMA-CASO-01` | `CP-RF-AGE-02-02` | Módulo 2B | Jest / Parallel | 2 agentes concurrentes: 1 éxito (200), 1 conflicto (409). | [Ver Evidencia](#conc-toma-caso-01) |
 | 28 | `LOG-API-20261025-09` | `CP-RF-AGE-03-01` | Módulo 2B | Postman | Bloqueo al intentar tomar 2 casos simultáneos. | [Ver Evidencia](#log-api-20261025-09) |
 | 29 | `LOG-API-20261025-10` | `CP-RF-AGE-05-01` | Módulo 2B | Postman | Caso A Real: Foto contraprueba y pasa a VERIFICADO_PENDIENTE. | [Ver Evidencia](#log-api-20261025-10) |
@@ -75,14 +75,14 @@ A continuación se indexan las **67 evidencias de prueba** correspondientes al 1
 | 46 | `TEST-TTL-RESERVA-01` | `CP-RF-TIE-05-01` | Módulo 3A | Jest / Supertest | Reserva provisional por 5 minutos TTL y cuenta regresiva. | [Ver Evidencia](#test-ttl-reserva-01) |
 | 47 | `CONC-CHECKOUT-01` | `CP-RF-TIE-05-02` | Módulo 3A | Jest / Parallel | Intento concurrente en stock = 1. Fix verificado con Prisma lock. | [Ver Evidencia](#conc-checkout-01) |
 | 48 | `TEST-EXPIRE-TTL-01` | `CP-RF-TIE-05-03` | Módulo 3A | Jest / Timers | Al minuto 5:01 la reserva expira y el stock vuelve a catálogo. | [Ver Evidencia](#test-expire-ttl-01) |
-| 49 | `LOG-API-20261026-03` | `CP-RF-TIE-05-04` | Módulo 3A | Postman | Canje confirmado: Descuento atómico y código `ECO-7142-N`. | [Ver Evidencia](#log-api-20261026-03) |
+| 49 | `LOG-API-20261026-03` | `CP-RF-TIE-05-04` | Módulo 3A | Postman | Canje confirmado: Descuento atómico y código `ECO-7142-N`. | [Ver Evidencia](#log-api-20261026-03) \| [📸 Canje](screenshots/app_08_canje_confirmado_codigo_retiro.jpg) |
 | 50 | `LOG-API-20261026-04` | `CP-RF-COL-01-01` | Módulo 3B | Postman | Colaborador busca código y confirma entrega presencial. | [Ver Evidencia](#log-api-20261026-04) |
 | 51 | `LOG-API-20261026-05` | `CP-RF-COL-01-02` | Módulo 3B | Postman | Alertas en banner ante código no existente o ya entregado. | [Ver Evidencia](#log-api-20261026-05) |
 | 52 | `TEST-BATCH-EXPIRE-01` | `CP-RF-TIE-06-01` | Módulo 3A | Jest / Supertest | A los 30 días pedido EXPIRADO: Stock se reintegra sin reembolso. | [Ver Evidencia](#test-batch-expire-01) |
 | 53 | `PERF-LATENCY-01` | `CP-RNF-01-01` | Requisitos No Funcionales (RNF) y Transversales | Jest / Profiler | Lectura local en 45 ms (< 300 ms) y API en 190 ms (< 600 ms). | [Ver Evidencia](#perf-latency-01) |
 | 54 | `TEST-COMPRESS-RAW-01` | `CP-RNF-02-01` | Requisitos No Funcionales (RNF) y Transversales | Jest | Compresión de imágenes raw a buffer < 1.2 MB garantizada. | [Ver Evidencia](#test-compress-raw-01) |
 | 55 | `SEC-RBAC-AUDIT-01` | `CP-RNF-07-01` | Requisitos No Funcionales (RNF) y Transversales | Postman / Supertest | 403 Forbidden al intentar ejecutar triaje con token Citizen. | [Ver Evidencia](#sec-rbac-audit-01) |
-| 56 | `UI-LOCK-MODAL-01` | `CP-RNF-10-01` | Requisitos No Funcionales (RNF) y Transversales | Jest (RNTL) | `TransactionLoaderModal` bloquea 5 clics rápidos seguidos. | [Ver Evidencia](#ui-lock-modal-01) |
+| 56 | `UI-LOCK-MODAL-01` | `CP-RNF-10-01` | Requisitos No Funcionales (RNF) y Transversales | Jest (RNTL) | `TransactionLoaderModal` bloquea 5 clics rápidos seguidos. | [Ver Evidencia](#ui-lock-modal-01) \| [📸 Lock](screenshots/app_10_denuncia_envio_cargando.jpg) |
 | 57 | `UI-SPINNER-CHIPS-01` | `CP-RNF-10-02` | Requisitos No Funcionales (RNF) y Transversales | Jest / Manual | `ActivityIndicator` contextual desplegado en filtros de listas. | [Ver Evidencia](#ui-spinner-chips-01) |
 | 58 | `LOG-API-20261028-01` | `CP-RF-ADM-08-01` | Módulo 4 | Postman / Jest | Alta de Agente 201 Created con foto JPEG en base64 y rol AGENT. | [Ver Evidencia](#log-api-20261028-01) |
 | 59 | `LOG-API-20261028-02` | `CP-RF-ADM-08-02` | Módulo 4 | Postman / Jest | Alta de Colaborador 201 Created con disponible = true por defecto. | [Ver Evidencia](#log-api-20261028-02) |
@@ -99,18 +99,33 @@ A continuación se indexan las **67 evidencias de prueba** correspondientes al 1
 
 ## 📸 Galería Visual de Evidencias Gráficas (App Móvil & Postman)
 
-A continuación se presentan las capturas gráficas oficiales del producto en ejecución sobre dispositivo móvil físico (Expo Go) y en el cliente de pruebas Postman API:
+A continuación se presentan las 15 capturas gráficas oficiales del producto en ejecución sobre dispositivo móvil físico (Expo Go) y en el cliente de pruebas Postman API:
 
 ### 1. Interfaz Móvil en Dispositivo Físico (Expo Go)
-| Pantalla de Bienvenida (Onboarding / Invitado) | Formulario de Denuncia (Cámara y Categoría) | Formulario de Denuncia (GPS y Mapa) |
-| :---: | :---: | :---: |
-| <img src="screenshots/app_01_onboarding_inicio.jpg" width="240" alt="Onboarding e Inicio"> | <img src="screenshots/app_02_formulario_denuncia_foto.jpg" width="240" alt="Crear Denuncia Foto"> | <img src="screenshots/app_03_formulario_denuncia_mapa_gps.jpg" width="240" alt="Mapa GPS"> |
-| **[`CP-RF-AUT-06-01`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-rf-aut-06-01) / HU-001** | **[`CP-REP-01`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-rep-01) / HU-003** | **[`CP-REP-03`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-rep-03) / HU-003** |
 
-| Tienda de Recompensas y Ecopuntos | Perfil Ciudadano e Historial de Canje Entregado |
+#### A. Flujo Ciudadano (Onboarding, Home Modo Invitado y Auth Gate)
+| Pantalla Onboarding (Carrusel) | Home Modo Invitado (Exploración Libre) | Modal Interceptor Auth Gate (Bloqueo) |
+| :---: | :---: | :---: |
+| <img src="screenshots/app_01_onboarding_inicio.jpg" width="240" alt="Onboarding e Inicio"> | <img src="screenshots/app_11_home_modo_invitado.jpg" width="240" alt="Home Invitado"> | <img src="screenshots/app_12_modal_auth_gate_bloqueo.jpg" width="240" alt="Modal Auth Gate"> |
+| **[`CP-RF-AUT-06-01`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-rf-aut-06-01) / HU-001** | **[`CP-RF-AUT-07-01`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-rf-aut-07-01) / HU-INV-01** | **[`CP-RF-AUT-08-01`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-rf-aut-08-01) / HU-INV-02** |
+
+#### B. Flujo de Reporte Ambiental (Cámara, GPS y Contingencia)
+| Formulario de Denuncia (Cámara y Foto) | Formulario de Denuncia (GPS y Mapa) | Envío en Progreso (Lock Anti-duplicados) | Modal Confirmación / Fallback Offline |
+| :---: | :---: | :---: | :---: |
+| <img src="screenshots/app_02_formulario_denuncia_foto.jpg" width="210" alt="Crear Denuncia Foto"> | <img src="screenshots/app_03_formulario_denuncia_mapa_gps.jpg" width="210" alt="Mapa GPS"> | <img src="screenshots/app_10_denuncia_envio_cargando.jpg" width="210" alt="Envío de Reporte"> | <img src="screenshots/app_09_denuncia_modal_confirmacion_offline.jpg" width="210" alt="Confirmación y Fallback"> |
+| **[`CP-REP-01`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-rep-01)** | **[`CP-REP-03`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-rep-03)** | **[`CP-RNF-10-01`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-rnf-10-01)** | **[`CP-RNF-08-01`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-rnf-08-01)** |
+
+#### C. Panel del Agente de Campo Municipal (Bolsa con Semáforo y Caso Activo 1 a 1)
+| Bolsa General Ordenada por Prioridad (Semáforo) y Bloqueo 1 a 1 | Caso Activo en Exclusividad (1 a 1) con Opciones In Situ (A/B/C) |
 | :---: | :---: |
-| <img src="screenshots/app_04_tienda_catalogo_recompensas.jpg" width="240" alt="Catálogo de Tienda"> | <img src="screenshots/app_05_perfil_historial_canjes.jpg" width="240" alt="Perfil y Retiro de Canje"> |
-| **[`CP-TIENDA-01`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-tienda-01) / HU-009** | **[`CP-CANJ-05`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-canj-05) / HU-013** |
+| <img src="screenshots/app_06_agente_bolsa_prioridades_bloqueo1a1.jpg" width="240" alt="Bolsa General Semáforo"> | <img src="screenshots/app_07_agente_caso_activo_en_verificacion.jpg" width="240" alt="Caso Activo Agente"> |
+| **[`CP-RF-AGE-01-01`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-rf-age-01-01) & [`CP-RF-AGE-03-01`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-rf-age-03-01) / HU-005** | **[`CP-RF-AGE-02-01`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-rf-age-02-01) & [`CP-RF-AGE-05-01`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-rf-age-05-01) / HU-005, HU-006** |
+
+#### D. Tienda de Recompensas, Modal de Canje y Retiro Presencial
+| Catálogo de Tienda y Saldo EcoPuntos | Modal "¡Canje Confirmado!" con Código Oficial (ECO-2026-EE3K) | Perfil y Comprobante de Retiro Entregado en Palacio |
+| :---: | :---: | :---: |
+| <img src="screenshots/app_04_tienda_catalogo_recompensas.jpg" width="240" alt="Catálogo de Tienda"> | <img src="screenshots/app_08_canje_confirmado_codigo_retiro.jpg" width="240" alt="Canje Confirmado"> | <img src="screenshots/app_05_perfil_historial_canjes.jpg" width="240" alt="Perfil y Retiro de Canje"> |
+| **[`CP-TIENDA-01`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-tienda-01) / HU-009** | **[`CP-RF-TIE-05-04`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-rf-tie-05-04) / HU-011** | **[`CP-CANJ-05`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-canj-05) / HU-013** |
 
 ---
 
@@ -120,6 +135,7 @@ A continuación se presentan las capturas gráficas oficiales del producto en ej
 | <img src="screenshots/postman_01_collection_runner.png" width="340" alt="Postman Runner"> | <img src="screenshots/postman_02_endpoint_crear_denuncia.png" width="340" alt="Crear Denuncia"> | <img src="screenshots/postman_03_validacion_agente_no_disponible.png" width="340" alt="409 Agente Ocupado"> |
 | **Suite Completa: 67/67 Passed** | **[`CP-REP-01`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-rep-01): Código REP-2026** | **[`CP-TRIA-02`](04_CASOS_DE_PRUEBA_DETALLADOS.md#cp-tria-02): Bloqueo regla de negocio** |
 
+---
 ---
 
 <a id="log-api-20261024-01"></a>
@@ -460,6 +476,10 @@ OnPress navigate('Register') ejecutado fluidamente.
 ---
 
 <a id="ui-guest-store-01"></a>
+
+> **📸 Captura de Ejecución en Celular (Home Modo Invitado con Banner y Catálogo de Solo Lectura):**
+> ![Home Modo Invitado](screenshots/app_11_home_modo_invitado.jpg)
+
 ### 🔹 UI-GUEST-STORE-01: Navegación Libre en Modo Lectura en Catálogo de Tienda Ecológica (`CP-RF-AUT-07-01`)
 
 - **ID Evidencia / Log:** `UI-GUEST-STORE-01`
@@ -483,6 +503,10 @@ Listado de 4 productos activos renderizados; filtrado por categoría y búsqueda
 ---
 
 <a id="sec-auth-gate-01"></a>
+
+> **📸 Captura de Ejecución en Celular (Modal Auth Gate Interceptor al Tocar Cámara o Carrito):**
+> ![Modal Auth Gate Bloqueo](screenshots/app_12_modal_auth_gate_bloqueo.jpg)
+
 ### 🔹 SEC-AUTH-GATE-01: Guardián Auth Gate: Intercepción al Intentar Reportar Foco (Cámara) (`CP-RF-AUT-08-01`)
 
 - **ID Evidencia / Log:** `SEC-AUTH-GATE-01`
@@ -552,6 +576,10 @@ Despliegue de AuthGateModal con opciones Registrarse / Iniciar Sesión.
 ---
 
 <a id="log-api-20261025-01"></a>
+
+> **📸 Captura de Ejecución en Celular (Modal de Confirmación de Reporte / Fallback Offline):**
+> ![Reporte Recibido](screenshots/app_09_denuncia_modal_confirmacion_offline.jpg)
+
 ### 🔹 LOG-API-20261025-01: Creación de Reporte Ciudadano con Coordenadas GPS y Foto Comprimida (`CP-RF-REP-01-01`)
 
 - **ID Evidencia / Log:** `LOG-API-20261025-01`
@@ -892,6 +920,10 @@ Content-Type: application/json; charset=utf-8
 ---
 
 <a id="ui-bolsa-casos-01"></a>
+
+> **📸 Captura de Ejecución en Celular (Bolsa General con Semáforo de Prioridades y Bloqueo 1 a 1):**
+> ![Bolsa Semáforo Agente](screenshots/app_06_agente_bolsa_prioridades_bloqueo1a1.jpg)
+
 ### 🔹 UI-BOLSA-CASOS-01: Visualización de Bolsa de Casos Semaforizada por Criticidad (`CP-RF-AGE-01-01`)
 
 - **ID Evidencia / Log:** `UI-BOLSA-CASOS-01`
@@ -918,6 +950,10 @@ Botón 'Cómo llegar (Mapa)' abre navegación georreferenciada externa.
 ---
 
 <a id="log-api-20261025-08"></a>
+
+> **📸 Captura de Ejecución en Celular (Inspector Perez - Caso Activo en Verificación 1 a 1):**
+> ![Caso Activo Agente](screenshots/app_07_agente_caso_activo_en_verificacion.jpg)
+
 ### 🔹 LOG-API-20261025-08: Toma de Caso Atómica 1 a 1 por Agente de Campo (`CP-RF-AGE-02-01`)
 
 - **ID Evidencia / Log:** `LOG-API-20261025-08`
@@ -1690,6 +1726,10 @@ PASS src/__tests__/canjes.checkout.test.ts
 ---
 
 <a id="log-api-20261026-03"></a>
+
+> **📸 Captura de Ejecución en Celular (Modal ¡Canje Confirmado! con Código Oficial ECO-2026-EE3K):**
+> ![Canje Confirmado](screenshots/app_08_canje_confirmado_codigo_retiro.jpg)
+
 ### 🔹 LOG-API-20261026-03: Confirmación Exitosa de Canje: Descuento Atómico y Emisión de Código de Retiro (`CP-RF-TIE-05-04`)
 
 - **ID Evidencia / Log:** `LOG-API-20261026-03`
@@ -1911,6 +1951,10 @@ Content-Type: application/json; charset=utf-8
 ---
 
 <a id="ui-lock-modal-01"></a>
+
+> **📸 Captura de Ejecución en Celular (Botón Enviar Reporte en Estado de Procesamiento / Lock):**
+> ![Envío Cargando](screenshots/app_10_denuncia_envio_cargando.jpg)
+
 ### 🔹 UI-LOCK-MODAL-01: Bloqueo Reactivo de UI con TransactionLoaderModal ante Ráfagas de Clics (`CP-RNF-10-01`)
 
 - **ID Evidencia / Log:** `UI-LOCK-MODAL-01`
