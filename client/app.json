@@ -12,12 +12,30 @@
     },
     "android": {
       "adaptiveIcon": {
+        "foregroundImage": "./assets/icono.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.ecoalerta.app"
+      "package": "com.ecoalerta.app",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDummyKeyForBuildValidation12345"
+        }
+      }
     },
     "plugins": [
       "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "La aplicación necesita acceso a la cámara para tomar fotografías de las denuncias."
+        }
+      ],
       [
         "expo-image-picker",
         {
@@ -31,6 +49,11 @@
         }
       ],
       "expo-status-bar"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "14783f2a-f0e8-4d7c-b205-536132a05a60"
+      }
+    }
   }
 }

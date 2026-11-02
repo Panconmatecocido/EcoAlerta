@@ -41,21 +41,21 @@ const DIAPOSITIVAS: Diapositiva[] = [
     titulo: 'Detectá y reportá',
     descripcion:
       'Identificá microbasurales y focos de dengue en tu barrio. Tomá una foto y compartí la ubicación exacta.',
-    imagen: require('../../../assets/tarjeta1.jfif'),
+    imagen: require('../../../assets/tarjeta1.jpg'),
   },
   {
     id: 'tarjeta2',
     titulo: 'Transformá tu entorno',
     descripcion:
       'Tus alertas ayudan a coordinar limpiezas y fumigaciones para cuidar la salud de la comunidad.',
-    imagen: require('../../../assets/tarjeta2.jfif'),
+    imagen: require('../../../assets/tarjeta2.jpg'),
   },
   {
     id: 'tarjeta3',
     titulo: 'Sumá puntos y canjeá',
     descripcion:
       'Cada reporte validado te otorga puntos. Canjealos en el catálogo por insumos ecofriendly.',
-    imagen: require('../../../assets/tarjeta3.jfif'),
+    imagen: require('../../../assets/tarjeta3.jpg'),
   },
 ];
 
