@@ -1,7 +1,15 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
+import { useFonts } from 'expo-font';
+import {
+  MaterialCommunityIcons,
+  Ionicons,
+  Feather,
+  AntDesign,
+  MaterialIcons,
+} from '@expo/vector-icons';
 import { AuthProvider } from './src/context/AuthContext';
 import { CartProvider } from './src/context/CartContext';
 import AppNavigator from './src/navigation/AppNavigator';
@@ -58,6 +66,22 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 }
 
 export default function App() {
+  const [fontsLoaded, fontError] = useFonts({
+    ...MaterialCommunityIcons.font,
+    ...Ionicons.font,
+    ...Feather.font,
+    ...AntDesign.font,
+    ...MaterialIcons.font,
+  });
+
+  if (!fontsLoaded && !fontError) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#2e7d32" />
+      </View>
+    );
+  }
+
   return (
     <ErrorBoundary>
       <AuthProvider>
@@ -73,6 +97,12 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   errorContainer: {
     flex: 1,
     backgroundColor: '#ffffff',

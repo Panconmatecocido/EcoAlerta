@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { CommonActions, NavigationProp, ParamListBase } from '@react-navigation/native';
 import OnboardingPantalla from '../screens/auth/OnboardingPantalla';
 import { obtenerOnboardingVisto } from '../utils/storage';
-import { View, ActivityIndicator, StyleSheet, Text } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Text, Image } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
@@ -63,7 +63,7 @@ export const AppNavigator: React.FC = () => {
   if (isLoading || onboardingVisto === null) {
     return (
       <View style={styles.loadingContainer}>
-        <MaterialCommunityIcons name="leaf" size={48} color={COLORS.botonPrincipal} style={styles.leafIcon} />
+        <Image source={require('../../assets/icono.png')} style={styles.leafIcon} resizeMode="contain" />
         <Text style={styles.loadingLogoText}>ECO ALERTA</Text>
         <ActivityIndicator size="large" color={COLORS.botonPrincipal} style={styles.spinner} />
       </View>
@@ -109,6 +109,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   leafIcon: {
+    width: 64,
+    height: 64,
     marginBottom: 8,
   },
   loadingLogoText: {

@@ -31,6 +31,12 @@
     "plugins": [
       "expo-font",
       [
+        "react-native-maps",
+        {
+          "googleMapsApiKey": "AIzaSyDummyKeyForBuildValidation12345"
+        }
+      ],
+      [
         "expo-camera",
         {
           "cameraPermission": "La aplicación necesita acceso a la cámara para tomar fotografías de las denuncias."
