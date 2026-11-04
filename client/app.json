@@ -33,7 +33,11 @@
         "expo-build-properties",
         {
           "android": {
-            "buildArchs": ["arm64-v8a"]
+            "buildArchs": [
+              "arm64-v8a",
+              "armeabi-v7a"
+            ],
+            "enableProguardInReleaseBuilds": false
           }
         }
       ],
@@ -41,7 +45,7 @@
       [
         "react-native-maps",
         {
-          "googleMapsApiKey": "AIzaSyDummyKeyForBuildValidation12345"
+          "androidGoogleMapsApiKey": "AIzaSyDummyKeyForBuildValidation12345"
         }
       ],
       [
